@@ -20,7 +20,7 @@ export default function App({ Component, pageProps }: AppProps) {
         .then((registration) => {
           console.log(
             "ServiceWorker registration successful with scope: ",
-            registration.scope
+            registration.scope,
           );
         })
         .catch((err) => {

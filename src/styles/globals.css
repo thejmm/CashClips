@@ -6,7 +6,7 @@
   :root {
     --dashboard: 0 0% 80%;
 
-   --background: 220 100% 98.5%;
+    --background: 220 100% 98.5%;
     --foreground: 220 10% 1%;
 
     --muted: 220 10% 92.5%;
@@ -46,7 +46,7 @@
   .dark {
     --dashboard: 0 1% 1%;
 
-   --background: 220 65% 4.48%;
+    --background: 220 65% 4.48%;
     --foreground: 220 10% 97.8%;
 
     --muted: 220 50% 16.8%;

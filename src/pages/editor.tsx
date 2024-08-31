@@ -1,10 +1,11 @@
-// src/pages/dashboard/index.tsx
-import Dashboard from "@/components/user/sections/editor-templates";
+// src/pages/editor.tsx
+
+import Editor from "@/components/user/sections/editor";
 import { GetServerSidePropsContext } from "next";
 import { createClient } from "@/utils/supabase/server-props";
 
 export default function DashboardPage() {
-  return <Dashboard />;
+  return <Editor />;
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
