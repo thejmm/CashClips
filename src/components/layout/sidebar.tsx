@@ -85,8 +85,8 @@ export default function DashboardLayout({
         </SidebarBody>
       </Sidebar>
       <div className="flex flex-1">
-        <div className="p-4 rounded-tl-2xl border border-border bg-dashboard flex flex-col gap-2 flex-1 w-full h-full">
-          <div className="flex flex-row mb-4 items-center">
+        <div className="p-2 rounded-tl-2xl border border-border bg-dashboard flex flex-col gap-2 flex-1 w-full h-full">
+          <div className="p-2 flex flex-row items-center">
             {React.cloneElement(icon as React.ReactElement, {
               className: "w-8 h-8 inline-block mr-2",
             })}
@@ -94,7 +94,7 @@ export default function DashboardLayout({
           </div>
           <Separator className="mb-2" />
 
-          <ScrollArea className="h-[80vh] w-full justify-center mx-auto">
+          <ScrollArea className="h-[82vh] w-full justify-center mx-auto">
             {children}
           </ScrollArea>
         </div>

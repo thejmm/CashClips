@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export function Header() {
   return (
-    <header className="top-0 z-20 mx-auto flex w-full items-center justify-between p-5  sm:px-10">
+    <header className="top-0 z-20 mx-auto flex w-full items-center justify-between p-5 sm:px-10">
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between">
         <Link
           className="flex items-center rounded-full p-1 my-2 justify-start gap-2 group/sidebar transition-all"

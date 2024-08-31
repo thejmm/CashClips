@@ -6,6 +6,7 @@ import {
   PlayIcon,
   SkipBackIcon,
   SkipForwardIcon,
+  XIcon,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { DefaultSource, defaultSources } from "@/utils/creatomate/templates";
@@ -51,8 +52,8 @@ const Stepper: React.FC<StepperProps> = ({
                     isCompleted
                       ? "border-green-500 bg-green-500 text-white"
                       : isCurrent
-                        ? "border-blue-600 bg-blue-600 text-white"
-                        : "border-gray-300 bg-white text-gray-500"
+                      ? "border-blue-600 bg-blue-600 text-white"
+                      : "border-gray-300 bg-white text-gray-500"
                   }`}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
@@ -154,10 +155,34 @@ const Create: React.FC = observer(() => {
     initializePreview();
   }, [currentStep]);
 
+  const handleStepClick = (stepNumber: number) => {
+    if (stepNumber >= 1 && stepNumber <= 4) {
+      // Check if the user can proceed to the clicked step
+      if (
+        stepNumber === 1 ||
+        (stepNumber === 2 && selectedTemplate) ||
+        (stepNumber === 3 && selectedTemplate && selectedVideo) ||
+        (stepNumber === 4 &&
+          selectedTemplate &&
+          selectedVideo &&
+          isPreviewInitialized)
+      ) {
+        setCurrentStep(stepNumber);
+        router.push(`/user/create?step=${stepNumber}`, undefined, {
+          shallow: true,
+        });
+      } else {
+        // Show an error if the user tries to skip steps
+        setError("Please complete the previous steps before proceeding.");
+      }
+    }
+  };
+
   const handleTemplateSelect = async (template: DefaultSource) => {
     try {
       setSelectedTemplate(template);
       await videoCreator.setSelectedSource(template);
+      setCurrentStep(2);
       router.push("/user/create?step=2", undefined, { shallow: true });
     } catch (err) {
       setError("Failed to set template: " + (err as Error).message);
@@ -180,6 +205,7 @@ const Create: React.FC = observer(() => {
           elements: updatedElements,
         });
       }
+      setCurrentStep(3);
       router.push("/user/create?step=3", undefined, { shallow: true });
     } catch (err) {
       setError("Failed to select video: " + (err as Error).message);
@@ -191,6 +217,7 @@ const Create: React.FC = observer(() => {
       try {
         await videoCreator.fetchCaptions(selectedVideo, "video1");
         toast.success("Captions generated successfully");
+        setCurrentStep(4);
         router.push("/user/create?step=4", undefined, { shallow: true });
       } catch (err) {
         setError("Error generating captions: " + (err as Error).message);
@@ -227,7 +254,7 @@ const Create: React.FC = observer(() => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+            className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
           >
             {defaultSources.map((template) => (
               <motion.div
@@ -258,7 +285,7 @@ const Create: React.FC = observer(() => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -270,7 +297,7 @@ const Create: React.FC = observer(() => {
                 }`}
                 onClick={() =>
                   handleVideoSelect(
-                    "https://cdn-crayo.com//crayo-admin/test-video/af27162a-a2db-4423-8c39-70589526f8ed-gta-7.mp4",
+                    "https://cdn-crayo.com//crayo-admin/test-video/af27162a-a2db-4423-8c39-70589526f8ed-gta-7.mp4"
                   )
                 }
               >
@@ -371,7 +398,7 @@ const Create: React.FC = observer(() => {
       <Stepper
         steps={stepTitles}
         currentStep={currentStep}
-        onStepClick={setCurrentStep}
+        onStepClick={handleStepClick}
       />
       <AnimatePresence mode="wait">
         {error && (
@@ -379,16 +406,21 @@ const Create: React.FC = observer(() => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
+            className="flex flex-row justify-between bg-red-100 border border-red-400 text-red-700 px-4 py-3 items-center rounded relative mb-4"
             role="alert"
           >
             <span className="flex items-center">
               <AlertCircle className="w-5 h-5 mr-2" />
               <span className="block sm:inline">{error}</span>
             </span>
-            <span className="absolute top-0 bottom-0 right-0 px-4 py-3">
-              <Button variant="ghost" size="sm" onClick={() => setError(null)}>
-                &times;
+            <span>
+              <Button
+                variant="ghost"
+                className="hover:border hover:bg-transparent hover:text-red-500"
+                size="icon"
+                onClick={() => setError(null)}
+              >
+                <XIcon className="w-4 h-4" />
               </Button>
             </span>
           </motion.div>

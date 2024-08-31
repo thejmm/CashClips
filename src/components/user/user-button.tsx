@@ -126,7 +126,7 @@ const AuthButton = () => {
           >
             <Button variant="ghost" className="w-full justify-start">
               <PlusCircle className="mr-2 h-4 w-4" />
-              Create
+              Create Clips
             </Button>
           </Link>
           <Link
