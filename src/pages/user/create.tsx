@@ -1,6 +1,6 @@
-// src/pages/index.tsx
+// src/pages/user/create.tsx
 
-import Create from "@/components/user/sections/create";
+import Create from "@/components/user/create";
 import DashboardLayout from "@/components/layout/sidebar";
 import { GetServerSidePropsContext } from "next";
 import { PlusCircle } from "lucide-react";

@@ -3,7 +3,7 @@
 import DashboardLayout from "@/components/layout/sidebar";
 import { GetServerSidePropsContext } from "next";
 import { HomeIcon } from "lucide-react";
-import HomePage from "@/components/user/sections/home";
+import HomePage from "@/components/user/home";
 import { User } from "@supabase/supabase-js";
 import { getUserServerSideProps } from "@/utils/supabase/auth";
 

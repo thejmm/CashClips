@@ -5,14 +5,10 @@ import { useEffect, useRef } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import type { AppProps } from "next/app";
 import Head from "next/head";
-import { Header } from "@/components/layout/navbar";
 import { ThemeProvider } from "@/context/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-import { useRouter } from "next/router";
 
 export default function App({ Component, pageProps }: AppProps) {
-  const router = useRouter();
-
   useEffect(() => {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
@@ -39,7 +35,6 @@ export default function App({ Component, pageProps }: AppProps) {
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <Header />
       <Component {...pageProps} />
       <Toaster richColors />
       <Analytics />

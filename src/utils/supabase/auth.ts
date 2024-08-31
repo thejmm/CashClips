@@ -22,6 +22,7 @@ export async function getUserServerSideProps(
     };
   }
 
+  // Only return serializable user data
   return {
     props: {
       user,

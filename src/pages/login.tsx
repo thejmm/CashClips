@@ -282,7 +282,7 @@ const LoginPage: React.FC = () => {
       exit="out"
       variants={pageVariants}
       transition={pageTransition}
-      className="min-h-[80vh] flex items-center justify-center px-4 sm:px-6 lg:px-8"
+      className="h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8"
     >
       <div className="w-full max-w-[320px] sm:max-w-md space-y-8">
         <motion.div

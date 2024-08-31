@@ -1,7 +1,7 @@
 // src/pages/user/created.tsx
 
 import { CardStackIcon } from "@radix-ui/react-icons";
-import Created from "@/components/user/sections/created";
+import Created from "@/components/user/created";
 import DashboardLayout from "@/components/layout/sidebar";
 import { Film } from "lucide-react";
 import { GetServerSidePropsContext } from "next";
