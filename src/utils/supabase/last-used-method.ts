@@ -2,10 +2,10 @@
 
 import Cookies from "js-cookie";
 
-export const setLastSignInMethod = (method: "google" | "email") => {
+export const setLastSignInMethod = (method: "email") => {
   Cookies.set("lastSignInMethod", method, { expires: 400 * 365 });
 };
 
-export const getLastSignInMethod = (): "google" | "email" | null => {
-  return Cookies.get("lastSignInMethod") as "google" | "email" | null;
+export const getLastSignInMethod = (): "email" | null => {
+  return Cookies.get("lastSignInMethod") as "email" | null;
 };

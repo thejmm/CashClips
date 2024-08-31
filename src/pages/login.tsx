@@ -1,4 +1,3 @@
-//  src/pages/index.tsx
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AnimatePresence, motion } from "framer-motion";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
@@ -9,16 +8,15 @@ import {
 } from "@/utils/supabase/last-used-method";
 
 import { Button } from "@/components/ui/button";
-import { IconBrandGoogle } from "@tabler/icons-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { createClient } from "@/utils/supabase/component";
 import { useRouter } from "next/router";
 
 type AuthStage = "signIn" | "signUp" | "resetPassword" | "checkEmail";
 type AuthAction = "signin" | "signup" | "resetpassword";
-type SignInMethod = "google" | "email" | null;
+type SignInMethod = "email" | null;
+const MAX_USERS = 25;
 
 const pageVariants = {
   initial: { opacity: 0, scale: 0.8 },
@@ -27,9 +25,9 @@ const pageVariants = {
 };
 
 const pageTransition = {
-  type: "tween",
-  ease: "anticipate",
-  duration: 0.5,
+  type: "spring",
+  stiffness: 300,
+  damping: 30,
 };
 
 const formVariants = {
@@ -95,11 +93,33 @@ const LoginPage: React.FC = () => {
           router.push("/");
           break;
         case "signUp":
+          // Check the current user count
+          const { data: countData, error: countError } = await supabase
+            .from("user_count")
+            .select("count")
+            .single();
+
+          if (countError) throw countError;
+          if (countData.count >= MAX_USERS) {
+            setError("Signup limit reached.");
+            setLoading(false);
+            return;
+          }
+
           const { error: signUpError } = await supabase.auth.signUp({
             email,
             password,
           });
           if (signUpError) throw signUpError;
+
+          // Increment user count after successful signup
+          const { error: updateCountError } = await supabase
+            .from("user_count")
+            .update({ count: countData.count + 1 })
+            .eq("id", 1);
+
+          if (updateCountError) throw updateCountError;
+
           setAuthAction("signup");
           setAuthStage("checkEmail");
           break;
@@ -111,25 +131,6 @@ const LoginPage: React.FC = () => {
           setAuthStage("checkEmail");
           break;
       }
-    } catch (error: any) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signInWithGoogle = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `https://wjcnnahfbsckdkylfslb.supabase.co/auth/v1/callback`,
-        },
-      });
-      if (error) throw error;
-      setLastSignInMethod("google");
     } catch (error: any) {
       setError(error.message);
     } finally {
@@ -300,10 +301,7 @@ const LoginPage: React.FC = () => {
                 ? "Sign Up"
                 : "Reset Password"}
           </motion.h2>
-          <motion.p
-            variants={itemVariants}
-            className="mt-2 text-sm text-primary/60"
-          >
+          <motion.p variants={itemVariants} className="mt-2 text-sm">
             {authStage === "signIn"
               ? "Enter your credentials to access your account"
               : authStage === "signUp"
@@ -314,39 +312,6 @@ const LoginPage: React.FC = () => {
         <AnimatePresence mode="wait" initial={false}>
           {renderForm()}
         </AnimatePresence>
-        {(authStage === "signIn" || authStage === "signUp") && (
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={formVariants}
-          >
-            <Separator className="mb-8" />
-            <div className="flex flex-col gap-2">
-              <motion.div variants={itemVariants} className="relative">
-                <Button
-                  onClick={signInWithGoogle}
-                  variant="ringHover"
-                  disabled={loading}
-                  className="w-full"
-                >
-                  <IconBrandGoogle className="mr-2 h-4 w-4" />
-                  Sign in with Google
-                </Button>
-                {lastSignInMethod === "google" && authStage === "signIn" && (
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    className="hidden sm:flex absolute top-1/2 -translate-y-1/2 left-full whitespace-nowrap ml-2 bg-accent px-2 py-1 rounded-md text-xs text-foreground/80 items-center"
-                  >
-                    <div className="absolute -left-1 w-0 h-0 border-t-[6px] border-t-transparent border-r-[6px] border-r-accent border-b-[6px] border-b-transparent"></div>
-                    Last used
-                  </motion.div>
-                )}
-              </motion.div>
-            </div>
-          </motion.div>
-        )}
         <AnimatePresence>
           {error && (
             <motion.div
