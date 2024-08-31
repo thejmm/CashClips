@@ -1,5 +1,3 @@
-// src/components/user/Create.tsx
-
 import {
   AlertCircle,
   Check,
@@ -38,7 +36,7 @@ const Stepper: React.FC<StepperProps> = ({
   onStepClick,
 }) => {
   return (
-    <div className="w-full py-6">
+    <div className="w-full p-2 px-2 md:px-6">
       <div className="flex items-center justify-between">
         {steps.map((step, index) => {
           const stepNumber = index + 1;
@@ -108,6 +106,27 @@ const Create: React.FC = observer(() => {
   const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const handleRouteChange = () => {
+      if (videoCreator.preview) {
+        videoCreator.preview.dispose();
+        videoCreator.preview = undefined;
+        setIsPreviewInitialized(false);
+      }
+    };
+
+    router.events.on("routeChangeStart", handleRouteChange);
+
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChange);
+      if (videoCreator.preview) {
+        videoCreator.preview.dispose();
+        videoCreator.preview = undefined;
+        setIsPreviewInitialized(false);
+      }
+    };
+  }, [router]);
+
+  useEffect(() => {
     if (step) {
       const stepNumber = Number(step);
       if (stepNumber >= 1 && stepNumber <= 4) {
@@ -120,30 +139,26 @@ const Create: React.FC = observer(() => {
   }, [step]);
 
   useEffect(() => {
-    router.push(`/user/create?step=${currentStep}`, undefined, {
-      shallow: true,
-    });
-  }, [currentStep, router]);
-
-  useEffect(() => {
-    if (currentStep === 3 && previewRef.current && !videoCreator.preview) {
-      videoCreator
-        .initializeVideoPlayer(previewRef.current)
-        .then(() => {
+    const initializePreview = async () => {
+      if (previewRef.current && !videoCreator.preview && currentStep >= 2) {
+        try {
+          await videoCreator.initializeVideoPlayer(previewRef.current);
           setIsPreviewInitialized(true);
           console.log("Preview initialized");
-        })
-        .catch((err) => {
-          setError("Failed to initialize preview: " + err.message);
-        });
-    }
+        } catch (err) {
+          setError("Failed to initialize preview: " + (err as Error).message);
+        }
+      }
+    };
+
+    initializePreview();
   }, [currentStep]);
 
   const handleTemplateSelect = async (template: DefaultSource) => {
     try {
       setSelectedTemplate(template);
       await videoCreator.setSelectedSource(template);
-      setCurrentStep(2);
+      router.push("/user/create?step=2", undefined, { shallow: true });
     } catch (err) {
       setError("Failed to set template: " + (err as Error).message);
     }
@@ -153,9 +168,19 @@ const Create: React.FC = observer(() => {
     try {
       setSelectedVideo(videoUrl);
       if (videoCreator.preview) {
-        await videoCreator.updateVideoSource("video1", videoUrl);
+        const source = videoCreator.getActiveCompositionSource();
+        const updatedElements = source.elements.map((element: any) => {
+          if (element.type === "video") {
+            return { ...element, source: videoUrl };
+          }
+          return element;
+        });
+        await videoCreator.setActiveCompositionSource({
+          ...source,
+          elements: updatedElements,
+        });
       }
-      setCurrentStep(3);
+      router.push("/user/create?step=3", undefined, { shallow: true });
     } catch (err) {
       setError("Failed to select video: " + (err as Error).message);
     }
@@ -166,7 +191,7 @@ const Create: React.FC = observer(() => {
       try {
         await videoCreator.fetchCaptions(selectedVideo, "video1");
         toast.success("Captions generated successfully");
-        setCurrentStep(4);
+        router.push("/user/create?step=4", undefined, { shallow: true });
       } catch (err) {
         setError("Error generating captions: " + (err as Error).message);
       }
@@ -189,7 +214,9 @@ const Create: React.FC = observer(() => {
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
-    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+    return `${minutes.toString().padStart(2, "0")}:${seconds
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   const renderStep = () => {
@@ -207,7 +234,11 @@ const Create: React.FC = observer(() => {
                 key={template.name}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="border p-4 rounded cursor-pointer hover:border-blue-500 transition-colors duration-200"
+                className={`border p-4 rounded cursor-pointer transition-colors duration-200 ${
+                  selectedTemplate?.name === template.name
+                    ? "border-blue-500 border-2"
+                    : "hover:border-blue-500"
+                }`}
                 onClick={() => handleTemplateSelect(template)}
               >
                 <img
@@ -228,19 +259,28 @@ const Create: React.FC = observer(() => {
             exit={{ opacity: 0, y: -20 }}
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {/* Replace with your actual video selection UI */}
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="border p-4 rounded cursor-pointer hover:border-blue-500 transition-colors duration-200"
+                className={`border p-4 rounded cursor-pointer transition-colors duration-200 ${
+                  selectedVideo ===
+                  "https://cdn-crayo.com//crayo-admin/test-video/af27162a-a2db-4423-8c39-70589526f8ed-gta-7.mp4"
+                    ? "border-blue-500 border-2"
+                    : "hover:border-blue-500"
+                }`}
                 onClick={() =>
-                  handleVideoSelect("https://example.com/video1.mp4")
+                  handleVideoSelect(
+                    "https://cdn-crayo.com//crayo-admin/test-video/af27162a-a2db-4423-8c39-70589526f8ed-gta-7.mp4",
+                  )
                 }
               >
-                <img
-                  src="/placeholder-video.jpg"
-                  alt="Video 1"
+                <video
+                  src="https://cdn-crayo.com//crayo-admin/test-video/af27162a-a2db-4423-8c39-70589526f8ed-gta-7.mp4"
                   className="w-full h-40 object-cover mb-2 rounded"
+                  loop
+                  muted
+                  autoPlay
+                  playsInline
                 />
                 <p className="text-center font-medium">Video 1</p>
               </motion.div>
