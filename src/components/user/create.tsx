@@ -1,4 +1,5 @@
 // src/components/user/create.tsx
+
 "use client";
 
 import {
@@ -23,15 +24,24 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog";
 import { AnimatePresence, motion } from "framer-motion";
-import { DefaultSource, defaultSources } from "@/utils/creatomate/templates";
-import React, { useEffect, useRef, useState } from "react";
+import {
+  DefaultSource,
+  defaultSources,
+  videoUrls,
+} from "@/utils/creatomate/templates";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { Button } from "@/components/ui/button";
 import Stepper from "./components/stepper";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/component";
 import { observer } from "mobx-react-lite";
-import renderResult from "next/dist/server/render-result";
 import { toast } from "sonner";
 import { useRouter } from "next/router";
 import { videoCreator } from "@/store/creatomate";
@@ -39,7 +49,6 @@ import { videoCreator } from "@/store/creatomate";
 const stepTitles = [
   "Select a Template",
   "Choose Your Video",
-  "Add Captions & Rearrange",
   "Render & Download",
 ];
 
@@ -50,6 +59,8 @@ interface CreateProps {
 const Create: React.FC<CreateProps> = observer(({ user }) => {
   const router = useRouter();
   const { step } = router.query;
+
+  // State variables
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] =
     useState<DefaultSource | null>(null);
@@ -63,6 +74,41 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
   const [renderResult, setRenderResult] = useState<any>(null);
   const [showRenderDialog, setShowRenderDialog] = useState(false);
   const [isCaptionsGenerated, setIsCaptionsGenerated] = useState(false);
+  const [isGeneratingCaptions, setIsGeneratingCaptions] = useState(false);
+
+  const [videoSources, setVideoSources] = useState<{ [key: string]: string }>(
+    Object.fromEntries(
+      videoUrls.map((url) => [url, url.replace(".mp4", ".mp4-thumbnail")]),
+    ),
+  );
+
+  const updateUrlStep = useCallback(
+    (stepNumber: number) => {
+      router.push(`/user/create?step=${stepNumber}`, undefined, {
+        shallow: true,
+      });
+    },
+    [router],
+  );
+
+  const formatTime = useCallback((time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes.toString().padStart(2, "0")}:${seconds
+      .toString()
+      .padStart(2, "0")}`;
+  }, []);
+
+  const handleMouseEnter = useCallback((videoUrl: string) => {
+    setVideoSources((prev) => ({ ...prev, [videoUrl]: videoUrl }));
+  }, []);
+
+  const handleMouseLeave = useCallback((videoUrl: string) => {
+    setVideoSources((prev) => ({
+      ...prev,
+      [videoUrl]: videoUrl.replace(".mp4", ".mp4-thumbnail"),
+    }));
+  }, []);
 
   useEffect(() => {
     const supabase = createClient();
@@ -73,9 +119,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
         error,
       } = await supabase.auth.getUser();
       if (error) {
-        console.error("Error fetching user:", error);
       } else if (user) {
-        console.log("User fetched:", user);
         setCurrentUser(user);
         videoCreator.setUserId(user.id);
       }
@@ -84,14 +128,6 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
     getUser();
   }, []);
 
-  // Function to update the URL without causing an error
-  const updateUrlStep = (stepNumber: number) => {
-    router.push(`/user/create?step=${stepNumber}`, undefined, {
-      shallow: true,
-    });
-  };
-
-  // Auto-navigation based on URL parameter
   useEffect(() => {
     const stepNumber = step ? Number(step) : 1;
 
@@ -99,17 +135,14 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
       setCurrentStep(1);
     } else if (stepNumber === 2 && selectedTemplate) {
       setCurrentStep(2);
-    } else if (stepNumber === 3 && selectedTemplate && selectedVideo) {
-      setCurrentStep(3);
     } else if (
-      stepNumber === 4 &&
+      stepNumber === 3 &&
       selectedTemplate &&
       selectedVideo &&
       isPreviewInitialized
     ) {
-      setCurrentStep(4);
+      setCurrentStep(3);
     } else {
-      // Invalid step or missing previous steps; default to step 1 without error
       setCurrentStep(1);
       updateUrlStep(1);
     }
@@ -135,11 +168,9 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
           }
         };
 
-        // Set initial duration
         setDuration(videoCreator.duration);
 
         return () => {
-          // Cleanup: restore original handlers
           if (videoCreator.preview) {
             videoCreator.preview.onTimeChange = originalOnTimeChange;
             videoCreator.preview.onStateChange = originalOnStateChange;
@@ -155,13 +186,6 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
     };
   }, [videoCreator.preview]);
 
-  // Proposed modifications and additional logging
-  useEffect(() => {
-    console.log("isPreviewInitialized:", isPreviewInitialized);
-    console.log("videoCreator.preview:", videoCreator.preview);
-  }, [isPreviewInitialized, videoCreator.preview]);
-
-  // User-triggered step navigation with validation
   const handleStepClick = (stepNumber: number) => {
     if (stepNumber === 1) {
       setCurrentStep(1);
@@ -169,17 +193,15 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
     } else if (stepNumber === 2 && selectedTemplate) {
       setCurrentStep(2);
       updateUrlStep(2);
-    } else if (stepNumber === 3 && selectedTemplate && selectedVideo) {
-      setCurrentStep(3);
-      updateUrlStep(3);
     } else if (
-      stepNumber === 4 &&
+      stepNumber === 3 &&
       selectedTemplate &&
       selectedVideo &&
-      isPreviewInitialized
+      isPreviewInitialized &&
+      isCaptionsGenerated
     ) {
-      setCurrentStep(4);
-      updateUrlStep(4);
+      setCurrentStep(3);
+      updateUrlStep(3);
     } else {
       setError("Please complete the previous steps before proceeding.");
     }
@@ -209,62 +231,33 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
   const handleVideoSelect = async (videoUrl: string) => {
     try {
       setSelectedVideo(videoUrl);
+      console.log("Selected video URL:", videoUrl);
 
       if (videoCreator.preview) {
-        const source = videoCreator.getActiveCompositionSource();
-        if (source.elements && source.elements.length > 0) {
-          // For blur and PiP templates, we update all video elements
-          if (
-            videoCreator.isBlurTemplate() ||
-            videoCreator.isPictureInPictureTemplate()
-          ) {
-            for (const element of source.elements) {
-              if (element.type === "video") {
-                await videoCreator.updateVideoSource(element.id, videoUrl);
-              }
-            }
-          } else {
-            // For other templates, we update the first video element
-            const videoElement = source.elements.find(
-              (el: { type: string }) => el.type === "video",
-            );
-            if (videoElement) {
-              await videoCreator.updateVideoSource(videoElement.id, videoUrl);
-            } else {
-              console.warn("No video element found in the template");
-            }
-          }
-        } else {
-          console.warn("No elements found in the source");
-        }
-
-        console.log("Video source updated successfully");
+        console.log("Preview is ready, updating video source immediately");
+        await videoCreator.updateVideoSource("video1", videoUrl);
       } else {
-        console.warn("Preview not available, unable to update video source");
+        console.log("Preview not ready, queueing video update");
+        videoCreator.queueVideoUpdate("video1", videoUrl);
       }
 
-      setCurrentStep(3);
-      updateUrlStep(3);
+      // Trigger caption generation
+      setIsGeneratingCaptions(true);
+      try {
+        await videoCreator.fetchCaptions(videoUrl, "video1");
+        setIsCaptionsGenerated(true);
+        toast.success("Captions generated successfully");
+        setCurrentStep(3);
+        updateUrlStep(3);
+      } catch (err) {
+        console.error("Error generating captions:", err);
+        toast.error("Failed to generate captions");
+      } finally {
+        setIsGeneratingCaptions(false);
+      }
     } catch (err) {
       console.error("Failed to select video:", err);
       setError("Failed to select video: " + (err as Error).message);
-    } finally {
-      console.log("Video selection completed");
-    }
-  };
-
-  const handleGenerateCaptions = async () => {
-    if (selectedVideo) {
-      try {
-        await videoCreator.fetchCaptions(selectedVideo, "video1");
-        toast.success("Captions generated successfully");
-        setCurrentStep(4);
-        updateUrlStep(4);
-      } catch (err) {
-        setError("Error generating captions: " + (err as Error).message);
-      }
-    } else {
-      setError("No video selected for caption generation");
     }
   };
 
@@ -273,22 +266,31 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
       if (!currentUser) {
         throw new Error("User not authenticated");
       }
+
+      setIsRendering(true);
+      setShowRenderDialog(true);
       console.log("Starting video export for user:", currentUser.id);
-      const result = await videoCreator.finishVideo();
-      toast.success("Video exported successfully");
-      console.log("Export result:", result);
+
+      const jobId = await videoCreator.finishVideo();
+      console.log("Render job started with ID:", jobId);
+
+      try {
+        const renderResult = await videoCreator.checkRenderStatus(jobId);
+        setIsRendering(false);
+        setRenderResult(renderResult);
+        toast.success("Video exported successfully");
+        console.log("Export result:", renderResult);
+      } catch (renderError) {
+        setIsRendering(false);
+        console.error("Render failed:", renderError);
+        setError("Render failed: " + (renderError as Error).message);
+      }
     } catch (err) {
       console.error("Export error:", err);
       setError("Export error: " + (err as Error).message);
+      setIsRendering(false);
+      setShowRenderDialog(false);
     }
-  };
-
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes.toString().padStart(2, "0")}:${seconds
-      .toString()
-      .padStart(2, "0")}`;
   };
 
   const renderStep = () => {
@@ -331,36 +333,46 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
             exit={{ opacity: 0, y: -20 }}
           >
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`border p-4 rounded cursor-pointer transition-colors duration-200 ${
-                  selectedVideo ===
-                  "https://cdn-crayo.com//crayo-admin/test-video/af27162a-a2db-4423-8c39-70589526f8ed-gta-7.mp4"
-                    ? "border-blue-500 border-2"
-                    : "hover:border-blue-500"
-                }`}
-                onClick={() =>
-                  handleVideoSelect(
-                    "https://cdn-crayo.com//crayo-admin/test-video/af27162a-a2db-4423-8c39-70589526f8ed-gta-7.mp4",
-                  )
-                }
-              >
-                <video
-                  src="https://cdn-crayo.com//crayo-admin/test-video/af27162a-a2db-4423-8c39-70589526f8ed-gta-7.mp4"
-                  className="w-full h-40 object-cover mb-2 rounded"
-                  loop
-                  muted
-                  autoPlay
-                  playsInline
-                />
-                <p className="text-center font-medium">Video 1</p>
-              </motion.div>
+              {videoUrls.map((videoUrl, index) => (
+                <motion.div
+                  key={videoUrl}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`border p-4 rounded cursor-pointer transition-colors duration-200 ${
+                    selectedVideo === videoUrl
+                      ? "border-blue-500 border-2"
+                      : "hover:border-blue-500"
+                  }`}
+                  onClick={() => handleVideoSelect(videoUrl)}
+                  onMouseEnter={() => handleMouseEnter(videoUrl)}
+                  onMouseLeave={() => handleMouseLeave(videoUrl)}
+                >
+                  <div className="relative w-full h-40 mb-2">
+                    {videoSources[videoUrl].endsWith("-thumbnail") ? (
+                      <img
+                        src={videoSources[videoUrl]}
+                        alt={`Video ${index + 1} preview`}
+                        className="w-full h-full object-cover rounded"
+                      />
+                    ) : (
+                      <video
+                        key={videoSources[videoUrl]}
+                        src={videoSources[videoUrl]}
+                        className="w-full h-full object-cover rounded"
+                        loop
+                        muted
+                        playsInline
+                        autoPlay
+                      />
+                    )}
+                  </div>
+                  <p className="text-center font-medium">Video {index + 1}</p>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         );
       case 3:
-      case 4:
         return (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -368,7 +380,6 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
             exit={{ opacity: 0, y: -20 }}
             className="flex flex-col h-full"
           >
-            {/* Preview Area */}
             <div className="flex-grow relative border rounded-t-xl">
               {!isPreviewInitialized && (
                 <div className="absolute inset-0 flex items-center justify-center bg-white/20 rounded-t-xl">
@@ -411,10 +422,9 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
                   }
                 }}
                 className="relative w-full h-full border rounded-t-xl"
-                style={{ height: "25rem" }}
+                style={{ height: "28rem" }}
               />
             </div>
-            {/* Controls Section */}
             <div className="bg-card p-4 rounded-b-lg">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">
@@ -456,24 +466,15 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
                 </div>
               </div>
             </div>
-            {currentStep === 3 && (
-              <Button
-                onClick={handleGenerateCaptions}
-                className="mt-4"
-                disabled={!isPreviewInitialized}
-              >
-                Generate Captions
-              </Button>
-            )}
-            {currentStep === 4 && (
-              <Button
-                onClick={handleExport}
-                className="mt-4"
-                disabled={!isPreviewInitialized || isRendering}
-              >
-                {isRendering ? "Rendering..." : "Export Video"}
-              </Button>
-            )}
+            <Button
+              onClick={handleExport}
+              className="mt-4"
+              disabled={
+                !isPreviewInitialized || isRendering || !isCaptionsGenerated
+              }
+            >
+              {isRendering ? "Rendering..." : "Export Video"}
+            </Button>
           </motion.div>
         );
       default:
@@ -482,7 +483,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
   };
 
   return (
-    <div className="w-full max-w-[23rem] md:max-w-7xl mx-auto space-y-8">
+    <div className="w-full max-w-[23rem] sm:max-w-5xl md:max-w-7xl mx-auto space-y-8 p-4">
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -494,6 +495,15 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
         steps={stepTitles}
         currentStep={currentStep}
         onStepClick={handleStepClick}
+        isLoading={isGeneratingCaptions || isRendering}
+        loadingStep={isGeneratingCaptions ? 2 : isRendering ? 3 : 0}
+        loadingMessage={
+          isGeneratingCaptions
+            ? "Generating captions..."
+            : isRendering
+              ? "Rendering video..."
+              : ""
+        }
       />
       <AnimatePresence mode="wait">
         {error && (
@@ -544,7 +554,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            {!isRendering && (
+            {!isRendering && renderResult && (
               <>
                 <AlertDialogCancel>Close</AlertDialogCancel>
                 <AlertDialogAction asChild>

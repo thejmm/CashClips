@@ -1,19 +1,24 @@
-"use client";
+import { AnimatePresence, motion } from "framer-motion";
+import { Check, Loader } from "lucide-react";
 
-import { Check } from "lucide-react";
 import React from "react";
-import { motion } from "framer-motion";
 
 interface StepperProps {
   steps: string[];
   currentStep: number;
   onStepClick: (step: number) => void;
+  isLoading: boolean;
+  loadingStep: number;
+  loadingMessage: string;
 }
 
 const Stepper: React.FC<StepperProps> = ({
   steps,
   currentStep,
   onStepClick,
+  isLoading,
+  loadingStep,
+  loadingMessage,
 }) => {
   return (
     <div className="w-full p-2 px-2 md:px-6">
@@ -22,6 +27,7 @@ const Stepper: React.FC<StepperProps> = ({
           const stepNumber = index + 1;
           const isCompleted = currentStep > stepNumber;
           const isCurrent = currentStep === stepNumber;
+          const isLoadingThis = isLoading && loadingStep === stepNumber;
 
           return (
             <React.Fragment key={index}>
@@ -40,6 +46,8 @@ const Stepper: React.FC<StepperProps> = ({
                 >
                   {isCompleted ? (
                     <Check className="w-6 h-6" />
+                  ) : isLoadingThis ? (
+                    <Loader className="w-6 h-6 animate-spin" />
                   ) : (
                     <span className="text-sm font-semibold">{stepNumber}</span>
                   )}
@@ -60,7 +68,11 @@ const Stepper: React.FC<StepperProps> = ({
                     className="h-full bg-green-500"
                     initial={{ width: "0%" }}
                     animate={{
-                      width: isCompleted ? "100%" : "0%",
+                      width: isCompleted
+                        ? "100%"
+                        : isLoading && loadingStep > stepNumber
+                          ? "50%"
+                          : "0%",
                     }}
                     transition={{ duration: 0.3 }}
                   />
@@ -70,6 +82,23 @@ const Stepper: React.FC<StepperProps> = ({
           );
         })}
       </div>
+      <AnimatePresence>
+        {isLoading && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="mt-8 p-4 bg-blue-100 rounded-lg shadow-md"
+          >
+            <div className="flex items-center justify-center">
+              <Loader className="w-6 h-6 animate-spin mr-3" />
+              <span className="text-blue-800 font-medium">
+                {loadingMessage}
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

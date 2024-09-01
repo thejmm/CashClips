@@ -31,6 +31,7 @@ class VideoCreatorStore {
   totalDuration: number = 0;
   queuedSource: DefaultSource | null = null;
   userId: string | null = null;
+  queuedVideoUpdates: { elementId: string; source: string }[] = [];
 
   constructor() {
     makeAutoObservable(this);
@@ -388,7 +389,7 @@ class VideoCreatorStore {
     runInAction(() => (this.isLoading = true));
     try {
       const response = await fetch(
-        "https://thejmm--whisper-transcription-fastapi-app.modal.run/transcribe",
+        "https://thejmm--captions-cash-clips-fastapi-app.modal.run/transcribe",
         {
           method: "POST",
           headers: {
@@ -463,10 +464,23 @@ class VideoCreatorStore {
     }
   }
 
+  queueVideoUpdate(elementId: string, source: string) {
+    this.queuedVideoUpdates.push({ elementId, source });
+    console.log("Queued video update for element:", elementId);
+  }
+
   setQueuedSourceIfExists() {
     if (this.queuedSource && this.preview) {
       this.setSelectedSource(this.queuedSource);
       this.queuedSource = null;
+    }
+
+    if (this.queuedVideoUpdates.length > 0 && this.preview) {
+      console.log("Applying queued video updates");
+      this.queuedVideoUpdates.forEach(async ({ elementId, source }) => {
+        await this.updateVideoSource(elementId, source);
+      });
+      this.queuedVideoUpdates = [];
     }
   }
 
@@ -521,25 +535,25 @@ class VideoCreatorStore {
       "New source:",
       newSource,
     );
-    const source = deepClone(this.getActiveCompositionSource());
-    if (this.isBlurTemplate() || this.isPictureInPictureTemplate()) {
-      source.elements.forEach((element: any) => {
-        if (element.type === "video") {
-          element.source = newSource;
-        }
-      });
-      console.log("Updated all video elements in blur/PiP template");
-    } else {
-      const elementIndex = source.elements.findIndex(
-        (el: any) => el.id === elementId,
+    const source = this.getActiveCompositionSource();
+
+    if (!source.elements || !Array.isArray(source.elements)) {
+      console.error(
+        "Invalid source structure: elements array is missing or not an array",
       );
-      if (elementIndex !== -1) {
-        source.elements[elementIndex].source = newSource;
-        console.log("Updated specific video element");
-      } else {
-        console.warn("Element not found for video source update:", elementId);
-      }
+      return;
     }
+
+    const elementToUpdate = source.elements.find(
+      (el: any) => el.id === elementId,
+    );
+    if (elementToUpdate) {
+      elementToUpdate.source = newSource;
+      console.log("Updated video element:", elementId);
+    } else {
+      console.warn("Element not found for video source update:", elementId);
+    }
+
     await this.setActiveCompositionSource(source);
   }
 
@@ -547,7 +561,7 @@ class VideoCreatorStore {
     modifications: any = {},
     outputFormat: string = "mp4",
     frameRate: number = 30,
-  ): Promise<any> {
+  ): Promise<string> {
     console.log(
       "Finishing video. Output format:",
       outputFormat,
@@ -594,7 +608,7 @@ class VideoCreatorStore {
       const result = await response.json();
       console.log("Render job response:", result);
       if (result.job_ids && result.job_ids.length > 0) {
-        return await this.pollJobStatus(result.job_ids);
+        return result.job_ids[0];
       } else {
         console.error("No job IDs returned from the server");
         throw new Error("No job IDs returned from the server");
@@ -605,15 +619,12 @@ class VideoCreatorStore {
     }
   }
 
-  private async pollJobStatus(jobIds: string[]): Promise<any> {
-    console.log("Polling job status for IDs:", jobIds);
+  async checkRenderStatus(jobId: string): Promise<any> {
     return new Promise((resolve, reject) => {
       const pollInterval = setInterval(async () => {
         try {
           const response = await fetch(
-            `https://thejmm--cash-clips-fastapi-app.modal.run/api/creatomate/fetch-render-status?${jobIds
-              .map((id) => `id=${id}`)
-              .join("&")}`,
+            `https://thejmm--cash-clips-fastapi-app.modal.run/api/creatomate/fetch-render-status?id=${jobId}`,
             {
               method: "GET",
               headers: {
@@ -626,30 +637,28 @@ class VideoCreatorStore {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 
-          const statuses = await response.json();
-          console.log("Current job statuses:", statuses);
+          const status = await response.json();
+          console.log(`Current status for job ${jobId}:`, status[jobId]);
 
-          const allCompleted = Object.values(statuses).every(
-            (status: any) =>
-              status.status === "succeeded" || status.status === "failed",
-          );
+          const jobStatus = status[jobId];
 
-          if (allCompleted) {
-            console.log("All jobs completed");
+          if (
+            jobStatus.status === "succeeded" ||
+            jobStatus.status === "failed"
+          ) {
+            console.log(
+              `Job ${jobId} completed with status: ${jobStatus.status}`,
+            );
             clearInterval(pollInterval);
 
-            const succeededJobs = Object.values(statuses).filter(
-              (status: any) => status.status === "succeeded",
-            );
-
-            if (succeededJobs.length > 0) {
-              resolve(succeededJobs[0]); // Resolve with the first succeeded job
+            if (jobStatus.status === "succeeded") {
+              resolve(jobStatus);
             } else {
-              reject(new Error("No jobs succeeded"));
+              reject(new Error(`Job ${jobId} failed`));
             }
           }
         } catch (error) {
-          console.error("Error polling job status:", error);
+          console.error(`Error fetching job status for ${jobId}:`, error);
           clearInterval(pollInterval);
           reject(error);
         }

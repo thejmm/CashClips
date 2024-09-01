@@ -31,7 +31,7 @@ image = (
     .pip_install(["requests", "fastapi", "supabase", "pytz"])
 )
 
-app = App(name="cash-clips", image=image)
+app = App(name="render-cash-clips", image=image)
 web_app = FastAPI()
 
 web_app.add_middleware(
