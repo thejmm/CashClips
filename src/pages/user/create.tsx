@@ -18,7 +18,7 @@ export default function CreatePage({ user }: CreatePageProps) {
       title="Create Clips"
       icon={<PlusCircle className="w-6 h-6" />}
     >
-      <Create />
+      <Create user={user} />
     </DashboardLayout>
   );
 }

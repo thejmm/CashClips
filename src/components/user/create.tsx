@@ -4,6 +4,7 @@
 import {
   AlertCircle,
   Check,
+  Download,
   Loader,
   PauseIcon,
   PlayIcon,
@@ -11,13 +12,26 @@ import {
   SkipForwardIcon,
   XIcon,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 import { AnimatePresence, motion } from "framer-motion";
 import { DefaultSource, defaultSources } from "@/utils/creatomate/templates";
 import React, { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import Stepper from "./components/stepper";
+import { User } from "@supabase/supabase-js";
+import { createClient } from "@/utils/supabase/component";
 import { observer } from "mobx-react-lite";
+import renderResult from "next/dist/server/render-result";
 import { toast } from "sonner";
 import { useRouter } from "next/router";
 import { videoCreator } from "@/store/creatomate";
@@ -29,7 +43,11 @@ const stepTitles = [
   "Render & Download",
 ];
 
-const Create: React.FC = observer(() => {
+interface CreateProps {
+  user: User;
+}
+
+const Create: React.FC<CreateProps> = observer(({ user }) => {
   const router = useRouter();
   const { step } = router.query;
   const [currentStep, setCurrentStep] = useState(1);
@@ -38,9 +56,33 @@ const Create: React.FC = observer(() => {
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [isPreviewInitialized, setIsPreviewInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const previewRef = useRef<HTMLDivElement | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isRendering, setIsRendering] = useState(false);
+  const [renderResult, setRenderResult] = useState<any>(null);
+  const [showRenderDialog, setShowRenderDialog] = useState(false);
+  const [isCaptionsGenerated, setIsCaptionsGenerated] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    const getUser = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+      if (error) {
+        console.error("Error fetching user:", error);
+      } else if (user) {
+        console.log("User fetched:", user);
+        setCurrentUser(user);
+        videoCreator.setUserId(user.id);
+      }
+    };
+
+    getUser();
+  }, []);
 
   // Function to update the URL without causing an error
   const updateUrlStep = (stepNumber: number) => {
@@ -113,6 +155,12 @@ const Create: React.FC = observer(() => {
     };
   }, [videoCreator.preview]);
 
+  // Proposed modifications and additional logging
+  useEffect(() => {
+    console.log("isPreviewInitialized:", isPreviewInitialized);
+    console.log("videoCreator.preview:", videoCreator.preview);
+  }, [isPreviewInitialized, videoCreator.preview]);
+
   // User-triggered step navigation with validation
   const handleStepClick = (stepNumber: number) => {
     if (stepNumber === 1) {
@@ -140,10 +188,20 @@ const Create: React.FC = observer(() => {
   const handleTemplateSelect = async (template: DefaultSource) => {
     try {
       setSelectedTemplate(template);
-      await videoCreator.setSelectedSource(template);
+      console.log("Selected template:", template.name);
+      if (videoCreator.preview) {
+        console.log("Setting selected source immediately");
+        await videoCreator.setSelectedSource(template);
+      } else {
+        console.log(
+          "Preview not ready, template will be set after initialization",
+        );
+      }
+      console.log("Template set successfully:", template.name);
       setCurrentStep(2);
       updateUrlStep(2);
     } catch (err) {
+      console.error("Failed to set template:", err);
       setError("Failed to set template: " + (err as Error).message);
     }
   };
@@ -151,23 +209,47 @@ const Create: React.FC = observer(() => {
   const handleVideoSelect = async (videoUrl: string) => {
     try {
       setSelectedVideo(videoUrl);
+
       if (videoCreator.preview) {
         const source = videoCreator.getActiveCompositionSource();
-        const updatedElements = source.elements.map((element: any) => {
-          if (element.type === "video") {
-            return { ...element, source: videoUrl };
+        if (source.elements && source.elements.length > 0) {
+          // For blur and PiP templates, we update all video elements
+          if (
+            videoCreator.isBlurTemplate() ||
+            videoCreator.isPictureInPictureTemplate()
+          ) {
+            for (const element of source.elements) {
+              if (element.type === "video") {
+                await videoCreator.updateVideoSource(element.id, videoUrl);
+              }
+            }
+          } else {
+            // For other templates, we update the first video element
+            const videoElement = source.elements.find(
+              (el: { type: string }) => el.type === "video",
+            );
+            if (videoElement) {
+              await videoCreator.updateVideoSource(videoElement.id, videoUrl);
+            } else {
+              console.warn("No video element found in the template");
+            }
           }
-          return element;
-        });
-        await videoCreator.setActiveCompositionSource({
-          ...source,
-          elements: updatedElements,
-        });
+        } else {
+          console.warn("No elements found in the source");
+        }
+
+        console.log("Video source updated successfully");
+      } else {
+        console.warn("Preview not available, unable to update video source");
       }
+
       setCurrentStep(3);
       updateUrlStep(3);
     } catch (err) {
+      console.error("Failed to select video:", err);
       setError("Failed to select video: " + (err as Error).message);
+    } finally {
+      console.log("Video selection completed");
     }
   };
 
@@ -188,10 +270,15 @@ const Create: React.FC = observer(() => {
 
   const handleExport = async () => {
     try {
+      if (!currentUser) {
+        throw new Error("User not authenticated");
+      }
+      console.log("Starting video export for user:", currentUser.id);
       const result = await videoCreator.finishVideo();
       toast.success("Video exported successfully");
       console.log("Export result:", result);
     } catch (err) {
+      console.error("Export error:", err);
       setError("Export error: " + (err as Error).message);
     }
   };
@@ -279,7 +366,7 @@ const Create: React.FC = observer(() => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="flex flex-col h-[calc(100vh-200px)]"
+            className="flex flex-col h-full"
           >
             {/* Preview Area */}
             <div className="flex-grow relative border rounded-t-xl">
@@ -293,11 +380,37 @@ const Create: React.FC = observer(() => {
               )}
               <div
                 ref={(element) => {
+                  console.log("Ref callback called, element:", element);
+                  console.log(
+                    "Current videoCreator.preview?.element:",
+                    videoCreator.preview?.element,
+                  );
                   if (element && element !== videoCreator.preview?.element) {
-                    videoCreator.initializeVideoPlayer(element);
+                    console.log("Initializing video player");
+                    videoCreator
+                      .initializeVideoPlayer(element)
+                      .then(() => {
+                        console.log("Video player initialized");
+                        setIsPreviewInitialized(true);
+                        if (selectedTemplate) {
+                          console.log(
+                            "Setting selected source after initialization",
+                          );
+                          videoCreator.setSelectedSource(selectedTemplate);
+                        }
+                      })
+                      .catch((error) => {
+                        console.error(
+                          "Failed to initialize video player:",
+                          error,
+                        );
+                        setError(
+                          "Failed to initialize video player: " + error.message,
+                        );
+                      });
                   }
                 }}
-                className="relative w-full h-full"
+                className="relative w-full h-full border rounded-t-xl"
                 style={{ height: "25rem" }}
               />
             </div>
@@ -305,8 +418,7 @@ const Create: React.FC = observer(() => {
             <div className="bg-card p-4 rounded-b-lg">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">
-                  {formatTime(videoCreator.currentPlaybackTime)} /{" "}
-                  {formatTime(videoCreator.duration)}
+                  {formatTime(currentTime)} / {formatTime(duration)}
                 </span>
                 <div className="flex space-x-2">
                   <Button
@@ -357,9 +469,9 @@ const Create: React.FC = observer(() => {
               <Button
                 onClick={handleExport}
                 className="mt-4"
-                disabled={!isPreviewInitialized}
+                disabled={!isPreviewInitialized || isRendering}
               >
-                Export Video
+                {isRendering ? "Rendering..." : "Export Video"}
               </Button>
             )}
           </motion.div>
@@ -370,11 +482,11 @@ const Create: React.FC = observer(() => {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-8 p-4">
+    <div className="w-full max-w-[23rem] md:max-w-7xl mx-auto space-y-8">
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-3xl font-bold mb-4"
+        className="text-lg md:text-3xl font-bold mb-4"
       >
         {stepTitles[currentStep - 1]}
       </motion.h1>
@@ -410,6 +522,44 @@ const Create: React.FC = observer(() => {
         )}
       </AnimatePresence>
       {renderStep()}
+
+      <AlertDialog open={showRenderDialog} onOpenChange={setShowRenderDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {isRendering ? "Rendering Video" : "Render Complete"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {isRendering ? (
+                <div className="flex items-center">
+                  <Loader className="animate-spin mr-2" />
+                  Your video is being rendered. This may take a few minutes...
+                </div>
+              ) : (
+                <div>
+                  Your video has been rendered successfully! You can now
+                  download it.
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            {!isRendering && (
+              <>
+                <AlertDialogCancel>Close</AlertDialogCancel>
+                <AlertDialogAction asChild>
+                  <Button
+                    onClick={() => window.open(renderResult.url, "_blank")}
+                    className="flex items-center"
+                  >
+                    <Download className="mr-2 h-4 w-4" /> Download Video
+                  </Button>
+                </AlertDialogAction>
+              </>
+            )}
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 });

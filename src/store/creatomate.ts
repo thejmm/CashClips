@@ -29,10 +29,17 @@ class VideoCreatorStore {
   selectedSource: DefaultSource | null = null;
   currentTime: number = 0;
   totalDuration: number = 0;
+  queuedSource: DefaultSource | null = null;
+  userId: string | null = null;
 
   constructor() {
     makeAutoObservable(this);
     console.log("VideoCreatorStore initialized");
+  }
+
+  setUserId(id: string) {
+    this.userId = id;
+    console.log("User ID set in VideoCreatorStore:", id);
   }
 
   initializeVideoPlayer(htmlElement: HTMLDivElement) {
@@ -63,6 +70,7 @@ class VideoCreatorStore {
         try {
           await preview.setZoom("centered");
           console.log("Zoom set to centered");
+          this.setQueuedSourceIfExists();
           resolve();
         } catch (error) {
           console.error("Error setting zoom:", error);
@@ -455,6 +463,13 @@ class VideoCreatorStore {
     }
   }
 
+  setQueuedSourceIfExists() {
+    if (this.queuedSource && this.preview) {
+      this.setSelectedSource(this.queuedSource);
+      this.queuedSource = null;
+    }
+  }
+
   async setSelectedSource(source: DefaultSource): Promise<void> {
     console.log("Setting selected source:", source.name);
     this.selectedSource = source;
@@ -544,6 +559,10 @@ class VideoCreatorStore {
       console.error("Preview is not initialized");
       throw new Error("Preview is not initialized");
     }
+    if (!this.userId) {
+      console.error("User ID is not set in VideoCreatorStore");
+      throw new Error("User ID is not set");
+    }
 
     try {
       const source = preview.getSource();
@@ -552,11 +571,12 @@ class VideoCreatorStore {
         frameRate,
         modifications,
         source,
+        user_id: this.userId,
       };
 
       console.log("Sending render job to server");
       const response = await fetch(
-        "https://thejmm--creatomate-render-fastapi-app.modal.run/api/creatomate/videos",
+        "https://thejmm--cash-clips-fastapi-app.modal.run/api/creatomate/videos",
         {
           method: "POST",
           headers: {
@@ -591,7 +611,7 @@ class VideoCreatorStore {
       const pollInterval = setInterval(async () => {
         try {
           const response = await fetch(
-            `https://thejmm--creatomate-render-fastapi-app.modal.run/api/creatomate/fetch-render-status?${jobIds
+            `https://thejmm--cash-clips-fastapi-app.modal.run/api/creatomate/fetch-render-status?${jobIds
               .map((id) => `id=${id}`)
               .join("&")}`,
             {
@@ -603,15 +623,12 @@ class VideoCreatorStore {
           );
 
           if (!response.ok) {
-            console.error(
-              "Error response when polling job status:",
-              response.status,
-            );
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 
           const statuses = await response.json();
           console.log("Current job statuses:", statuses);
+
           const allCompleted = Object.values(statuses).every(
             (status: any) =>
               status.status === "succeeded" || status.status === "failed",
@@ -620,14 +637,23 @@ class VideoCreatorStore {
           if (allCompleted) {
             console.log("All jobs completed");
             clearInterval(pollInterval);
-            resolve(statuses);
+
+            const succeededJobs = Object.values(statuses).filter(
+              (status: any) => status.status === "succeeded",
+            );
+
+            if (succeededJobs.length > 0) {
+              resolve(succeededJobs[0]); // Resolve with the first succeeded job
+            } else {
+              reject(new Error("No jobs succeeded"));
+            }
           }
         } catch (error) {
           console.error("Error polling job status:", error);
           clearInterval(pollInterval);
           reject(error);
         }
-      }, 1000); // Poll every 1 second
+      }, 1000);
     });
   }
 
