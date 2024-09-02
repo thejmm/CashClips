@@ -1,3 +1,4 @@
+// src/components/user/create.tsx
 import {
   AlertCircle,
   Check,
@@ -37,6 +38,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Stepper from "./components/stepper";
 import { User } from "@supabase/supabase-js";
+import VideoViewer from "./components/video-popup";
 import { createClient } from "@/utils/supabase/component";
 import { getRandomFontStyle } from "@/utils/creatomate/fonts";
 import { observer } from "mobx-react-lite";
@@ -48,6 +50,7 @@ const stepTitles = [
   "Select a Template",
   "Choose Your Video",
   "Render & Download",
+  "Finished",
 ];
 
 interface CreateProps {
@@ -92,6 +95,8 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
   const [isLoadingFolders, setIsLoadingFolders] = useState(false);
   const [isLoadingVideos, setIsLoadingVideos] = useState(false);
   const [defaultFolderId, setDefaultFolderId] = useState<string | null>(null);
+  const [isFinished, setIsFinished] = useState(false);
+  const [isVideoViewerOpen, setIsVideoViewerOpen] = useState(false);
 
   const previewContainerRef = useRef<HTMLDivElement>(null);
 
@@ -338,12 +343,44 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
       console.log("Render result:", renderResult);
       setRenderResult(renderResult);
       toast.success("Video exported successfully");
+      setIsFinished(true);
+      setCurrentStep(4); // Move to the finished step
+      updateUrlStep(4);
     } catch (err) {
       console.error("Export error:", err);
       setError("Export error: " + (err as Error).message);
       toast.error("Failed to export video. Please try again.");
     } finally {
       setIsRendering(false);
+    }
+  };
+
+  const handleCreateAnother = () => {
+    setIsFinished(false);
+    setCurrentStep(1);
+    updateUrlStep(1);
+    setSelectedTemplate(null);
+    setSelectedVideo(null);
+    setIsCaptionsGenerated(false);
+    setIsPreviewInitialized(false);
+    setRenderResult(null);
+  };
+
+  const handleDownload = async (url: string) => {
+    try {
+      const response = await fetch(url, { mode: "cors" });
+      if (!response.ok) throw new Error("Failed to fetch the file.");
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = blobUrl;
+      anchor.download = url.split("/").pop() || "download";
+      document.body.appendChild(anchor);
+      anchor.click();
+      window.URL.revokeObjectURL(blobUrl);
+      document.body.removeChild(anchor);
+    } catch (error) {
+      console.error("Failed to download file:", error);
     }
   };
 
@@ -546,6 +583,82 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
             </Button>
           </motion.div>
         );
+      case 4:
+        return (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="flex flex-col items-center"
+          >
+            <h2 className="text-2xl font-bold mb-4">Video Creation Complete</h2>
+            <div className="bg-gray-100 p-6 rounded-lg mb-6 w-full max-w-2xl">
+              <h3 className="text-xl font-semibold mb-3">Render Summary</h3>
+              {isRendering ? (
+                <div className="flex items-center">
+                  <Loader className="animate-spin mr-2" />
+                  <p>
+                    Your video is being rendered. This may take a few minutes...
+                  </p>
+                </div>
+              ) : renderResult ? (
+                <>
+                  <p className="mb-4">
+                    Your video has been rendered successfully!
+                  </p>
+                  <div className="bg-white p-4 rounded-md mb-4">
+                    <h4 className="font-medium mb-2">Render Details:</h4>
+                    <ul className="list-disc list-inside">
+                      <li>Status: {renderResult.status}</li>
+                      <li>Duration: {renderResult.duration} seconds</li>
+                      <li>
+                        Resolution: {renderResult.width}x{renderResult.height}
+                      </li>
+                      <li>Format: {renderResult.output_format}</li>
+                    </ul>
+                  </div>
+                  <div className="flex space-x-4 mb-4">
+                    <Button
+                      onClick={() => setIsVideoViewerOpen(true)}
+                      className="flex-1"
+                    >
+                      Preview Video
+                    </Button>
+                    <Button
+                      onClick={() => handleDownload(renderResult.url)}
+                      className="flex-1"
+                    >
+                      <Download className="mr-2 h-4 w-4" /> Download Video
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <p>No render information available.</p>
+              )}
+            </div>
+            <div className="flex flex-col items-center">
+              <p className="mb-4 text-center">
+                Would you like to create another video?
+              </p>
+              <div className="flex space-x-4">
+                <Button onClick={handleCreateAnother} variant="outline">
+                  Create Another Video
+                </Button>
+                <Button onClick={() => router.push("/user/created")}>
+                  View Your Created
+                </Button>
+              </div>
+            </div>
+
+            {renderResult && (
+              <VideoViewer
+                isOpen={isVideoViewerOpen}
+                onClose={() => setIsVideoViewerOpen(false)}
+                videoUrl={renderResult.url}
+              />
+            )}
+          </motion.div>
+        );
       default:
         return <div>Invalid step</div>;
     }
@@ -564,7 +677,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
         steps={stepTitles}
         currentStep={currentStep}
         onStepClick={(step) => {
-          if (step <= currentStep) {
+          if (step <= currentStep && !isFinished) {
             setCurrentStep(step);
             updateUrlStep(step);
           }
@@ -578,6 +691,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
               ? "Rendering video..."
               : ""
         }
+        isFinished={isFinished}
       />
       <AnimatePresence mode="wait">
         {error && (
@@ -604,42 +718,6 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
         )}
       </AnimatePresence>
       {renderStep()}
-      <Dialog open={showRenderDialog} onOpenChange={setShowRenderDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {isRendering ? "Rendering Video" : "Render Complete"}
-            </DialogTitle>
-            <DialogDescription>
-              {isRendering ? (
-                <div className="flex items-center">
-                  <Loader className="animate-spin mr-2" />
-                  Your video is being rendered. This may take a few minutes...
-                </div>
-              ) : (
-                <div>
-                  Your video has been rendered successfully! You can now
-                  download it.
-                </div>
-              )}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            {!isRendering && renderResult && (
-              <>
-                <DialogClose asChild>
-                  <Button
-                    onClick={() => window.open(renderResult.url, "_blank")}
-                    className="flex items-center"
-                  >
-                    <Download className="mr-2 h-4 w-4" /> Download Video
-                  </Button>
-                </DialogClose>
-              </>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 });

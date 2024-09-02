@@ -278,17 +278,11 @@ class VideoCreatorStore {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 
-          const status = await response.json();
-          console.log("Status response:", status); // Log the entire response
-
-          if (!status || typeof status !== "object") {
-            throw new Error("Invalid response format");
-          }
-
-          const jobStatus = status[jobId];
+          const jobStatus = await response.json();
+          console.log("Status response:", jobStatus); // Log the entire response
 
           if (!jobStatus || typeof jobStatus !== "object") {
-            throw new Error(`No status information for job ${jobId}`);
+            throw new Error("Invalid response format");
           }
 
           console.log(`Current status for job ${jobId}:`, jobStatus.status);
@@ -313,6 +307,7 @@ class VideoCreatorStore {
           }
           // If status is still rendering, planned, waiting, or transcribing, continue polling
         } catch (error) {
+          console.error("Error in checkRenderStatus:", error);
           clearInterval(pollInterval);
           reject(error);
         }

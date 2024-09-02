@@ -161,12 +161,6 @@ const VideoCard: React.FC<{ clip: Clip }> = ({ clip }) => {
             Created: {new Date(clip.created_at).toLocaleString()}
           </p>
         </CardFooter>
-
-        <VideoViewer
-          isOpen={isVideoViewerOpen}
-          onClose={() => setIsVideoViewerOpen(false)}
-          videoUrl={clip.response.url}
-        />
       </Card>
 
       <VideoViewer

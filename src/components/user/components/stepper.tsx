@@ -1,3 +1,5 @@
+// src/components/user/components/stepper.tsx
+
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Loader } from "lucide-react";
 
@@ -10,6 +12,7 @@ interface StepperProps {
   isLoading: boolean;
   loadingStep: number;
   loadingMessage: string;
+  isFinished: boolean;
 }
 
 const Stepper: React.FC<StepperProps> = ({
@@ -19,14 +22,15 @@ const Stepper: React.FC<StepperProps> = ({
   isLoading,
   loadingStep,
   loadingMessage,
+  isFinished,
 }) => {
   return (
     <div className="w-full p-2 px-2 md:px-6">
       <div className="flex items-center justify-between">
         {steps.map((step, index) => {
           const stepNumber = index + 1;
-          const isCompleted = currentStep > stepNumber;
-          const isCurrent = currentStep === stepNumber;
+          const isCompleted = isFinished || currentStep > stepNumber;
+          const isCurrent = !isFinished && currentStep === stepNumber;
           const isLoadingThis = isLoading && loadingStep === stepNumber;
 
           return (
@@ -68,11 +72,7 @@ const Stepper: React.FC<StepperProps> = ({
                     className="h-full bg-green-500"
                     initial={{ width: "0%" }}
                     animate={{
-                      width: isCompleted
-                        ? "100%"
-                        : isLoading && loadingStep > stepNumber
-                          ? "50%"
-                          : "0%",
+                      width: isCompleted ? "100%" : "0%",
                     }}
                     transition={{ duration: 0.3 }}
                   />
