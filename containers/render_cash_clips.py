@@ -162,11 +162,17 @@ async def update_render_status(render_id):
 async def handle_fetch_status_request(request: Request):
     render_id = request.query_params.get("id")
     if request.method == "GET":
-        render_status = await fetch_render_status_task(render_id)
-        return JSONResponse(content=render_status)
+        try:
+            render_status = await fetch_render_status_task(render_id)
+            if not render_status or "status" not in render_status:
+                return JSONResponse(status_code=404, content={"error": f"No status information found for job {render_id}"})
+            return JSONResponse(content=render_status)
+        except Exception as e:
+            logging.error(f"Error fetching render status: {str(e)}")
+            return JSONResponse(status_code=500, content={"error": f"Failed to fetch render status: {str(e)}"})
     else:
         return JSONResponse(status_code=405, content={"message": f"Method {request.method} not allowed"})
-
+    
 @app.function(image=image)
 @asgi_app()
 def fastapi_app():
