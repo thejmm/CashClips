@@ -1,12 +1,18 @@
-// src/components/user/components/creations-layout.tsx
-
 import {
   AlertCircle,
+  CheckCircle,
   Clock,
   Download,
   FileVideo,
   HardDrive,
   Loader,
+  Maximize,
+  Minimize,
+  Pause,
+  Play,
+  Volume2,
+  VolumeX,
+  X,
 } from "lucide-react";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import {
@@ -16,10 +22,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { DataTableFacetedFilter } from "@/components/ui/faceted-filter";
+import VideoViewer from "./video-popup";
 import { createClient } from "@/utils/supabase/component";
 
 interface Clip {
@@ -48,9 +55,128 @@ interface Clip {
 type SortOption = "created_at" | "duration" | "file_size";
 
 interface CreationsProps {
-  userSpecific?: boolean; // If true, fetches user-specific creations; otherwise, fetches all creations
-  title: string; // Title to display at the top of the page
+  userSpecific?: boolean;
+  title: string;
 }
+
+const VideoCard: React.FC<{ clip: Clip }> = ({ clip }) => {
+  const [isVideoViewerOpen, setIsVideoViewerOpen] = useState(false);
+
+  const formatFileSize = (bytes: number) => {
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+    if (bytes === 0) return "0 Byte";
+    const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)).toString());
+    return Math.round(bytes / Math.pow(1024, i)) + " " + sizes[i];
+  };
+
+  const handleDownload = async (url: string) => {
+    try {
+      const response = await fetch(url, { mode: "cors" });
+      if (!response.ok) throw new Error("Failed to fetch the file.");
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = blobUrl;
+      anchor.download = url.split("/").pop() || "download";
+      document.body.appendChild(anchor);
+      anchor.click();
+      window.URL.revokeObjectURL(blobUrl);
+      document.body.removeChild(anchor);
+    } catch (error) {
+      console.error("Failed to download file:", error);
+    }
+  };
+
+  const renderStatus = () => {
+    switch (clip.status) {
+      case "succeeded":
+        return (
+          <span className="text-green-500 flex items-center">
+            <CheckCircle className="mr-1 h-4 w-4" /> Succeeded
+          </span>
+        );
+      case "failed":
+        return (
+          <span className="text-red-500 flex items-center">
+            <AlertCircle className="mr-1 h-4 w-4" /> Failed
+          </span>
+        );
+      case "planned":
+      case "waiting":
+      case "transcribing":
+      case "rendering":
+        return (
+          <span className="text-yellow-500 flex items-center">
+            <Loader className="mr-1 h-4 w-4 animate-spin" />
+            {clip.status.charAt(0).toUpperCase() + clip.status.slice(1)}
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <>
+      <Card className="h-full flex flex-col">
+        <CardHeader className="flex flex-row justify-between p-2 items-center">
+          <CardTitle className="text-sm font-semibold truncate">
+            Clip {clip.render_id.slice(0, 8)}
+          </CardTitle>
+          {clip.status === "succeeded" && clip.response?.url && (
+            <Button size="sm" onClick={() => handleDownload(clip.response.url)}>
+              <Download className="h-4 w-4" />
+            </Button>
+          )}
+        </CardHeader>
+        <CardContent className="flex-grow p-2">
+          <div className="mb-2">{renderStatus()}</div>
+          {clip.response && (
+            <div className="space-y-1 text-xs">
+              <p className="flex items-center">
+                <FileVideo className="mr-1 h-3 w-3" />
+                {clip.response.width}x{clip.response.height} @{" "}
+                {clip.response.frame_rate}FPS
+              </p>
+              <p className="flex items-center">
+                <Clock className="mr-1 h-3 w-3" />
+                {clip.response.duration}s
+                <HardDrive className="ml-2 mr-1 h-3 w-3" />
+                {formatFileSize(clip.response.file_size)}
+              </p>
+              {clip.response.url && (
+                <div className="mt-2 aspect-square overflow-hidden rounded">
+                  <video
+                    className="w-full h-full mx-auto object-cover cursor-pointer"
+                    src={clip.response.url}
+                    onClick={() => setIsVideoViewerOpen(true)}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+        <CardFooter className="pt-2">
+          <p className="text-xs text-gray-500">
+            Created: {new Date(clip.created_at).toLocaleString()}
+          </p>
+        </CardFooter>
+
+        <VideoViewer
+          isOpen={isVideoViewerOpen}
+          onClose={() => setIsVideoViewerOpen(false)}
+          videoUrl={clip.response.url}
+        />
+      </Card>
+
+      <VideoViewer
+        isOpen={isVideoViewerOpen}
+        onClose={() => setIsVideoViewerOpen(false)}
+        videoUrl={clip.response.url}
+      />
+    </>
+  );
+};
 
 const Creations: React.FC<CreationsProps> = ({
   userSpecific = false,
@@ -100,14 +226,12 @@ const Creations: React.FC<CreationsProps> = ({
       let error: any = null;
 
       if (userSpecific) {
-        // Fetch user-specific creations
         const {
           data: { user },
           error: userError,
         } = await supabase.auth.getUser();
 
         if (userError) throw new Error(userError.message);
-
         if (!user) throw new Error("User not authenticated");
 
         const result = await supabase
@@ -119,7 +243,6 @@ const Creations: React.FC<CreationsProps> = ({
         data = result.data;
         error = result.error;
       } else {
-        // Fetch all creations
         const result = await supabase
           .from("created_clips")
           .select("*")
@@ -139,31 +262,6 @@ const Creations: React.FC<CreationsProps> = ({
     }
   };
 
-  const handleDownload = async (url: string) => {
-    try {
-      const response = await fetch(url, { mode: "cors" });
-      if (!response.ok) throw new Error("Failed to fetch the file.");
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = blobUrl;
-      anchor.download = url.split("/").pop() || "download";
-      document.body.appendChild(anchor);
-      anchor.click();
-      window.URL.revokeObjectURL(blobUrl);
-      document.body.removeChild(anchor);
-    } catch (error) {
-      console.error("Failed to download file:", error);
-    }
-  };
-
-  const formatFileSize = (bytes: number) => {
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-    if (bytes === 0) return "0 Byte";
-    const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)).toString());
-    return Math.round(bytes / Math.pow(1024, i)) + " " + sizes[i];
-  };
-
   const handleFilterChange = (selectedValues: string[]) => {
     setFilterStatus(selectedValues);
   };
@@ -171,99 +269,6 @@ const Creations: React.FC<CreationsProps> = ({
   const handleSortChange = (selectedValues: string[]) => {
     setSortBy(selectedValues[0] as SortOption);
   };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
-
-  const renderClipCard = (clip: Clip) => (
-    <motion.div
-      key={clip.id}
-      layout
-      variants={cardVariants}
-      initial="hidden"
-      animate="visible"
-      exit="hidden"
-      transition={{ duration: 0.3 }}
-    >
-      <Card className="h-full flex flex-col">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold truncate">
-            Clip {clip.render_id.slice(0, 8)}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex-grow">
-          <p className="text-sm text-gray-500 mb-2">
-            Created: {new Date(clip.created_at).toLocaleString()}
-          </p>
-          <p
-            className={`text-sm font-medium mb-2 ${
-              clip.status === "succeeded"
-                ? "text-green-500"
-                : clip.status === "failed"
-                  ? "text-red-500"
-                  : "text-yellow-500"
-            }`}
-          >
-            Status: {clip.status.charAt(0).toUpperCase() + clip.status.slice(1)}
-          </p>
-          {clip.response && (
-            <div className="space-y-1">
-              <p className="text-sm flex items-center">
-                <FileVideo className="mr-2 h-4 w-4" />
-                {clip.response.width}x{clip.response.height}{" "}
-                {clip.response.output_format.toUpperCase()}
-              </p>
-              <p className="text-sm flex items-center">
-                <Clock className="mr-2 h-4 w-4" />
-                {clip.response.duration}s @ {clip.response.frame_rate}fps
-              </p>
-              <p className="text-sm flex items-center">
-                <HardDrive className="mr-2 h-4 w-4" />
-                {formatFileSize(clip.response.file_size)}
-              </p>
-              {clip.response.url && (
-                <div className="mt-2">
-                  <video
-                    width="100%"
-                    height="auto"
-                    controls
-                    src={clip.response.url}
-                  >
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
-              )}
-            </div>
-          )}
-        </CardContent>
-        <CardFooter>
-          {clip.status === "succeeded" && clip.response?.url && (
-            <Button
-              onClick={() => handleDownload(clip.response.url)}
-              className="w-full"
-            >
-              <Download className="mr-2 h-4 w-4" /> Download
-            </Button>
-          )}
-          {["planned", "waiting", "transcribing", "rendering"].includes(
-            clip.status,
-          ) && (
-            <Button disabled className="w-full">
-              <Loader className="mr-2 h-4 w-4 animate-spin" />{" "}
-              {clip.status.charAt(0).toUpperCase() + clip.status.slice(1)}
-            </Button>
-          )}
-          {clip.status === "failed" && (
-            <Button variant="destructive" className="w-full" disabled>
-              <AlertCircle className="mr-2 h-4 w-4" /> Failed
-            </Button>
-          )}
-        </CardFooter>
-      </Card>
-    </motion.div>
-  );
 
   if (isLoading) {
     return (
@@ -284,7 +289,7 @@ const Creations: React.FC<CreationsProps> = ({
   }
 
   return (
-    <div className="w-full max-w-[23rem] sm:max-w-5xl md:max-w-7xl mx-auto space-y-8 p-4">
+    <div className="w-full max-w-[23rem] sm:max-w-5xl md:max-w-7xl mx-auto space-y-8 p-2 md:p-4">
       <h1 className="text-2xl font-bold mb-6">{title}</h1>
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -327,10 +332,21 @@ const Creations: React.FC<CreationsProps> = ({
         ) : (
           <LayoutGroup>
             <motion.div
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
               layout
             >
-              {filteredClips.map(renderClipCard)}
+              {filteredClips.map((clip) => (
+                <motion.div
+                  key={clip.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <VideoCard clip={clip} />
+                </motion.div>
+              ))}
             </motion.div>
           </LayoutGroup>
         )}

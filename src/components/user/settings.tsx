@@ -277,7 +277,7 @@ const SettingsContent: React.FC = () => {
   );
 
   return (
-    <div className="w-full max-w-[23rem] sm:max-w-7xl mx-auto space-y-8">
+    <div className="w-full max-w-[23rem] sm:max-w-5xl md:max-w-7xl mx-auto space-y-8 p-4">
       <Card>
         <CardHeader>
           <CardTitle>User Profile</CardTitle>

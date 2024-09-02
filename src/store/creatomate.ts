@@ -245,7 +245,7 @@ class VideoCreatorStore {
     };
 
     const response = await fetch(
-      "https://thejmm--cash-clips-fastapi-app.modal.run/api/creatomate/videos",
+      "https://thejmm--render-cash-clips-fastapi-app.modal.run/api/creatomate/videos",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -270,7 +270,7 @@ class VideoCreatorStore {
       const pollInterval = setInterval(async () => {
         try {
           const response = await fetch(
-            `https://thejmm--cash-clips-fastapi-app.modal.run/api/creatomate/fetch-render-status?id=${jobId}`,
+            `https://thejmm--render-cash-clips-fastapi-app.modal.run/api/creatomate/fetch-render-status?id=${jobId}`,
             { method: "GET", headers: { "Content-Type": "application/json" } },
           );
 
@@ -279,24 +279,50 @@ class VideoCreatorStore {
           }
 
           const status = await response.json();
+          console.log("Status response:", status); // Log the entire response
+
+          if (!status || typeof status !== "object") {
+            throw new Error("Invalid response format");
+          }
+
           const jobStatus = status[jobId];
 
-          if (
-            jobStatus.status === "succeeded" ||
-            jobStatus.status === "failed"
+          if (!jobStatus || typeof jobStatus !== "object") {
+            throw new Error(`No status information for job ${jobId}`);
+          }
+
+          console.log(`Current status for job ${jobId}:`, jobStatus.status);
+
+          if (jobStatus.status === "succeeded") {
+            clearInterval(pollInterval);
+            resolve(jobStatus);
+          } else if (jobStatus.status === "failed") {
+            clearInterval(pollInterval);
+            reject(
+              new Error(
+                `Job ${jobId} failed: ${jobStatus.error || "Unknown error"}`,
+              ),
+            );
+          } else if (
+            !["rendering", "planned", "waiting", "transcribing"].includes(
+              jobStatus.status,
+            )
           ) {
             clearInterval(pollInterval);
-            if (jobStatus.status === "succeeded") {
-              resolve(jobStatus);
-            } else {
-              reject(new Error(`Job ${jobId} failed`));
-            }
+            reject(new Error(`Unknown job status: ${jobStatus.status}`));
           }
+          // If status is still rendering, planned, waiting, or transcribing, continue polling
         } catch (error) {
           clearInterval(pollInterval);
           reject(error);
         }
-      }, 1000);
+      }, 5000); // Poll every 5 seconds
+
+      // Set a timeout to stop polling after 10 minutes
+      setTimeout(() => {
+        clearInterval(pollInterval);
+        reject(new Error("Render status check timed out after 10 minutes"));
+      }, 600000);
     });
   }
 }

@@ -1,5 +1,3 @@
-// src/components/user/create.tsx
-
 import {
   AlertCircle,
   Check,
@@ -11,23 +9,30 @@ import {
   SkipForwardIcon,
   XIcon,
 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "../ui/alert-dialog";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   DefaultSource,
   defaultSources,
   videoUrls,
 } from "@/utils/creatomate/templates";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
 import Stepper from "./components/stepper";
@@ -49,17 +54,16 @@ interface CreateProps {
   user: User;
 }
 
-interface GoogleDriveVideo {
+interface GoogleDriveItem {
   id: string;
   name: string;
-  thumbnailLink: string;
-  webContentLink: string;
+  mimeType: string;
+  thumbnailLink?: string;
+  webContentLink?: string;
 }
 
-interface GoogleDriveFolder {
-  id: string;
-  name: string;
-  videos: GoogleDriveVideo[];
+interface FolderContent {
+  [folderId: string]: GoogleDriveItem[];
 }
 
 const Create: React.FC<CreateProps> = observer(({ user }) => {
@@ -69,7 +73,9 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] =
     useState<DefaultSource | null>(null);
-  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<GoogleDriveItem | null>(
+    null,
+  );
   const [isPreviewInitialized, setIsPreviewInitialized] = useState(false);
   const [isCaptionsGenerated, setIsCaptionsGenerated] = useState(false);
   const [isGeneratingCaptions, setIsGeneratingCaptions] = useState(false);
@@ -80,47 +86,127 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
+  const [folderStructure, setFolderStructure] = useState<GoogleDriveItem[]>([]);
+  const [folderContents, setFolderContents] = useState<FolderContent>({});
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+  const [isLoadingFolders, setIsLoadingFolders] = useState(false);
+  const [isLoadingVideos, setIsLoadingVideos] = useState(false);
+  const [defaultFolderId, setDefaultFolderId] = useState<string | null>(null);
+
   const previewContainerRef = useRef<HTMLDivElement>(null);
 
-  const [googleDriveFolders, setGoogleDriveFolders] = useState<
-    GoogleDriveFolder[]
-  >([]);
+  const fetchGoogleDriveContents = async (folderId: string) => {
+    setIsLoadingFolders(true);
+    setError(null);
 
-  const GOOGLE_DRIVE_FOLDER_ID = "1rbH4TAJCdSJiYsaKcOI0RvhAAAGTf_xs";
+    try {
+      console.log(`Fetching contents for folder: ${folderId}`);
+      const response = await fetch(
+        `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,thumbnailLink,webContentLink)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`,
+      );
+
+      console.log("Response status:", response.status);
+
+      const data = await response.json();
+      console.log("Response data:", JSON.stringify(data, null, 2));
+
+      if (!response.ok) {
+        throw new Error(
+          `API request failed with status ${response.status}: ${
+            data.error?.message || "Unknown error"
+          }`,
+        );
+      }
+
+      setFolderStructure(
+        data.files.filter(
+          (file: { mimeType: string }) =>
+            file.mimeType === "application/vnd.google-apps.folder",
+        ) || [],
+      );
+
+      if (data.files && data.files.length === 0) {
+        console.log("No items found in this folder");
+      } else {
+        console.log(`Found ${data.files.length} items in the folder`);
+      }
+    } catch (err) {
+      console.error("Error fetching Google Drive contents:", err);
+      setError((err as Error).message);
+      toast.error("Failed to load contents from Google Drive");
+    } finally {
+      setIsLoadingFolders(false);
+    }
+  };
+
+  const fetchFolderContents = async (folderId: string) => {
+    setIsLoadingVideos(true);
+    try {
+      const response = await fetch(
+        `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+mimeType+contains+'video/'&fields=files(id,name,mimeType,thumbnailLink,webContentLink)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`,
+      );
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+      setFolderContents((prev) => ({ ...prev, [folderId]: data.files || [] }));
+    } catch (err) {
+      console.error("Error fetching folder contents:", err);
+      toast.error("Failed to load videos from the folder");
+    } finally {
+      setIsLoadingVideos(false);
+    }
+  };
+
+  const handleFolderChange = (folderId: string) => {
+    setSelectedFolderId(folderId);
+    if (!folderContents[folderId]) {
+      fetchFolderContents(folderId);
+    }
+  };
 
   useEffect(() => {
-    const fetchGoogleDriveVideos = async () => {
+    fetchGoogleDriveContents(process.env.NEXT_PUBLIC_GOOGLE_FOLDER as string);
+  }, []);
+
+  useEffect(() => {
+    const fetchAndSetDefaultFolder = async () => {
+      setIsLoadingFolders(true);
       try {
         const response = await fetch(
-          `https://www.googleapis.com/drive/v3/files?q='${GOOGLE_DRIVE_FOLDER_ID}'+in+parents+and+mimeType+contains+'video/'&fields=files(id,name,thumbnailLink,webContentLink)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`,
+          `https://www.googleapis.com/drive/v3/files?q='${process.env.NEXT_PUBLIC_GOOGLE_FOLDER}'+in+parents&fields=files(id,name,mimeType)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`,
         );
 
         if (!response.ok) {
-          throw new Error(`Failed to fetch videos from Google Drive`);
+          throw new Error(`API request failed with status ${response.status}`);
         }
 
         const data = await response.json();
-        const videos = data.files.map((file: any) => ({
-          id: file.id,
-          name: file.name,
-          thumbnailLink: file.thumbnailLink,
-          webContentLink: file.webContentLink,
-        }));
+        const folders = data.files.filter(
+          (file: { mimeType: string }) =>
+            file.mimeType === "application/vnd.google-apps.folder",
+        );
 
-        setGoogleDriveFolders([
-          {
-            id: GOOGLE_DRIVE_FOLDER_ID,
-            name: "Video Folder",
-            videos: videos,
-          },
-        ]);
-      } catch (error) {
-        console.error("Error fetching Google Drive videos:", error);
-        toast.error("Failed to load videos from Google Drive");
+        setFolderStructure(folders || []);
+
+        if (folders.length > 0) {
+          const defaultFolder = folders[0]; // Select the first folder as default
+          setDefaultFolderId(defaultFolder.id);
+          setSelectedFolderId(defaultFolder.id);
+          fetchFolderContents(defaultFolder.id);
+        }
+      } catch (err) {
+        console.error("Error fetching Google Drive contents:", err);
+        setError((err as Error).message);
+        toast.error("Failed to load contents from Google Drive");
+      } finally {
+        setIsLoadingFolders(false);
       }
     };
 
-    fetchGoogleDriveVideos();
+    fetchAndSetDefaultFolder();
   }, []);
 
   useEffect(() => {
@@ -186,18 +272,18 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
     }
   };
 
-  const handleVideoSelect = async (video: GoogleDriveVideo) => {
+  const handleVideoSelect = async (video: GoogleDriveItem) => {
     try {
-      setSelectedVideo(video.webContentLink);
+      setSelectedVideo(video);
       setIsGeneratingCaptions(true);
 
       await videoCreator.updateTemplateWithSelectedVideo(
-        video.webContentLink,
+        video.webContentLink!,
         videoUrls,
       );
 
       const captions = await videoCreator.fetchCaptions(
-        video.webContentLink,
+        video.webContentLink!,
         "video1",
       );
       const randomFontStyle = getRandomFontStyle();
@@ -247,11 +333,15 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
       setIsRendering(true);
       setShowRenderDialog(true);
       const jobId = await videoCreator.finishVideo();
+      console.log("Job ID received:", jobId);
       const renderResult = await videoCreator.checkRenderStatus(jobId);
+      console.log("Render result:", renderResult);
       setRenderResult(renderResult);
       toast.success("Video exported successfully");
     } catch (err) {
+      console.error("Export error:", err);
       setError("Export error: " + (err as Error).message);
+      toast.error("Failed to export video. Please try again.");
     } finally {
       setIsRendering(false);
     }
@@ -305,37 +395,80 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
             exit={{ opacity: 0, y: -20 }}
             className="space-y-8"
           >
-            {googleDriveFolders.map((folder) => (
-              <div key={folder.id}>
-                <h2 className="text-xl font-bold mb-4">{folder.name}</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {folder.videos.map((video) => (
-                    <motion.div
-                      key={video.id}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className={`border p-4 rounded cursor-pointer transition-colors duration-200 ${
-                        selectedVideo === video.webContentLink
-                          ? "border-blue-500 border-2"
-                          : "hover:border-blue-500"
-                      }`}
-                      onClick={() => handleVideoSelect(video)}
-                    >
-                      <div className="relative w-full h-40 mb-2">
-                        <img
-                          src={video.thumbnailLink}
-                          alt={video.name}
-                          className="w-full h-full object-cover rounded"
-                        />
-                      </div>
-                      <p className="text-center font-medium truncate">
-                        {video.name}
-                      </p>
-                    </motion.div>
-                  ))}
-                </div>
+            {isLoadingFolders ? (
+              <div className="flex items-center justify-center">
+                <Loader className="h-8 w-8 animate-spin mr-2" />
+                <p>Loading folders...</p>
               </div>
-            ))}
+            ) : (
+              <>
+                <Select
+                  onValueChange={handleFolderChange}
+                  value={selectedFolderId || undefined}
+                >
+                  <SelectTrigger className="max-w-64">
+                    <SelectValue placeholder="Select a folder" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {folderStructure.map((folder) => (
+                      <SelectItem key={folder.id} value={folder.id}>
+                        {folder.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {selectedFolderId && (
+                  <div>
+                    {isLoadingVideos ? (
+                      <div className="flex items-center justify-center p-4">
+                        <Loader className="h-6 w-6 animate-spin mr-2" />
+                        <p>Loading videos...</p>
+                      </div>
+                    ) : folderContents[selectedFolderId]?.length === 0 ? (
+                      <p className="text-center p-4">
+                        No videos found in this folder.
+                      </p>
+                    ) : (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4">
+                        {folderContents[selectedFolderId]?.map((video) => (
+                          <motion.div
+                            key={video.id}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`border p-4 rounded cursor-pointer transition-colors duration-200 ${
+                              selectedVideo?.id === video.id
+                                ? "border-blue-500 border-2"
+                                : "hover:border-blue-500"
+                            }`}
+                            onClick={() => handleVideoSelect(video)}
+                          >
+                            <div className="relative w-full h-40 mb-2">
+                              {video.thumbnailLink ? (
+                                <img
+                                  src={video.thumbnailLink}
+                                  alt={video.name}
+                                  className="w-full h-full object-cover rounded"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-gray-200 rounded">
+                                  <span className="text-gray-500">
+                                    No thumbnail
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            <p className="text-center font-medium truncate">
+                              {video.name}
+                            </p>
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
           </motion.div>
         );
       case 3:
@@ -471,13 +604,13 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
         )}
       </AnimatePresence>
       {renderStep()}
-      <AlertDialog open={showRenderDialog} onOpenChange={setShowRenderDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
+      <Dialog open={showRenderDialog} onOpenChange={setShowRenderDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
               {isRendering ? "Rendering Video" : "Render Complete"}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
+            </DialogTitle>
+            <DialogDescription>
               {isRendering ? (
                 <div className="flex items-center">
                   <Loader className="animate-spin mr-2" />
@@ -489,25 +622,24 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
                   download it.
                 </div>
               )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
             {!isRendering && renderResult && (
               <>
-                <AlertDialogCancel>Close</AlertDialogCancel>
-                <AlertDialogAction asChild>
+                <DialogClose asChild>
                   <Button
                     onClick={() => window.open(renderResult.url, "_blank")}
                     className="flex items-center"
                   >
                     <Download className="mr-2 h-4 w-4" /> Download Video
                   </Button>
-                </AlertDialogAction>
+                </DialogClose>
               </>
             )}
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 });
