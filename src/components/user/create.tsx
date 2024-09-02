@@ -16,16 +16,6 @@ import {
   defaultSources,
   videoUrls,
 } from "@/utils/creatomate/templates";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Select,
@@ -241,11 +231,13 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
       isCaptionsGenerated
     ) {
       setCurrentStep(3);
-    } else {
+    } else if (stepNumber === 4 && isFinished) {
+      setCurrentStep(4);
+    } else if (stepNumber !== 4) {
       setCurrentStep(1);
       updateUrlStep(1);
     }
-  }, [step, selectedTemplate, selectedVideo, isCaptionsGenerated]);
+  }, [step, selectedTemplate, selectedVideo, isCaptionsGenerated, isFinished]);
 
   useEffect(() => {
     if (
