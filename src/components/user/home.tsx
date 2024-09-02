@@ -1,11 +1,9 @@
-// src/components/user/sections/home.tsx
-
+import Creations from "@/components/user/components/creations-layout";
+// src/pages/all-creations.tsx
 import React from "react";
 
-const HomePage: React.FC = () => {
-  return (
-    <div className="w-full max-w-[23rem] md:max-w-7xl mx-auto space-y-8"></div>
-  );
+const AllCreationsPage: React.FC = () => {
+  return <Creations userSpecific={false} title="All Creations" />;
 };
 
-export default HomePage;
+export default AllCreationsPage;

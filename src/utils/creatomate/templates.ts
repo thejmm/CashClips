@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from "uuid";
 export type { DefaultSource } from "./template-types";
 
 export const videoUrls = [
-  "https://firebasestorage.googleapis.com/v0/b/jdmassmedia-f90b6.appspot.com/o/uploads%2Fjack-remotion_1.MP4?alt=media&token=6119280c-f4c4-475e-8b68-1efd1bb221b2",
   "https://cdn-crayo.com//crayo-admin/test-video/53895fa8-6c75-4145-81ba-e4da46fae222-minecraft-2.mp4",
   "https://cdn-crayo.com//crayo-admin/test-video/9f7e5c34-07b6-4377-b8fb-151aea4974f2-gta-3.mp4",
   "https://cdn-crayo.com//crayo-admin/test-video/da2ce303-f791-45e8-a75f-3a40f2b395fe-gta-5.mp4",

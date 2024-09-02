@@ -281,3 +281,8 @@ export const fontStyles: FontStyle[] = [
     },
   },
 ];
+
+export const getRandomFontStyle = (): FontStyle => {
+  const randomIndex = Math.floor(Math.random() * fontStyles.length);
+  return fontStyles[randomIndex];
+};

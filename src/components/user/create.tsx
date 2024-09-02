@@ -1,7 +1,5 @@
 // src/components/user/create.tsx
 
-"use client";
-
 import {
   AlertCircle,
   Check,
@@ -29,18 +27,13 @@ import {
   defaultSources,
   videoUrls,
 } from "@/utils/creatomate/templates";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import Stepper from "./components/stepper";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/component";
+import { getRandomFontStyle } from "@/utils/creatomate/fonts";
 import { observer } from "mobx-react-lite";
 import { toast } from "sonner";
 import { useRouter } from "next/router";
@@ -56,31 +49,122 @@ interface CreateProps {
   user: User;
 }
 
+interface GoogleDriveVideo {
+  id: string;
+  name: string;
+  thumbnailLink: string;
+  webContentLink: string;
+}
+
+interface GoogleDriveFolder {
+  id: string;
+  name: string;
+  videos: GoogleDriveVideo[];
+}
+
 const Create: React.FC<CreateProps> = observer(({ user }) => {
   const router = useRouter();
   const { step } = router.query;
 
-  // State variables
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] =
     useState<DefaultSource | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [isPreviewInitialized, setIsPreviewInitialized] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isCaptionsGenerated, setIsCaptionsGenerated] = useState(false);
+  const [isGeneratingCaptions, setIsGeneratingCaptions] = useState(false);
   const [isRendering, setIsRendering] = useState(false);
   const [renderResult, setRenderResult] = useState<any>(null);
   const [showRenderDialog, setShowRenderDialog] = useState(false);
-  const [isCaptionsGenerated, setIsCaptionsGenerated] = useState(false);
-  const [isGeneratingCaptions, setIsGeneratingCaptions] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
 
-  const [videoSources, setVideoSources] = useState<{ [key: string]: string }>(
-    Object.fromEntries(
-      videoUrls.map((url) => [url, url.replace(".mp4", ".mp4-thumbnail")]),
-    ),
-  );
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+
+  const [googleDriveFolders, setGoogleDriveFolders] = useState<
+    GoogleDriveFolder[]
+  >([]);
+
+  const GOOGLE_DRIVE_FOLDER_ID = "1rbH4TAJCdSJiYsaKcOI0RvhAAAGTf_xs";
+
+  useEffect(() => {
+    const fetchGoogleDriveVideos = async () => {
+      try {
+        const response = await fetch(
+          `https://www.googleapis.com/drive/v3/files?q='${GOOGLE_DRIVE_FOLDER_ID}'+in+parents+and+mimeType+contains+'video/'&fields=files(id,name,thumbnailLink,webContentLink)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`,
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch videos from Google Drive`);
+        }
+
+        const data = await response.json();
+        const videos = data.files.map((file: any) => ({
+          id: file.id,
+          name: file.name,
+          thumbnailLink: file.thumbnailLink,
+          webContentLink: file.webContentLink,
+        }));
+
+        setGoogleDriveFolders([
+          {
+            id: GOOGLE_DRIVE_FOLDER_ID,
+            name: "Video Folder",
+            videos: videos,
+          },
+        ]);
+      } catch (error) {
+        console.error("Error fetching Google Drive videos:", error);
+        toast.error("Failed to load videos from Google Drive");
+      }
+    };
+
+    fetchGoogleDriveVideos();
+  }, []);
+
+  useEffect(() => {
+    const supabase = createClient();
+    const getUser = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+      if (user) {
+        videoCreator.setUserId(user.id);
+      }
+    };
+    getUser();
+  }, []);
+
+  useEffect(() => {
+    const stepNumber = step ? Number(step) : 1;
+    if (stepNumber === 1) {
+      setCurrentStep(1);
+    } else if (stepNumber === 2 && selectedTemplate) {
+      setCurrentStep(2);
+    } else if (
+      stepNumber === 3 &&
+      selectedTemplate &&
+      selectedVideo &&
+      isCaptionsGenerated
+    ) {
+      setCurrentStep(3);
+    } else {
+      setCurrentStep(1);
+      updateUrlStep(1);
+    }
+  }, [step, selectedTemplate, selectedVideo, isCaptionsGenerated]);
+
+  useEffect(() => {
+    if (
+      currentStep === 3 &&
+      !isPreviewInitialized &&
+      previewContainerRef.current
+    ) {
+      initializePreview();
+    }
+  }, [currentStep, isPreviewInitialized]);
 
   const updateUrlStep = useCallback(
     (stepNumber: number) => {
@@ -91,206 +175,94 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
     [router],
   );
 
-  const formatTime = useCallback((time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes.toString().padStart(2, "0")}:${seconds
-      .toString()
-      .padStart(2, "0")}`;
-  }, []);
-
-  const handleMouseEnter = useCallback((videoUrl: string) => {
-    setVideoSources((prev) => ({ ...prev, [videoUrl]: videoUrl }));
-  }, []);
-
-  const handleMouseLeave = useCallback((videoUrl: string) => {
-    setVideoSources((prev) => ({
-      ...prev,
-      [videoUrl]: videoUrl.replace(".mp4", ".mp4-thumbnail"),
-    }));
-  }, []);
-
-  useEffect(() => {
-    const supabase = createClient();
-
-    const getUser = async () => {
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
-      if (error) {
-      } else if (user) {
-        setCurrentUser(user);
-        videoCreator.setUserId(user.id);
-      }
-    };
-
-    getUser();
-  }, []);
-
-  useEffect(() => {
-    const stepNumber = step ? Number(step) : 1;
-
-    if (stepNumber === 1) {
-      setCurrentStep(1);
-    } else if (stepNumber === 2 && selectedTemplate) {
-      setCurrentStep(2);
-    } else if (
-      stepNumber === 3 &&
-      selectedTemplate &&
-      selectedVideo &&
-      isPreviewInitialized
-    ) {
-      setCurrentStep(3);
-    } else {
-      setCurrentStep(1);
-      updateUrlStep(1);
-    }
-  }, [step, selectedTemplate, selectedVideo, isPreviewInitialized]);
-
-  useEffect(() => {
-    const updatePreviewHandlers = () => {
-      if (videoCreator.preview) {
-        const originalOnTimeChange = videoCreator.preview.onTimeChange;
-        const originalOnStateChange = videoCreator.preview.onStateChange;
-
-        videoCreator.preview.onTimeChange = (time: number) => {
-          setCurrentTime(time);
-          if (originalOnTimeChange) {
-            originalOnTimeChange(time);
-          }
-        };
-
-        videoCreator.preview.onStateChange = (state) => {
-          setDuration(state.duration);
-          if (originalOnStateChange) {
-            originalOnStateChange(state);
-          }
-        };
-
-        setDuration(videoCreator.duration);
-
-        return () => {
-          if (videoCreator.preview) {
-            videoCreator.preview.onTimeChange = originalOnTimeChange;
-            videoCreator.preview.onStateChange = originalOnStateChange;
-          }
-        };
-      }
-    };
-
-    const cleanup = updatePreviewHandlers();
-
-    return () => {
-      if (cleanup) cleanup();
-    };
-  }, [videoCreator.preview]);
-
-  const handleStepClick = (stepNumber: number) => {
-    if (stepNumber === 1) {
-      setCurrentStep(1);
-      updateUrlStep(1);
-    } else if (stepNumber === 2 && selectedTemplate) {
-      setCurrentStep(2);
-      updateUrlStep(2);
-    } else if (
-      stepNumber === 3 &&
-      selectedTemplate &&
-      selectedVideo &&
-      isPreviewInitialized &&
-      isCaptionsGenerated
-    ) {
-      setCurrentStep(3);
-      updateUrlStep(3);
-    } else {
-      setError("Please complete the previous steps before proceeding.");
-    }
-  };
-
   const handleTemplateSelect = async (template: DefaultSource) => {
     try {
       setSelectedTemplate(template);
-      console.log("Selected template:", template.name);
-      if (videoCreator.preview) {
-        console.log("Setting selected source immediately");
-        await videoCreator.setSelectedSource(template);
-      } else {
-        console.log(
-          "Preview not ready, template will be set after initialization",
-        );
-      }
-      console.log("Template set successfully:", template.name);
+      await videoCreator.setSelectedSource(template);
       setCurrentStep(2);
       updateUrlStep(2);
     } catch (err) {
-      console.error("Failed to set template:", err);
       setError("Failed to set template: " + (err as Error).message);
     }
   };
 
-  const handleVideoSelect = async (videoUrl: string) => {
+  const handleVideoSelect = async (video: GoogleDriveVideo) => {
     try {
-      setSelectedVideo(videoUrl);
-      console.log("Selected video URL:", videoUrl);
-
-      if (videoCreator.preview) {
-        console.log("Preview is ready, updating video source immediately");
-        await videoCreator.updateVideoSource("video1", videoUrl);
-      } else {
-        console.log("Preview not ready, queueing video update");
-        videoCreator.queueVideoUpdate("video1", videoUrl);
-      }
-
-      // Trigger caption generation
+      setSelectedVideo(video.webContentLink);
       setIsGeneratingCaptions(true);
-      try {
-        await videoCreator.fetchCaptions(videoUrl, "video1");
-        setIsCaptionsGenerated(true);
-        toast.success("Captions generated successfully");
-        setCurrentStep(3);
-        updateUrlStep(3);
-      } catch (err) {
-        console.error("Error generating captions:", err);
-        toast.error("Failed to generate captions");
-      } finally {
-        setIsGeneratingCaptions(false);
-      }
+
+      await videoCreator.updateTemplateWithSelectedVideo(
+        video.webContentLink,
+        videoUrls,
+      );
+
+      const captions = await videoCreator.fetchCaptions(
+        video.webContentLink,
+        "video1",
+      );
+      const randomFontStyle = getRandomFontStyle();
+      await videoCreator.queueCaptionsUpdate(
+        "video1",
+        captions,
+        randomFontStyle,
+      );
+
+      setIsCaptionsGenerated(true);
+      toast.success("Video selected and captions generated successfully");
+      setCurrentStep(3);
+      updateUrlStep(3);
     } catch (err) {
-      console.error("Failed to select video:", err);
       setError("Failed to select video: " + (err as Error).message);
+    } finally {
+      setIsGeneratingCaptions(false);
+    }
+  };
+
+  const initializePreview = async () => {
+    if (!previewContainerRef.current || isPreviewInitialized) return;
+
+    try {
+      await videoCreator.initializeVideoPlayer(previewContainerRef.current);
+      setIsPreviewInitialized(true);
+
+      if (selectedTemplate) {
+        await videoCreator.setSelectedSource(selectedTemplate);
+      }
+
+      await videoCreator.applyQueuedUpdates();
+
+      videoCreator.preview!.onTimeChange = (time: number) =>
+        setCurrentTime(time);
+      videoCreator.preview!.onStateChange = (state) =>
+        setDuration(state.duration);
+    } catch (error) {
+      setError(
+        "Failed to initialize video player: " + (error as Error).message,
+      );
     }
   };
 
   const handleExport = async () => {
     try {
-      if (!currentUser) {
-        throw new Error("User not authenticated");
-      }
-
       setIsRendering(true);
       setShowRenderDialog(true);
-      console.log("Starting video export for user:", currentUser.id);
-
       const jobId = await videoCreator.finishVideo();
-      console.log("Render job started with ID:", jobId);
-
-      try {
-        const renderResult = await videoCreator.checkRenderStatus(jobId);
-        setIsRendering(false);
-        setRenderResult(renderResult);
-        toast.success("Video exported successfully");
-        console.log("Export result:", renderResult);
-      } catch (renderError) {
-        setIsRendering(false);
-        console.error("Render failed:", renderError);
-        setError("Render failed: " + (renderError as Error).message);
-      }
+      const renderResult = await videoCreator.checkRenderStatus(jobId);
+      setRenderResult(renderResult);
+      toast.success("Video exported successfully");
     } catch (err) {
-      console.error("Export error:", err);
       setError("Export error: " + (err as Error).message);
+    } finally {
       setIsRendering(false);
-      setShowRenderDialog(false);
     }
+  };
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes.toString().padStart(2, "0")}:${seconds
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   const renderStep = () => {
@@ -331,45 +303,39 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
+            className="space-y-8"
           >
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {videoUrls.map((videoUrl, index) => (
-                <motion.div
-                  key={videoUrl}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`border p-4 rounded cursor-pointer transition-colors duration-200 ${
-                    selectedVideo === videoUrl
-                      ? "border-blue-500 border-2"
-                      : "hover:border-blue-500"
-                  }`}
-                  onClick={() => handleVideoSelect(videoUrl)}
-                  onMouseEnter={() => handleMouseEnter(videoUrl)}
-                  onMouseLeave={() => handleMouseLeave(videoUrl)}
-                >
-                  <div className="relative w-full h-40 mb-2">
-                    {videoSources[videoUrl].endsWith("-thumbnail") ? (
-                      <img
-                        src={videoSources[videoUrl]}
-                        alt={`Video ${index + 1} preview`}
-                        className="w-full h-full object-cover rounded"
-                      />
-                    ) : (
-                      <video
-                        key={videoSources[videoUrl]}
-                        src={videoSources[videoUrl]}
-                        className="w-full h-full object-cover rounded"
-                        loop
-                        muted
-                        playsInline
-                        autoPlay
-                      />
-                    )}
-                  </div>
-                  <p className="text-center font-medium">Video {index + 1}</p>
-                </motion.div>
-              ))}
-            </div>
+            {googleDriveFolders.map((folder) => (
+              <div key={folder.id}>
+                <h2 className="text-xl font-bold mb-4">{folder.name}</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {folder.videos.map((video) => (
+                    <motion.div
+                      key={video.id}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={`border p-4 rounded cursor-pointer transition-colors duration-200 ${
+                        selectedVideo === video.webContentLink
+                          ? "border-blue-500 border-2"
+                          : "hover:border-blue-500"
+                      }`}
+                      onClick={() => handleVideoSelect(video)}
+                    >
+                      <div className="relative w-full h-40 mb-2">
+                        <img
+                          src={video.thumbnailLink}
+                          alt={video.name}
+                          className="w-full h-full object-cover rounded"
+                        />
+                      </div>
+                      <p className="text-center font-medium truncate">
+                        {video.name}
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </motion.div>
         );
       case 3:
@@ -390,37 +356,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
                 </div>
               )}
               <div
-                ref={(element) => {
-                  console.log("Ref callback called, element:", element);
-                  console.log(
-                    "Current videoCreator.preview?.element:",
-                    videoCreator.preview?.element,
-                  );
-                  if (element && element !== videoCreator.preview?.element) {
-                    console.log("Initializing video player");
-                    videoCreator
-                      .initializeVideoPlayer(element)
-                      .then(() => {
-                        console.log("Video player initialized");
-                        setIsPreviewInitialized(true);
-                        if (selectedTemplate) {
-                          console.log(
-                            "Setting selected source after initialization",
-                          );
-                          videoCreator.setSelectedSource(selectedTemplate);
-                        }
-                      })
-                      .catch((error) => {
-                        console.error(
-                          "Failed to initialize video player:",
-                          error,
-                        );
-                        setError(
-                          "Failed to initialize video player: " + error.message,
-                        );
-                      });
-                  }
-                }}
+                ref={previewContainerRef}
                 className="relative w-full h-full border rounded-t-xl"
                 style={{ height: "28rem" }}
               />
@@ -494,7 +430,12 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
       <Stepper
         steps={stepTitles}
         currentStep={currentStep}
-        onStepClick={handleStepClick}
+        onStepClick={(step) => {
+          if (step <= currentStep) {
+            setCurrentStep(step);
+            updateUrlStep(step);
+          }
+        }}
         isLoading={isGeneratingCaptions || isRendering}
         loadingStep={isGeneratingCaptions ? 2 : isRendering ? 3 : 0}
         loadingMessage={
@@ -518,21 +459,18 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
               <AlertCircle className="w-5 h-5 mr-2" />
               <span className="block sm:inline">{error}</span>
             </span>
-            <span>
-              <Button
-                variant="ghost"
-                className="hover:border hover:bg-transparent hover:text-red-500"
-                size="icon"
-                onClick={() => setError(null)}
-              >
-                <XIcon className="w-4 h-4" />
-              </Button>
-            </span>
+            <Button
+              variant="ghost"
+              className="hover:border hover:bg-transparent hover:text-red-500"
+              size="icon"
+              onClick={() => setError(null)}
+            >
+              <XIcon className="w-4 h-4" />
+            </Button>
           </motion.div>
         )}
       </AnimatePresence>
       {renderStep()}
-
       <AlertDialog open={showRenderDialog} onOpenChange={setShowRenderDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
