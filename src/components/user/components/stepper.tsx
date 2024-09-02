@@ -1,5 +1,4 @@
-// src/components/user/components/stepper.tsx
-
+// src\components\user\components\stepper.tsx
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Loader } from "lucide-react";
 
@@ -32,42 +31,49 @@ const Stepper: React.FC<StepperProps> = ({
           const isCompleted = isFinished || currentStep > stepNumber;
           const isCurrent = !isFinished && currentStep === stepNumber;
           const isLoadingThis = isLoading && loadingStep === stepNumber;
-
           return (
             <React.Fragment key={index}>
               <div className="relative flex flex-col items-center">
                 <motion.button
-                  className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors duration-200 ${
+                  className={`flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full border-2 transition-colors duration-200 ${
                     isCompleted
                       ? "border-green-500 bg-green-500 text-white"
                       : isCurrent
-                        ? "border-blue-600 bg-blue-600 text-white"
-                        : "border-gray-300 bg-white text-gray-500"
+                      ? "border-blue-600 bg-blue-600 text-white"
+                      : "border-gray-300 bg-white text-gray-500"
                   }`}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => onStepClick(stepNumber)}
                 >
                   {isCompleted ? (
-                    <Check className="w-6 h-6" />
+                    <Check className="w-4 h-4 md:w-6 md:h-6" />
                   ) : isLoadingThis ? (
-                    <Loader className="w-6 h-6 animate-spin" />
+                    <Loader className="w-4 h-4 md:w-6 md:h-6 animate-spin" />
                   ) : (
-                    <span className="text-sm font-semibold">{stepNumber}</span>
+                    <span className="text-xs md:text-sm font-semibold">
+                      {stepNumber}
+                    </span>
                   )}
                 </motion.button>
                 <motion.div
                   className={`absolute -bottom-6 w-max text-center text-xs font-medium ${
                     isCurrent ? "text-blue-600" : "text-gray-500"
-                  }`}
+                  } ${isCurrent ? "" : "hidden md:block"}`}
                   initial={false}
                   animate={{ scale: isCurrent ? 1.1 : 1 }}
                 >
-                  {step}
+                  {isCurrent ? (
+                    step
+                  ) : (
+                    <span className="truncate max-w-[60px] md:max-w-none">
+                      {step}
+                    </span>
+                  )}
                 </motion.div>
               </div>
               {index < steps.length - 1 && (
-                <div className="flex-1 h-0.5 bg-gray-300">
+                <div className="flex-1 h-0.5 bg-gray-300 mx-1 md:mx-2">
                   <motion.div
                     className="h-full bg-green-500"
                     initial={{ width: "0%" }}
