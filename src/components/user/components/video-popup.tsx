@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { X } from "lucide-react";
 
@@ -15,6 +15,7 @@ const VideoViewer: React.FC<VideoViewerProps> = ({
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     if (isOpen && videoRef.current) {
@@ -28,9 +29,7 @@ const VideoViewer: React.FC<VideoViewerProps> = ({
         onClose();
       }
     };
-
     window.addEventListener("keydown", handleEsc);
-
     return () => {
       window.removeEventListener("keydown", handleEsc);
     };
@@ -42,31 +41,38 @@ const VideoViewer: React.FC<VideoViewerProps> = ({
     }
   };
 
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+  };
+
   if (!isOpen) return null;
 
   return (
     <div
       ref={containerRef}
       onClick={handleContainerClick}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 touch-none"
     >
       <div
-        className="relative w-full h-full max-w-md max-h-[90vh] overflow-hidden"
+        className={`relative w-full h-full ${
+          isFullscreen ? "" : "max-w-full max-h-[100vh] p-4"
+        } overflow-hidden`}
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-7 right-3 p-2 rounded-full bg-black bg-opacity-50 text-white hover:bg-opacity-75 transition-colors duration-200 z-10"
+          className="absolute top-2 right-2 p-2 rounded-full bg-black bg-opacity-50 text-white hover:bg-opacity-75 transition-colors duration-200 z-10"
           aria-label="Close video"
         >
           <X size={24} />
         </button>
         <video
           ref={videoRef}
-          className="p-2 w-full h-full object-contain"
+          className="w-full h-full object-contain"
           src={videoUrl}
           controls
           autoPlay
+          playsInline
         >
           Your browser does not support the video tag.
         </video>

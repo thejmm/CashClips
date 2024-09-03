@@ -67,7 +67,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
   const [selectedTemplate, setSelectedTemplate] =
     useState<DefaultSource | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<GoogleDriveItem | null>(
-    null
+    null,
   );
   const [isPreviewInitialized, setIsPreviewInitialized] = useState(false);
   const [isCaptionsGenerated, setIsCaptionsGenerated] = useState(false);
@@ -100,7 +100,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
       setIsLoadingFolders(true);
       try {
         const response = await fetch(
-          `https://www.googleapis.com/drive/v3/files?q='${process.env.NEXT_PUBLIC_GOOGLE_FOLDER}'+in+parents&fields=files(id,name,mimeType)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`
+          `https://www.googleapis.com/drive/v3/files?q='${process.env.NEXT_PUBLIC_GOOGLE_FOLDER}'+in+parents&fields=files(id,name,mimeType)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`,
         );
 
         if (!response.ok) {
@@ -110,7 +110,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
         const data = await response.json();
         const folders = data.files.filter(
           (file: { mimeType: string }) =>
-            file.mimeType === "application/vnd.google-apps.folder"
+            file.mimeType === "application/vnd.google-apps.folder",
         );
 
         setFolderStructure(folders || []);
@@ -185,7 +185,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
     try {
       console.log(`Fetching contents for folder: ${folderId}`);
       const response = await fetch(
-        `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,thumbnailLink,webContentLink)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`
+        `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,thumbnailLink,webContentLink)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`,
       );
 
       console.log("Response status:", response.status);
@@ -197,15 +197,15 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
         throw new Error(
           `API request failed with status ${response.status}: ${
             data.error?.message || "Unknown error"
-          }`
+          }`,
         );
       }
 
       setFolderStructure(
         data.files.filter(
           (file: { mimeType: string }) =>
-            file.mimeType === "application/vnd.google-apps.folder"
-        ) || []
+            file.mimeType === "application/vnd.google-apps.folder",
+        ) || [],
       );
 
       if (data.files && data.files.length === 0) {
@@ -226,7 +226,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
     setIsLoadingVideos(true);
     try {
       const response = await fetch(
-        `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+mimeType+contains+'video/'&fields=files(id,name,mimeType,thumbnailLink,webContentLink)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`
+        `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+mimeType+contains+'video/'&fields=files(id,name,mimeType,thumbnailLink,webContentLink)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`,
       );
 
       if (!response.ok) {
@@ -256,7 +256,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
         shallow: true,
       });
     },
-    [router]
+    [router],
   );
 
   const handleTemplateSelect = async (template: DefaultSource) => {
@@ -281,18 +281,18 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
       // Use the webContentLink directly
       await videoCreator.updateTemplateWithSelectedVideo(
         video.webContentLink!,
-        videoUrls
+        videoUrls,
       );
 
       const captions = await videoCreator.fetchCaptions(
         video.webContentLink!,
-        "video1"
+        "video1",
       );
       const randomFontStyle = getRandomFontStyle();
       await videoCreator.queueCaptionsUpdate(
         "video1",
         captions,
-        randomFontStyle
+        randomFontStyle,
       );
 
       setIsCaptionsGenerated(true);
@@ -318,7 +318,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
         await videoCreator.setSelectedSource(selectedTemplate);
         await videoCreator.updateTemplateWithSelectedVideo(
           selectedVideoUrl,
-          videoUrls
+          videoUrls,
         );
       }
 
@@ -330,7 +330,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
         setDuration(state.duration);
     } catch (error) {
       setError(
-        "Failed to initialize video player: " + (error as Error).message
+        "Failed to initialize video player: " + (error as Error).message,
       );
     }
   };
@@ -370,17 +370,30 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
 
   const handleDownload = async (url: string) => {
     try {
-      const response = await fetch(url, { mode: "cors" });
+      const response = await fetch(url);
       if (!response.ok) throw new Error("Failed to fetch the file.");
       const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = blobUrl;
-      anchor.download = url.split("/").pop() || "download";
-      document.body.appendChild(anchor);
-      anchor.click();
-      window.URL.revokeObjectURL(blobUrl);
-      document.body.removeChild(anchor);
+
+      if (navigator.share) {
+        const fileName = url.split("/").pop() || "video.mp4";
+        const file = new File([blob], fileName, { type: blob.type });
+
+        await navigator.share({
+          files: [file],
+          title: "Download Video",
+          text: "Here is your video file.",
+        });
+      } else {
+        // Fallback for non-iOS devices
+        const blobUrl = window.URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = blobUrl;
+        anchor.download = url.split("/").pop() || "download";
+        document.body.appendChild(anchor);
+        anchor.click();
+        window.URL.revokeObjectURL(blobUrl);
+        document.body.removeChild(anchor);
+      }
     } catch (error) {
       console.error("Failed to download file:", error);
     }
@@ -609,17 +622,6 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
                   <p className="mb-4">
                     Your video has been rendered successfully!
                   </p>
-                  <div className="bg-card p-4 rounded-md mb-4">
-                    <h4 className="font-medium mb-2">Render Details:</h4>
-                    <ul className="list-disc list-inside">
-                      <li>Status: {renderResult.status}</li>
-                      <li>Duration: {renderResult.duration} seconds</li>
-                      <li>
-                        Resolution: {renderResult.width}x{renderResult.height}
-                      </li>
-                      <li>Format: {renderResult.output_format}</li>
-                    </ul>
-                  </div>
                   <div className="flex space-x-4 mb-4">
                     <Button
                       onClick={() => setIsVideoViewerOpen(true)}
@@ -691,8 +693,8 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
           isGeneratingCaptions
             ? "Generating captions..."
             : isRendering
-            ? "Rendering video..."
-            : ""
+              ? "Rendering video..."
+              : ""
         }
         isFinished={isFinished}
       />

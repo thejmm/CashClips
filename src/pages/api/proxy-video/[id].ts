@@ -6,7 +6,7 @@ import fetch from "node-fetch";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   const { id } = req.query;
   const url = `https://www.googleapis.com/drive/v3/files/${id}?alt=media&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`;
@@ -17,11 +17,11 @@ export default async function handler(
 
     res.setHeader(
       "Content-Type",
-      response.headers.get("content-type") || "video/mp4"
+      response.headers.get("content-type") || "video/mp4",
     );
     res.setHeader(
       "Content-Length",
-      response.headers.get("content-length") || ""
+      response.headers.get("content-length") || "",
     );
     res.setHeader("Access-Control-Allow-Origin", "*");
 

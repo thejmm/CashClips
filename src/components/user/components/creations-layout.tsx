@@ -64,17 +64,30 @@ const VideoCard: React.FC<{ clip: Clip }> = ({ clip }) => {
 
   const handleDownload = async (url: string) => {
     try {
-      const response = await fetch(url, { mode: "cors" });
+      const response = await fetch(url);
       if (!response.ok) throw new Error("Failed to fetch the file.");
       const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = blobUrl;
-      anchor.download = url.split("/").pop() || "download";
-      document.body.appendChild(anchor);
-      anchor.click();
-      window.URL.revokeObjectURL(blobUrl);
-      document.body.removeChild(anchor);
+
+      if (navigator.share) {
+        const fileName = url.split("/").pop() || "video.mp4";
+        const file = new File([blob], fileName, { type: blob.type });
+
+        await navigator.share({
+          files: [file],
+          title: "Download Video",
+          text: "Here is your video file.",
+        });
+      } else {
+        // Fallback for non-iOS devices
+        const blobUrl = window.URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = blobUrl;
+        anchor.download = url.split("/").pop() || "download";
+        document.body.appendChild(anchor);
+        anchor.click();
+        window.URL.revokeObjectURL(blobUrl);
+        document.body.removeChild(anchor);
+      }
     } catch (error) {
       console.error("Failed to download file:", error);
     }
@@ -194,7 +207,7 @@ const Creations: React.FC<CreationsProps> = ({
       (clip) =>
         clip.status !== "failed" && // Exclude failed clips
         (filterStatus.length === 0 || filterStatus.includes(clip.status)) &&
-        clip.render_id.toLowerCase().includes(searchTerm.toLowerCase())
+        clip.render_id.toLowerCase().includes(searchTerm.toLowerCase()),
     );
 
     setFilteredClips(filtered);
