@@ -1,3 +1,4 @@
+// src\components\user\components\video-popup.tsx
 import React, { useEffect, useRef, useState } from "react";
 
 import { X } from "lucide-react";
@@ -41,17 +42,13 @@ const VideoViewer: React.FC<VideoViewerProps> = ({
     }
   };
 
-  const toggleFullscreen = () => {
-    setIsFullscreen(!isFullscreen);
-  };
-
   if (!isOpen) return null;
 
   return (
     <div
       ref={containerRef}
       onClick={handleContainerClick}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 touch-none"
+      className="fixed inset-0 z-[99999999] flex items-center justify-center bg-black bg-opacity-90 touch-none"
     >
       <div
         className={`relative w-full h-full ${
