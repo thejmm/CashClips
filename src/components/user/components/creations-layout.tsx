@@ -6,13 +6,6 @@ import {
   FileVideo,
   HardDrive,
   Loader,
-  Maximize,
-  Minimize,
-  Pause,
-  Play,
-  Volume2,
-  VolumeX,
-  X,
 } from "lucide-react";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import {
@@ -93,12 +86,6 @@ const VideoCard: React.FC<{ clip: Clip }> = ({ clip }) => {
         return (
           <span className="text-green-500 flex items-center">
             <CheckCircle className="mr-1 h-4 w-4" /> Succeeded
-          </span>
-        );
-      case "failed":
-        return (
-          <span className="text-red-500 flex items-center">
-            <AlertCircle className="mr-1 h-4 w-4" /> Failed
           </span>
         );
       case "planned":
@@ -205,8 +192,9 @@ const Creations: React.FC<CreationsProps> = ({
 
     const filtered = sorted.filter(
       (clip) =>
+        clip.status !== "failed" && // Exclude failed clips
         (filterStatus.length === 0 || filterStatus.includes(clip.status)) &&
-        clip.render_id.toLowerCase().includes(searchTerm.toLowerCase()),
+        clip.render_id.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     setFilteredClips(filtered);
@@ -295,7 +283,7 @@ const Creations: React.FC<CreationsProps> = ({
             { value: "waiting", label: "Waiting" },
             { value: "transcribing", label: "Transcribing" },
             { value: "rendering", label: "Rendering" },
-            { value: "failed", label: "Failed" },
+            // Removed the "failed" option
           ]}
           selectedValues={filterStatus}
           onChange={handleFilterChange}
