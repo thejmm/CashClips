@@ -91,6 +91,93 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
 
+  useEffect(() => {
+    fetchGoogleDriveContents(process.env.NEXT_PUBLIC_GOOGLE_FOLDER as string);
+  }, []);
+
+  useEffect(() => {
+    const fetchAndSetDefaultFolder = async () => {
+      setIsLoadingFolders(true);
+      try {
+        const response = await fetch(
+          `https://www.googleapis.com/drive/v3/files?q='${process.env.NEXT_PUBLIC_GOOGLE_FOLDER}'+in+parents&fields=files(id,name,mimeType)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        const folders = data.files.filter(
+          (file: { mimeType: string }) =>
+            file.mimeType === "application/vnd.google-apps.folder"
+        );
+
+        setFolderStructure(folders || []);
+
+        if (folders.length > 0) {
+          const defaultFolder = folders[0];
+          setDefaultFolderId(defaultFolder.id);
+          setSelectedFolderId(defaultFolder.id);
+          fetchFolderContents(defaultFolder.id);
+        }
+      } catch (err) {
+        console.error("Error fetching Google Drive contents:", err);
+        setError((err as Error).message);
+        toast.error("Failed to load contents from Google Drive");
+      } finally {
+        setIsLoadingFolders(false);
+      }
+    };
+
+    fetchAndSetDefaultFolder();
+  }, []);
+
+  useEffect(() => {
+    const supabase = createClient();
+    const getUser = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+      if (user) {
+        videoCreator.setUserId(user.id);
+      }
+    };
+    getUser();
+  }, []);
+
+  useEffect(() => {
+    const stepNumber = step ? Number(step) : 1;
+    if (stepNumber === 1) {
+      setCurrentStep(1);
+    } else if (stepNumber === 2 && selectedTemplate) {
+      setCurrentStep(2);
+    } else if (
+      stepNumber === 3 &&
+      selectedTemplate &&
+      selectedVideo &&
+      isCaptionsGenerated
+    ) {
+      setCurrentStep(3);
+    } else if (stepNumber === 4 && isFinished) {
+      setCurrentStep(4);
+    } else if (stepNumber !== 4) {
+      setCurrentStep(1);
+      updateUrlStep(1);
+    }
+  }, [step, selectedTemplate, selectedVideo, isCaptionsGenerated, isFinished]);
+
+  useEffect(() => {
+    if (
+      currentStep === 3 &&
+      !isPreviewInitialized &&
+      previewContainerRef.current
+    ) {
+      initializePreview();
+    }
+  }, [currentStep, isPreviewInitialized]);
+
   const fetchGoogleDriveContents = async (folderId: string) => {
     setIsLoadingFolders(true);
     setError(null);
@@ -163,93 +250,6 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
     }
   };
 
-  useEffect(() => {
-    fetchGoogleDriveContents(process.env.NEXT_PUBLIC_GOOGLE_FOLDER as string);
-  }, []);
-
-  useEffect(() => {
-    const fetchAndSetDefaultFolder = async () => {
-      setIsLoadingFolders(true);
-      try {
-        const response = await fetch(
-          `https://www.googleapis.com/drive/v3/files?q='${process.env.NEXT_PUBLIC_GOOGLE_FOLDER}'+in+parents&fields=files(id,name,mimeType)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`
-        );
-
-        if (!response.ok) {
-          throw new Error(`API request failed with status ${response.status}`);
-        }
-
-        const data = await response.json();
-        const folders = data.files.filter(
-          (file: { mimeType: string }) =>
-            file.mimeType === "application/vnd.google-apps.folder"
-        );
-
-        setFolderStructure(folders || []);
-
-        if (folders.length > 0) {
-          const defaultFolder = folders[0]; // Select the first folder as default
-          setDefaultFolderId(defaultFolder.id);
-          setSelectedFolderId(defaultFolder.id);
-          fetchFolderContents(defaultFolder.id);
-        }
-      } catch (err) {
-        console.error("Error fetching Google Drive contents:", err);
-        setError((err as Error).message);
-        toast.error("Failed to load contents from Google Drive");
-      } finally {
-        setIsLoadingFolders(false);
-      }
-    };
-
-    fetchAndSetDefaultFolder();
-  }, []);
-
-  useEffect(() => {
-    const supabase = createClient();
-    const getUser = async () => {
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
-      if (user) {
-        videoCreator.setUserId(user.id);
-      }
-    };
-    getUser();
-  }, []);
-
-  useEffect(() => {
-    const stepNumber = step ? Number(step) : 1;
-    if (stepNumber === 1) {
-      setCurrentStep(1);
-    } else if (stepNumber === 2 && selectedTemplate) {
-      setCurrentStep(2);
-    } else if (
-      stepNumber === 3 &&
-      selectedTemplate &&
-      selectedVideo &&
-      isCaptionsGenerated
-    ) {
-      setCurrentStep(3);
-    } else if (stepNumber === 4 && isFinished) {
-      setCurrentStep(4);
-    } else if (stepNumber !== 4) {
-      setCurrentStep(1);
-      updateUrlStep(1);
-    }
-  }, [step, selectedTemplate, selectedVideo, isCaptionsGenerated, isFinished]);
-
-  useEffect(() => {
-    if (
-      currentStep === 3 &&
-      !isPreviewInitialized &&
-      previewContainerRef.current
-    ) {
-      initializePreview();
-    }
-  }, [currentStep, isPreviewInitialized]);
-
   const updateUrlStep = useCallback(
     (stepNumber: number) => {
       router.push(`/user/create?step=${stepNumber}`, undefined, {
@@ -271,40 +271,40 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
     }
   };
 
-  const handleVideoSelect = async (video: GoogleDriveItem) => {
-    try {
-      setIsBusy(true);
-      setSelectedVideo(video);
-      setSelectedVideoUrl(video.webContentLink!);
-      setIsGeneratingCaptions(true);
+const handleVideoSelect = async (video: GoogleDriveItem) => {
+  try {
+    setIsBusy(true);
+    setSelectedVideo(video);
+    setSelectedVideoUrl(video.webContentLink!);
+    setIsGeneratingCaptions(true);
 
-      await videoCreator.updateTemplateWithSelectedVideo(
-        video.webContentLink!,
-        videoUrls
-      );
+    await videoCreator.updateTemplateWithSelectedVideo(
+      video.webContentLink!,
+      videoUrls
+    );
 
-      const captions = await videoCreator.fetchCaptions(
-        video.webContentLink!,
-        "video1"
-      );
-      const randomFontStyle = getRandomFontStyle();
-      await videoCreator.queueCaptionsUpdate(
-        "video1",
-        captions,
-        randomFontStyle
-      );
+    const captions = await videoCreator.fetchCaptions(
+      video.webContentLink!,
+      "video1"
+    );
+    const randomFontStyle = getRandomFontStyle();
+    await videoCreator.queueCaptionsUpdate(
+      "video1",
+      captions,
+      randomFontStyle
+    );
 
-      setIsCaptionsGenerated(true);
-      toast.success("Video selected and captions generated successfully");
-      setCurrentStep(3);
-      updateUrlStep(3);
-    } catch (err) {
-      setError("Failed to select video: " + (err as Error).message);
-    } finally {
-      setIsGeneratingCaptions(false);
-      setIsBusy(false);
-    }
-  };
+    setIsCaptionsGenerated(true);
+    toast.success("Video selected and captions generated successfully");
+    setCurrentStep(3);
+    updateUrlStep(3);
+  } catch (err) {
+    setError("Failed to select video: " + (err as Error).message);
+  } finally {
+    setIsGeneratingCaptions(false);
+    setIsBusy(false);
+  }
+};
 
   const initializePreview = async () => {
     if (!previewContainerRef.current || isPreviewInitialized) return;

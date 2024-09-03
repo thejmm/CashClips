@@ -1,10 +1,7 @@
 import {
-  CompositionState,
-  ElementState,
   Preview,
   PreviewState,
 } from "@creatomate/preview";
-import { deepClone, deepFind, groupBy } from "@/utils/creatomate/utils";
 import { makeAutoObservable, runInAction } from "mobx";
 
 import { DefaultSource } from "@/utils/creatomate/templates";
@@ -119,15 +116,14 @@ class VideoCreatorStore {
     const source = this.preview.getSource();
     
     console.log("Updating template with selected video:", selectedVideoUrl);
-    console.log("Selected source type:", this.selectedSource?.type);
-    console.log("Is split template:", this.isSplitTemplate());
-    console.log("Source elements before:", JSON.stringify(source.elements, null, 2));
+
+    const proxyUrl = this.convertToDirect(selectedVideoUrl);
 
     if (this.isBlurTemplate() || this.isPictureInPictureTemplate()) {
       console.log("Applying blur or picture-in-picture template");
       source.elements.forEach((el: any) => {
         if (el.type === "video") {
-          el.source = selectedVideoUrl;
+          el.source = proxyUrl;
         }
       });
     } else if (this.isSplitTemplate()) {
@@ -139,12 +135,13 @@ class VideoCreatorStore {
 
       videoElements.forEach((el: any, index: number) => {
         if (index === randomIndex) {
-          el.source = selectedVideoUrl;
+          el.source = proxyUrl;
         } else {
-          const randomVideoUrl =
+          const randomVideoUrl = this.convertToDirect(
             availableVideoUrls[
               Math.floor(Math.random() * availableVideoUrls.length)
-            ];
+            ]
+          );
           el.source = randomVideoUrl;
         }
       });
@@ -154,13 +151,20 @@ class VideoCreatorStore {
         (el: any) => el.type === "video"
       );
       if (videoElement) {
-        videoElement.source = selectedVideoUrl;
+        videoElement.source = proxyUrl;
       }
     }
 
     console.log("Source elements after:", JSON.stringify(source.elements, null, 2));
     
     await this.preview.setSource(source, true);
+  }
+
+  convertToDirect(url: string): string {
+    const fileId = url.match(/[-\w]{25,}/)?.[0];
+    // Use window.location.origin to get the current domain
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+    return `${origin}/api/proxy-video/${fileId}`;
   }
 
   async addCaptionsAsElements(
