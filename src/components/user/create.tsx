@@ -89,6 +89,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
   const [isVideoViewerOpen, setIsVideoViewerOpen] = useState(false);
   const [isBusy, setIsBusy] = useState(false);
   const previewContainerRef = useRef<HTMLDivElement>(null);
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
 
   const fetchGoogleDriveContents = async (folderId: string) => {
     setIsLoadingFolders(true);
@@ -260,6 +261,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
 
   const handleTemplateSelect = async (template: DefaultSource) => {
     try {
+      console.log("Selected template:", template);
       setSelectedTemplate(template);
       await videoCreator.setSelectedSource(template);
       setCurrentStep(2);
@@ -273,6 +275,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
     try {
       setIsBusy(true);
       setSelectedVideo(video);
+      setSelectedVideoUrl(video.webContentLink!);
       setIsGeneratingCaptions(true);
 
       await videoCreator.updateTemplateWithSelectedVideo(
@@ -310,8 +313,12 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
       await videoCreator.initializeVideoPlayer(previewContainerRef.current);
       setIsPreviewInitialized(true);
 
-      if (selectedTemplate) {
+      if (selectedTemplate && selectedVideoUrl) {
         await videoCreator.setSelectedSource(selectedTemplate);
+        await videoCreator.updateTemplateWithSelectedVideo(
+          selectedVideoUrl,
+          videoUrls
+        );
       }
 
       await videoCreator.applyQueuedUpdates();

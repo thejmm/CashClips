@@ -40,7 +40,7 @@ class VideoCreatorStore {
     const preview = new Preview(
       htmlElement,
       "interactive",
-      process.env.NEXT_PUBLIC_CREATOMATE_PUBLIC_TOKEN!,
+      process.env.NEXT_PUBLIC_CREATOMATE_PUBLIC_TOKEN!
     );
 
     this.preview = preview;
@@ -68,6 +68,7 @@ class VideoCreatorStore {
   }
 
   async setSelectedSource(source: DefaultSource): Promise<void> {
+    console.log("Setting selected source:", source);
     this.selectedSource = source;
     if (this.preview) {
       await this.preview.setSource(source.data);
@@ -101,7 +102,7 @@ class VideoCreatorStore {
 
     const source = this.preview.getSource();
     const elementToUpdate = source.elements.find(
-      (el: any) => el.id === elementId,
+      (el: any) => el.id === elementId
     );
     if (elementToUpdate) {
       elementToUpdate.source = newSource;
@@ -111,49 +112,61 @@ class VideoCreatorStore {
 
   async updateTemplateWithSelectedVideo(
     selectedVideoUrl: string,
-    availableVideoUrls: string[],
+    availableVideoUrls: string[]
   ): Promise<void> {
     if (!this.preview || !this.selectedSource) return;
 
     const source = this.preview.getSource();
+    
+    console.log("Updating template with selected video:", selectedVideoUrl);
+    console.log("Selected source type:", this.selectedSource?.type);
+    console.log("Is split template:", this.isSplitTemplate());
+    console.log("Source elements before:", JSON.stringify(source.elements, null, 2));
 
     if (this.isBlurTemplate() || this.isPictureInPictureTemplate()) {
+      console.log("Applying blur or picture-in-picture template");
       source.elements.forEach((el: any) => {
         if (el.type === "video") {
           el.source = selectedVideoUrl;
         }
       });
     } else if (this.isSplitTemplate()) {
+      console.log("Applying split template");
       const videoElements = source.elements.filter(
-        (el: any) => el.type === "video",
+        (el: any) => el.type === "video"
       );
       const randomIndex = Math.floor(Math.random() * videoElements.length);
-      videoElements[randomIndex].source = selectedVideoUrl;
 
-      // Set the other video element to a random video from availableVideoUrls
-      const otherIndex = 1 - randomIndex;
-      const randomVideoUrl =
-        availableVideoUrls[
-          Math.floor(Math.random() * availableVideoUrls.length)
-        ];
-      videoElements[otherIndex].source = randomVideoUrl;
+      videoElements.forEach((el: any, index: number) => {
+        if (index === randomIndex) {
+          el.source = selectedVideoUrl;
+        } else {
+          const randomVideoUrl =
+            availableVideoUrls[
+              Math.floor(Math.random() * availableVideoUrls.length)
+            ];
+          el.source = randomVideoUrl;
+        }
+      });
     } else {
-      // For other template types, just update the first video element
+      console.log("Applying default template");
       const videoElement = source.elements.find(
-        (el: any) => el.type === "video",
+        (el: any) => el.type === "video"
       );
       if (videoElement) {
         videoElement.source = selectedVideoUrl;
       }
     }
 
+    console.log("Source elements after:", JSON.stringify(source.elements, null, 2));
+    
     await this.preview.setSource(source, true);
   }
 
   async addCaptionsAsElements(
     elementId: string,
     captions: any,
-    fontStyle: FontStyle,
+    fontStyle: FontStyle
   ): Promise<void> {
     if (!this.preview || !captions) return;
 
@@ -184,7 +197,7 @@ class VideoCreatorStore {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url }),
-      },
+      }
     );
 
     if (!response.ok) {
@@ -229,7 +242,7 @@ class VideoCreatorStore {
   async finishVideo(
     modifications: any = {},
     outputFormat: string = "mp4",
-    frameRate: number = 30,
+    frameRate: number = 30
   ): Promise<string> {
     if (!this.preview || !this.userId) {
       throw new Error("Preview is not initialized or user ID is not set");
@@ -250,7 +263,7 @@ class VideoCreatorStore {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify([renderJob]),
-      },
+      }
     );
 
     if (!response.ok) {
@@ -271,7 +284,7 @@ class VideoCreatorStore {
         try {
           const response = await fetch(
             `https://thejmm--render-cash-clips-fastapi-app.modal.run/api/creatomate/fetch-render-status?id=${jobId}`,
-            { method: "GET", headers: { "Content-Type": "application/json" } },
+            { method: "GET", headers: { "Content-Type": "application/json" } }
           );
 
           if (!response.ok) {
@@ -294,12 +307,12 @@ class VideoCreatorStore {
             clearInterval(pollInterval);
             reject(
               new Error(
-                `Job ${jobId} failed: ${jobStatus.error || "Unknown error"}`,
-              ),
+                `Job ${jobId} failed: ${jobStatus.error || "Unknown error"}`
+              )
             );
           } else if (
             !["rendering", "planned", "waiting", "transcribing"].includes(
-              jobStatus.status,
+              jobStatus.status
             )
           ) {
             clearInterval(pollInterval);
