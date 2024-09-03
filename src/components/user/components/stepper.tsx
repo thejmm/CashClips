@@ -1,8 +1,16 @@
-// src\components\user\components\stepper.tsx
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Loader } from "lucide-react";
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 interface StepperProps {
   steps: string[];
@@ -12,6 +20,8 @@ interface StepperProps {
   loadingStep: number;
   loadingMessage: string;
   isFinished: boolean;
+  isError: boolean; // Prop to handle error state
+  progress?: number; // New optional prop for progress percentage
 }
 
 const Stepper: React.FC<StepperProps> = ({
@@ -22,7 +32,19 @@ const Stepper: React.FC<StepperProps> = ({
   loadingStep,
   loadingMessage,
   isFinished,
+  isError,
+  progress = 0, // Default to 0 if not provided
 }) => {
+  const [alertOpen, setAlertOpen] = useState(false);
+
+  useEffect(() => {
+    if (isLoading) {
+      setAlertOpen(true); // Open dialog when loading starts
+    } else if (!isError && !isLoading) {
+      setAlertOpen(false); // Close dialog on success
+    }
+  }, [isLoading, isError]);
+
   return (
     <div className="w-full p-2 px-2 md:px-6">
       <div className="flex items-center justify-between">
@@ -39,8 +61,8 @@ const Stepper: React.FC<StepperProps> = ({
                     isCompleted
                       ? "border-green-500 bg-green-500 text-white"
                       : isCurrent
-                        ? "border-blue-600 bg-blue-600 text-white"
-                        : "border-gray-300 bg-white text-gray-500"
+                      ? "border-blue-600 bg-blue-600 text-white"
+                      : "border-gray-300 bg-white text-gray-500"
                   }`}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
@@ -88,23 +110,45 @@ const Stepper: React.FC<StepperProps> = ({
           );
         })}
       </div>
-      <AnimatePresence>
-        {isLoading && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="mt-8 p-4 bg-blue-100 rounded-lg shadow-md"
-          >
-            <div className="flex items-center justify-center">
-              <Loader className="w-6 h-6 animate-spin mr-3" />
-              <span className="text-blue-800 font-medium">
-                {loadingMessage}
-              </span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
+      {/* Alert Dialog for Loading States */}
+      <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
+        <AlertDialogContent className="max-w-md rounded-lg p-6">
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {isError ? "An Error Occurred" : "Processing..."}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {isError
+                ? "There was a problem processing your request."
+                : loadingMessage}
+              {/* Progress Bar or Text */}
+              {!isError && isLoading && (
+                <div className="mt-4">
+                  <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                    <div
+                      className="bg-blue-600 h-2.5 rounded-full"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <p className="text-center text-sm">{progress.toFixed(2)}% Complete</p>
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            {isError ? (
+              <AlertDialogCancel onClick={() => setAlertOpen(false)}>
+                Close
+              </AlertDialogCancel>
+            ) : (
+              <div className="flex items-center justify-center mt-4">
+                <Loader className="w-10 h-10 animate-spin text-blue-600" />
+              </div>
+            )}
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -38,8 +38,8 @@ import { videoCreator } from "@/store/creatomate";
 
 const stepTitles = [
   "Select a Template",
-  "Choose Your Video",
-  "Render & Download",
+  "Choose Your Clip",
+  "Edit & Render",
   "Finished",
 ];
 
@@ -67,7 +67,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
   const [selectedTemplate, setSelectedTemplate] =
     useState<DefaultSource | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<GoogleDriveItem | null>(
-    null,
+    null
   );
   const [isPreviewInitialized, setIsPreviewInitialized] = useState(false);
   const [isCaptionsGenerated, setIsCaptionsGenerated] = useState(false);
@@ -90,6 +90,16 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
   const [isBusy, setIsBusy] = useState(false);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
+  const [isError, setIsError] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    if ((isGeneratingCaptions || isRendering) && !isError) {
+      setShowRenderDialog(true); // Show loading dialog
+    } else {
+      setShowRenderDialog(false); // Close dialog on success or error
+    }
+  }, [isGeneratingCaptions, isRendering, isError]);
 
   useEffect(() => {
     fetchGoogleDriveContents(process.env.NEXT_PUBLIC_GOOGLE_FOLDER as string);
@@ -100,7 +110,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
       setIsLoadingFolders(true);
       try {
         const response = await fetch(
-          `https://www.googleapis.com/drive/v3/files?q='${process.env.NEXT_PUBLIC_GOOGLE_FOLDER}'+in+parents&fields=files(id,name,mimeType)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`,
+          `https://www.googleapis.com/drive/v3/files?q='${process.env.NEXT_PUBLIC_GOOGLE_FOLDER}'+in+parents&fields=files(id,name,mimeType)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`
         );
 
         if (!response.ok) {
@@ -110,7 +120,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
         const data = await response.json();
         const folders = data.files.filter(
           (file: { mimeType: string }) =>
-            file.mimeType === "application/vnd.google-apps.folder",
+            file.mimeType === "application/vnd.google-apps.folder"
         );
 
         setFolderStructure(folders || []);
@@ -185,7 +195,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
     try {
       console.log(`Fetching contents for folder: ${folderId}`);
       const response = await fetch(
-        `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,thumbnailLink,webContentLink)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`,
+        `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,thumbnailLink,webContentLink)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`
       );
 
       console.log("Response status:", response.status);
@@ -197,15 +207,15 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
         throw new Error(
           `API request failed with status ${response.status}: ${
             data.error?.message || "Unknown error"
-          }`,
+          }`
         );
       }
 
       setFolderStructure(
         data.files.filter(
           (file: { mimeType: string }) =>
-            file.mimeType === "application/vnd.google-apps.folder",
-        ) || [],
+            file.mimeType === "application/vnd.google-apps.folder"
+        ) || []
       );
 
       if (data.files && data.files.length === 0) {
@@ -226,7 +236,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
     setIsLoadingVideos(true);
     try {
       const response = await fetch(
-        `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+mimeType+contains+'video/'&fields=files(id,name,mimeType,thumbnailLink,webContentLink)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`,
+        `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+mimeType+contains+'video/'&fields=files(id,name,mimeType,thumbnailLink,webContentLink)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`
       );
 
       if (!response.ok) {
@@ -256,7 +266,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
         shallow: true,
       });
     },
-    [router],
+    [router]
   );
 
   const handleTemplateSelect = async (template: DefaultSource) => {
@@ -268,6 +278,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
       updateUrlStep(2);
     } catch (err) {
       setError("Failed to set template: " + (err as Error).message);
+      setIsError(true); // Set error state
     }
   };
 
@@ -277,22 +288,24 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
       setSelectedVideo(video);
       setSelectedVideoUrl(video.webContentLink!);
       setIsGeneratingCaptions(true);
+      setProgress(0);
 
       // Use the webContentLink directly
       await videoCreator.updateTemplateWithSelectedVideo(
         video.webContentLink!,
-        videoUrls,
+        videoUrls
       );
 
       const captions = await videoCreator.fetchCaptions(
         video.webContentLink!,
-        "video1",
+        "video1"
       );
+
       const randomFontStyle = getRandomFontStyle();
       await videoCreator.queueCaptionsUpdate(
         "video1",
         captions,
-        randomFontStyle,
+        randomFontStyle
       );
 
       setIsCaptionsGenerated(true);
@@ -301,37 +314,10 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
       updateUrlStep(3);
     } catch (err) {
       setError("Failed to select video: " + (err as Error).message);
+      setIsError(true);
     } finally {
       setIsGeneratingCaptions(false);
       setIsBusy(false);
-    }
-  };
-
-  const initializePreview = async () => {
-    if (!previewContainerRef.current || isPreviewInitialized) return;
-
-    try {
-      await videoCreator.initializeVideoPlayer(previewContainerRef.current);
-      setIsPreviewInitialized(true);
-
-      if (selectedTemplate && selectedVideoUrl) {
-        await videoCreator.setSelectedSource(selectedTemplate);
-        await videoCreator.updateTemplateWithSelectedVideo(
-          selectedVideoUrl,
-          videoUrls,
-        );
-      }
-
-      await videoCreator.applyQueuedUpdates();
-
-      videoCreator.preview!.onTimeChange = (time: number) =>
-        setCurrentTime(time);
-      videoCreator.preview!.onStateChange = (state) =>
-        setDuration(state.duration);
-    } catch (error) {
-      setError(
-        "Failed to initialize video player: " + (error as Error).message,
-      );
     }
   };
 
@@ -351,9 +337,37 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
     } catch (err) {
       console.error("Export error:", err);
       setError("Export error: " + (err as Error).message);
-      toast.error("Failed to export video. Please try again.");
+      setIsError(true); // Set error state
     } finally {
       setIsRendering(false);
+    }
+  };
+
+  const initializePreview = async () => {
+    if (!previewContainerRef.current || isPreviewInitialized) return;
+
+    try {
+      await videoCreator.initializeVideoPlayer(previewContainerRef.current);
+      setIsPreviewInitialized(true);
+
+      if (selectedTemplate && selectedVideoUrl) {
+        await videoCreator.setSelectedSource(selectedTemplate);
+        await videoCreator.updateTemplateWithSelectedVideo(
+          selectedVideoUrl,
+          videoUrls
+        );
+      }
+
+      await videoCreator.applyQueuedUpdates();
+
+      videoCreator.preview!.onTimeChange = (time: number) =>
+        setCurrentTime(time);
+      videoCreator.preview!.onStateChange = (state) =>
+        setDuration(state.duration);
+    } catch (error) {
+      setError(
+        "Failed to initialize video player: " + (error as Error).message
+      );
     }
   };
 
@@ -371,29 +385,20 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
   const handleDownload = async (url: string) => {
     try {
       const response = await fetch(url);
-      if (!response.ok) throw new Error("Failed to fetch the file.");
+      if (!response.ok)
+        throw new Error(`Failed to fetch the file. Status: ${response.status}`);
+
       const blob = await response.blob();
-
-      if (navigator.share) {
-        const fileName = url.split("/").pop() || "video.mp4";
-        const file = new File([blob], fileName, { type: blob.type });
-
-        await navigator.share({
-          files: [file],
-          title: "Download Video",
-          text: "Here is your video file.",
-        });
-      } else {
-        // Fallback for non-iOS devices
-        const blobUrl = window.URL.createObjectURL(blob);
-        const anchor = document.createElement("a");
-        anchor.href = blobUrl;
-        anchor.download = url.split("/").pop() || "download";
-        document.body.appendChild(anchor);
-        anchor.click();
-        window.URL.revokeObjectURL(blobUrl);
-        document.body.removeChild(anchor);
-      }
+      const blobUrl = window.URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      const fileName = url.split("/").pop() || "download";
+      anchor.href = blobUrl;
+      anchor.download = fileName;
+      document.body.appendChild(anchor);
+      anchor.click();
+      window.URL.revokeObjectURL(blobUrl);
+      document.body.removeChild(anchor);
+      console.log(`File "${fileName}" downloaded successfully.`);
     } catch (error) {
       console.error("Failed to download file:", error);
     }
@@ -693,10 +698,12 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
           isGeneratingCaptions
             ? "Generating captions..."
             : isRendering
-              ? "Rendering video..."
-              : ""
+            ? "Rendering video..."
+            : ""
         }
         isFinished={isFinished}
+        isError={isError}
+        progress={progress}
       />
       <AnimatePresence mode="wait">
         {error && (

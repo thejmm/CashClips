@@ -13,6 +13,7 @@ import {
 import {
   Popover,
   PopoverContent,
+  PopoverOverlay,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import React, { useEffect, useState } from "react";
@@ -68,10 +69,11 @@ const AuthButton = ({ initialUser }: { initialUser: User | null }) => {
   if (user) {
     return (
       <Popover open={isOpen} onOpenChange={setIsOpen}>
+        {/* Ensure the Trigger has a high z-index */}
         <PopoverTrigger asChild>
           <Button
             variant="ringHover"
-            className="w-full rounded-full px-6 text-sm font-semibold"
+            className="w-full rounded-full px-6 text-sm font-semibold z-[999] "
           >
             <span className="text-left font-normal">Menu</span>
             {isOpen ? (
@@ -81,6 +83,10 @@ const AuthButton = ({ initialUser }: { initialUser: User | null }) => {
             )}
           </Button>
         </PopoverTrigger>
+
+        {/* Render the overlay when popover is open */}
+        <PopoverOverlay isOpen={isOpen} />
+
         <PopoverContent className="z-[999] md:-mr-24" align="end">
           <div className="flex flex-row space-y-1">
             <Avatar className="mr-2">

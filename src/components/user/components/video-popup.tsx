@@ -1,5 +1,7 @@
-// src\components\user\components\video-popup.tsx
-import React, { useEffect, useRef, useState } from "react";
+"use client";
+
+import { AnimatePresence, motion } from "framer-motion";
+import React, { useRef } from "react";
 
 import { X } from "lucide-react";
 
@@ -9,72 +11,88 @@ interface VideoViewerProps {
   videoUrl: string;
 }
 
+const backdropVariants = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+};
+
+const contentVariants = {
+  hidden: { opacity: 0, scale: 0.8, y: 50 },
+  visible: { opacity: 1, scale: 1, y: 0 },
+  exit: { opacity: 0, scale: 0.8, y: 50 },
+};
+
+const buttonVariants = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 0.8 },
+};
+
 const VideoViewer: React.FC<VideoViewerProps> = ({
   isOpen,
   onClose,
   videoUrl,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  useEffect(() => {
-    if (isOpen && videoRef.current) {
-      videoRef.current.focus();
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-    window.addEventListener("keydown", handleEsc);
-    return () => {
-      window.removeEventListener("keydown", handleEsc);
-    };
-  }, [onClose]);
-
-  const handleContainerClick = (e: React.MouseEvent) => {
-    if (e.target === containerRef.current) {
-      onClose();
-    }
-  };
-
-  if (!isOpen) return null;
 
   return (
-    <div
-      ref={containerRef}
-      onClick={handleContainerClick}
-      className="fixed inset-0 z-[99999999] flex items-center justify-center bg-black bg-opacity-90 touch-none"
-    >
-      <div
-        className={`relative w-full h-full z-[99999999] ${
-          isFullscreen ? "" : "max-w-full max-h-[75vh] md:max-h-[100vh] p-4"
-        } overflow-hidden`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          onClick={onClose}
-          className="absolute top-2 right-2 p-2 rounded-full bg-black bg-opacity-50 text-white hover:bg-opacity-75 transition-colors duration-200 z-10"
-          aria-label="Close video"
-        >
-          <X size={24} />
-        </button>
-        <video
-          ref={videoRef}
-          className="w-full h-full object-contain"
-          src={videoUrl}
-          controls
-          autoPlay
-          playsInline
-        >
-          Your browser does not support the video tag.
-        </video>
-      </div>
-    </div>
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Animated Backdrop */}
+          <motion.div
+            key="backdrop"
+            variants={backdropVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-10 bg-black/70 transition-opacity duration-300"
+            onClick={onClose}
+          />
+
+          {/* Animated Dialog Content */}
+          <motion.div
+            key="content"
+            variants={contentVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="fixed inset-0 z-[999] flex items-center justify-center"
+          >
+            <div className="bg-card relative max-w-sm md:max-w-xl w-full rounded-lg py-10 px-6 flex items-center justify-center overflow-hidden shadow-lg">
+              {/* Close Button */}
+              <motion.button
+                key="close-button"
+                variants={buttonVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                transition={{ duration: 0.2 }}
+                className="absolute top-4 right-4 p-2 rounded-full bg-neutral-800/70 text-white hover:bg-neutral-800/90 dark:bg-neutral-100/70 dark:text-black dark:hover:bg-neutral-100/90"
+                onClick={onClose}
+                aria-label="Close video"
+              >
+                <X size={20} />
+              </motion.button>
+
+              {/* Video Element */}
+              <video
+                ref={videoRef}
+                className="h-full w-auto object-cover max-h-[75vh]"
+                src={videoUrl}
+                controls
+                playsInline
+              >
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 };
 
