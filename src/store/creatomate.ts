@@ -117,7 +117,7 @@ class VideoCreatorStore {
     
     console.log("Updating template with selected video:", selectedVideoUrl);
 
-    const proxyUrl = this.convertToDirect(selectedVideoUrl);
+    const proxyUrl = this.getProxyUrl(selectedVideoUrl);
 
     if (this.isBlurTemplate() || this.isPictureInPictureTemplate()) {
       console.log("Applying blur or picture-in-picture template");
@@ -137,7 +137,7 @@ class VideoCreatorStore {
         if (index === randomIndex) {
           el.source = proxyUrl;
         } else {
-          const randomVideoUrl = this.convertToDirect(
+          const randomVideoUrl = this.getProxyUrl(
             availableVideoUrls[
               Math.floor(Math.random() * availableVideoUrls.length)
             ]
@@ -160,11 +160,15 @@ class VideoCreatorStore {
     await this.preview.setSource(source, true);
   }
 
-  convertToDirect(url: string): string {
+  getProxyUrl(url: string): string {
     const fileId = url.match(/[-\w]{25,}/)?.[0];
-    // Use window.location.origin to get the current domain
     const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
     return `${origin}/api/proxy-video/${fileId}`;
+  }
+
+  getDirectUrl(url: string): string {
+    const fileId = url.match(/[-\w]{25,}/)?.[0];
+    return `https://drive.google.com/uc?export=download&id=${fileId}`;
   }
 
   async addCaptionsAsElements(
@@ -253,6 +257,15 @@ class VideoCreatorStore {
     }
 
     const source = this.preview.getSource();
+    
+    // Convert proxy URLs to direct URLs for rendering
+    source.elements.forEach((el: any) => {
+      if (el.type === "video" && el.source.includes('/api/proxy-video/')) {
+        const fileId = el.source.split('/').pop();
+        el.source = this.getDirectUrl(`https://drive.google.com/file/d/${fileId}/view`);
+      }
+    });
+
     const renderJob = {
       outputFormat,
       frameRate,
