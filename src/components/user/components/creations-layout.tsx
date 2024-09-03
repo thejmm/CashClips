@@ -15,7 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { DataTableFacetedFilter } from "@/components/ui/faceted-filter";
@@ -52,7 +52,10 @@ interface CreationsProps {
   title: string;
 }
 
-const VideoCard: React.FC<{ clip: Clip }> = ({ clip }) => {
+const VideoCard: React.FC<{ clip: Clip; userSpecific: boolean }> = ({
+  clip,
+  userSpecific,
+}) => {
   const [isVideoViewerOpen, setIsVideoViewerOpen] = useState(false);
 
   const formatFileSize = (bytes: number) => {
@@ -78,7 +81,6 @@ const VideoCard: React.FC<{ clip: Clip }> = ({ clip }) => {
           text: "Here is your video file.",
         });
       } else {
-        // Fallback for non-iOS devices
         const blobUrl = window.URL.createObjectURL(blob);
         const anchor = document.createElement("a");
         anchor.href = blobUrl;
@@ -130,37 +132,44 @@ const VideoCard: React.FC<{ clip: Clip }> = ({ clip }) => {
           )}
         </CardHeader>
         <CardContent className="flex-grow p-2">
-          <div className="mb-2">{renderStatus()}</div>
-          {clip.response && (
-            <div className="space-y-1 text-xs">
-              <p className="flex items-center">
-                <FileVideo className="mr-1 h-3 w-3" />
-                {clip.response.width}x{clip.response.height} @{" "}
-                {clip.response.frame_rate}FPS
-              </p>
-              <p className="flex items-center">
-                <Clock className="mr-1 h-3 w-3" />
-                {clip.response.duration}s
-                <HardDrive className="ml-2 mr-1 h-3 w-3" />
-                {formatFileSize(clip.response.file_size)}
-              </p>
-              {clip.response.url && (
-                <div className="mt-2 aspect-square overflow-hidden rounded">
-                  <video
-                    className="w-full h-full mx-auto object-cover cursor-pointer"
-                    src={clip.response.url}
-                    onClick={() => setIsVideoViewerOpen(true)}
-                  />
+          {/* Show more details only if userSpecific is true */}
+          {userSpecific && (
+            <>
+              <div className="mb-2">{renderStatus()}</div>
+              {clip.response && (
+                <div className="space-y-1 text-xs">
+                  <p className="flex items-center">
+                    <FileVideo className="mr-1 h-3 w-3" />
+                    {clip.response.width}x{clip.response.height} @{" "}
+                    {clip.response.frame_rate}FPS
+                  </p>
+                  <p className="flex items-center">
+                    <Clock className="mr-1 h-3 w-3" />
+                    {clip.response.duration}s
+                    <HardDrive className="ml-2 mr-1 h-3 w-3" />
+                    {formatFileSize(clip.response.file_size)}
+                  </p>
                 </div>
               )}
+            </>
+          )}
+          {clip.response.url && (
+            <div className="mt-2 aspect-square overflow-hidden rounded">
+              <video
+                className="w-full h-full mx-auto object-cover cursor-pointer"
+                src={clip.response.url}
+                onClick={() => setIsVideoViewerOpen(true)}
+              />
             </div>
           )}
         </CardContent>
-        <CardFooter className="pt-2">
-          <p className="text-xs text-gray-500">
-            Created: {new Date(clip.created_at).toLocaleString()}
-          </p>
-        </CardFooter>
+        {userSpecific && (
+          <CardFooter className="pt-2">
+            <p className="text-xs text-gray-500">
+              Created: {new Date(clip.created_at).toLocaleString()}
+            </p>
+          </CardFooter>
+        )}
       </Card>
 
       <VideoViewer
@@ -287,32 +296,33 @@ const Creations: React.FC<CreationsProps> = ({
     <div className="w-full max-w-[23rem] sm:max-w-5xl md:max-w-7xl mx-auto space-y-8 p-2 md:p-4">
       <h1 className="text-2xl font-bold mb-6">{title}</h1>
 
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <DataTableFacetedFilter
-          title="Filter by Status"
-          options={[
-            { value: "succeeded", label: "Succeeded" },
-            { value: "planned", label: "Processing" },
-            { value: "waiting", label: "Waiting" },
-            { value: "transcribing", label: "Transcribing" },
-            { value: "rendering", label: "Rendering" },
-            // Removed the "failed" option
-          ]}
-          selectedValues={filterStatus}
-          onChange={handleFilterChange}
-        />
+      {userSpecific && (
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <DataTableFacetedFilter
+            title="Filter by Status"
+            options={[
+              { value: "succeeded", label: "Succeeded" },
+              { value: "planned", label: "Processing" },
+              { value: "waiting", label: "Waiting" },
+              { value: "transcribing", label: "Transcribing" },
+              { value: "rendering", label: "Rendering" },
+            ]}
+            selectedValues={filterStatus}
+            onChange={handleFilterChange}
+          />
 
-        <DataTableFacetedFilter
-          title="Sort By"
-          options={[
-            { value: "created_at", label: "Date Created" },
-            { value: "duration", label: "Duration" },
-            { value: "file_size", label: "File Size" },
-          ]}
-          selectedValues={[sortBy]}
-          onChange={handleSortChange}
-        />
-      </div>
+          <DataTableFacetedFilter
+            title="Sort By"
+            options={[
+              { value: "created_at", label: "Date Created" },
+              { value: "duration", label: "Duration" },
+              { value: "file_size", label: "File Size" },
+            ]}
+            selectedValues={[sortBy]}
+            onChange={handleSortChange}
+          />
+        </div>
+      )}
 
       <AnimatePresence>
         {filteredClips.length === 0 ? (
@@ -339,7 +349,7 @@ const Creations: React.FC<CreationsProps> = ({
                   exit={{ opacity: 0, y: 20 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <VideoCard clip={clip} />
+                  <VideoCard clip={clip} userSpecific={userSpecific} />
                 </motion.div>
               ))}
             </motion.div>

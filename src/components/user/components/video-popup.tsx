@@ -51,8 +51,8 @@ const VideoViewer: React.FC<VideoViewerProps> = ({
       className="fixed inset-0 z-[99999999] flex items-center justify-center bg-black bg-opacity-90 touch-none"
     >
       <div
-        className={`relative w-full h-full ${
-          isFullscreen ? "" : "max-w-full max-h-[100vh] p-4"
+        className={`relative w-full h-full z-[99999999] ${
+          isFullscreen ? "" : "max-w-full max-h-[75vh] md:max-h-[100vh] p-4"
         } overflow-hidden`}
         onClick={(e) => e.stopPropagation()}
       >

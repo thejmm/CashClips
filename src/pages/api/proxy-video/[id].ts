@@ -12,14 +12,14 @@ export const config = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   // Set CORS headers
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
   res.setHeader(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Range"
+    "Origin, X-Requested-With, Content-Type, Accept, Range",
   );
 
   // Handle preflight request
@@ -38,11 +38,11 @@ export default async function handler(
     // Set content type and length headers
     res.setHeader(
       "Content-Type",
-      response.headers.get("content-type") || "video/mp4"
+      response.headers.get("content-type") || "video/mp4",
     );
     res.setHeader(
       "Content-Length",
-      response.headers.get("content-length") || ""
+      response.headers.get("content-length") || "",
     );
 
     // Set Accept-Ranges header to support partial content requests
@@ -55,7 +55,7 @@ export default async function handler(
       const start = parseInt(parts[0], 10);
       const contentLength = parseInt(
         response.headers.get("content-length") || "0",
-        10
+        10,
       );
       const end = parts[1] ? parseInt(parts[1], 10) : contentLength - 1;
       const chunksize = end - start + 1;
