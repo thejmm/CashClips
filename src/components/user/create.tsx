@@ -271,40 +271,41 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
     }
   };
 
-const handleVideoSelect = async (video: GoogleDriveItem) => {
-  try {
-    setIsBusy(true);
-    setSelectedVideo(video);
-    setSelectedVideoUrl(video.webContentLink!);
-    setIsGeneratingCaptions(true);
+  const handleVideoSelect = async (video: GoogleDriveItem) => {
+    try {
+      setIsBusy(true);
+      setSelectedVideo(video);
+      setSelectedVideoUrl(video.webContentLink!);
+      setIsGeneratingCaptions(true);
 
-    await videoCreator.updateTemplateWithSelectedVideo(
-      video.webContentLink!,
-      videoUrls
-    );
+      // Use the webContentLink directly
+      await videoCreator.updateTemplateWithSelectedVideo(
+        video.webContentLink!,
+        videoUrls
+      );
 
-    const captions = await videoCreator.fetchCaptions(
-      video.webContentLink!,
-      "video1"
-    );
-    const randomFontStyle = getRandomFontStyle();
-    await videoCreator.queueCaptionsUpdate(
-      "video1",
-      captions,
-      randomFontStyle
-    );
+      const captions = await videoCreator.fetchCaptions(
+        video.webContentLink!,
+        "video1"
+      );
+      const randomFontStyle = getRandomFontStyle();
+      await videoCreator.queueCaptionsUpdate(
+        "video1",
+        captions,
+        randomFontStyle
+      );
 
-    setIsCaptionsGenerated(true);
-    toast.success("Video selected and captions generated successfully");
-    setCurrentStep(3);
-    updateUrlStep(3);
-  } catch (err) {
-    setError("Failed to select video: " + (err as Error).message);
-  } finally {
-    setIsGeneratingCaptions(false);
-    setIsBusy(false);
-  }
-};
+      setIsCaptionsGenerated(true);
+      toast.success("Video selected and captions generated successfully");
+      setCurrentStep(3);
+      updateUrlStep(3);
+    } catch (err) {
+      setError("Failed to select video: " + (err as Error).message);
+    } finally {
+      setIsGeneratingCaptions(false);
+      setIsBusy(false);
+    }
+  };
 
   const initializePreview = async () => {
     if (!previewContainerRef.current || isPreviewInitialized) return;
@@ -594,7 +595,7 @@ const handleVideoSelect = async (video: GoogleDriveItem) => {
             className="flex flex-col items-center"
           >
             <h2 className="text-2xl font-bold mb-4">Video Creation Complete</h2>
-            <div className="bg-gray-100 p-6 rounded-lg mb-6 w-full max-w-2xl">
+            <div className="p-6 rounded-lg mb-6 w-full max-w-2xl bg-card">
               <h3 className="text-xl font-semibold mb-3">Render Summary</h3>
               {isRendering ? (
                 <div className="flex items-center">
@@ -608,7 +609,7 @@ const handleVideoSelect = async (video: GoogleDriveItem) => {
                   <p className="mb-4">
                     Your video has been rendered successfully!
                   </p>
-                  <div className="bg-white p-4 rounded-md mb-4">
+                  <div className="bg-card p-4 rounded-md mb-4">
                     <h4 className="font-medium mb-2">Render Details:</h4>
                     <ul className="list-disc list-inside">
                       <li>Status: {renderResult.status}</li>

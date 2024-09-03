@@ -117,7 +117,7 @@ class VideoCreatorStore {
     
     console.log("Updating template with selected video:", selectedVideoUrl);
 
-    const proxyUrl = this.getProxyUrl(selectedVideoUrl);
+    const proxyUrl = this.convertToDirect(selectedVideoUrl);
 
     if (this.isBlurTemplate() || this.isPictureInPictureTemplate()) {
       console.log("Applying blur or picture-in-picture template");
@@ -137,7 +137,7 @@ class VideoCreatorStore {
         if (index === randomIndex) {
           el.source = proxyUrl;
         } else {
-          const randomVideoUrl = this.getProxyUrl(
+          const randomVideoUrl = this.convertToDirect(
             availableVideoUrls[
               Math.floor(Math.random() * availableVideoUrls.length)
             ]
@@ -160,15 +160,11 @@ class VideoCreatorStore {
     await this.preview.setSource(source, true);
   }
 
-  getProxyUrl(url: string): string {
+  convertToDirect(url: string): string {
     const fileId = url.match(/[-\w]{25,}/)?.[0];
+    // Use window.location.origin to get the current domain
     const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
     return `${origin}/api/proxy-video/${fileId}`;
-  }
-
-  getDirectUrl(url: string): string {
-    const fileId = url.match(/[-\w]{25,}/)?.[0];
-    return `https://drive.google.com/uc?export=download&id=${fileId}`;
   }
 
   async addCaptionsAsElements(
@@ -247,53 +243,53 @@ class VideoCreatorStore {
     await this.preview.setTime(newTime);
   }
 
-  async finishVideo(
-    modifications: any = {},
-    outputFormat: string = "mp4",
-    frameRate: number = 30
-  ): Promise<string> {
-    if (!this.preview || !this.userId) {
-      throw new Error("Preview is not initialized or user ID is not set");
-    }
-
-    const source = this.preview.getSource();
-    
-    // Convert proxy URLs to direct URLs for rendering
-    source.elements.forEach((el: any) => {
-      if (el.type === "video" && el.source.includes('/api/proxy-video/')) {
-        const fileId = el.source.split('/').pop();
-        el.source = this.getDirectUrl(`https://drive.google.com/file/d/${fileId}/view`);
-      }
-    });
-
-    const renderJob = {
-      outputFormat,
-      frameRate,
-      modifications,
-      source,
-      user_id: this.userId,
-    };
-
-    const response = await fetch(
-      "https://thejmm--render-cash-clips-fastapi-app.modal.run/api/creatomate/videos",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify([renderJob]),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const result = await response.json();
-    if (result.job_ids && result.job_ids.length > 0) {
-      return result.job_ids[0];
-    } else {
-      throw new Error("No job IDs returned from the server");
-    }
+async finishVideo(
+  modifications: any = {},
+  outputFormat: string = "mp4",
+  frameRate: number = 30
+): Promise<string> {
+  if (!this.preview || !this.userId) {
+    throw new Error("Preview is not initialized or user ID is not set");
   }
+
+  const source = this.preview.getSource();
+
+  // Convert proxied URLs back to direct Google Drive URLs
+  source.elements.forEach((el: any) => {
+    if (el.type === "video" && el.source.includes('/api/proxy-video/')) {
+      const fileId = el.source.split('/').pop();
+      el.source = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`;
+    }
+  });
+
+  const renderJob = {
+    outputFormat,
+    frameRate,
+    modifications,
+    source,
+    user_id: this.userId,
+  };
+
+  const response = await fetch(
+    "https://thejmm--render-cash-clips-fastapi-app.modal.run/api/creatomate/videos",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify([renderJob]),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const result = await response.json();
+  if (result.job_ids && result.job_ids.length > 0) {
+    return result.job_ids[0];
+  } else {
+    throw new Error("No job IDs returned from the server");
+  }
+}
 
   async checkRenderStatus(jobId: string): Promise<any> {
     return new Promise((resolve, reject) => {
