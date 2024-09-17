@@ -1,28 +1,23 @@
 // src/pages/index.tsx
+import { CallToAction } from "@/components/landing/cta";
+import { FeaturesSection } from "@/components/landing/features";
+import { HeroSection } from "@/components/landing/hero";
+import { HowItWorksSection } from "@/components/landing/how-it-works";
+import PricingPage from "./pricing";
+import React from "react";
+import { SocialProofTestimonials } from "@/components/landing/testimonials";
 
-import DashboardLayout from "@/components/layout/sidebar";
-import { GetServerSidePropsContext } from "next";
-import { HomeIcon } from "lucide-react";
-import HomePage from "@/components/user/home";
-import { User } from "@supabase/supabase-js";
-import { getUserServerSideProps } from "@/utils/supabase/auth";
-
-interface HomePageProps {
-  user: User;
-}
-
-export default function DashboardPage({ user }: HomePageProps) {
+const LandingPage: React.FC = () => {
   return (
-    <DashboardLayout
-      user={user}
-      title="Home"
-      icon={<HomeIcon className="w-6 h-6" />}
-    >
-      <HomePage />
-    </DashboardLayout>
+    <div className="min-h-screen bg-background">
+      <HeroSection />
+      <FeaturesSection />
+      <HowItWorksSection />
+      <SocialProofTestimonials />
+      <PricingPage />
+      <CallToAction />
+    </div>
   );
-}
+};
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-  return getUserServerSideProps(context);
-}
+export default LandingPage;

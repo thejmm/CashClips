@@ -61,8 +61,8 @@ const Stepper: React.FC<StepperProps> = ({
                     isCompleted
                       ? "border-green-500 bg-green-500 text-white"
                       : isCurrent
-                      ? "border-blue-600 bg-blue-600 text-white"
-                      : "border-gray-300 bg-white text-gray-500"
+                        ? "border-blue-600 bg-blue-600 text-white"
+                        : "border-gray-300 bg-white text-gray-500"
                   }`}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
@@ -131,7 +131,9 @@ const Stepper: React.FC<StepperProps> = ({
                       style={{ width: `${progress}%` }}
                     />
                   </div>
-                  <p className="text-center text-sm">{progress.toFixed(2)}% Complete</p>
+                  <p className="text-center text-sm">
+                    {progress.toFixed(2)}% Complete
+                  </p>
                 </div>
               )}
             </AlertDialogDescription>

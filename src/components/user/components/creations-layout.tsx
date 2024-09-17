@@ -70,7 +70,7 @@ const VideoCard: React.FC<{ clip: Clip; userSpecific: boolean }> = ({
       const response = await fetch(url);
       if (!response.ok)
         throw new Error(`Failed to fetch the file. Status: ${response.status}`);
-      
+
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
       const anchor = document.createElement("a");
@@ -208,7 +208,7 @@ const Creations: React.FC<CreationsProps> = ({
       (clip) =>
         clip.status !== "failed" && // Exclude failed clips
         (filterStatus.length === 0 || filterStatus.includes(clip.status)) &&
-        clip.render_id.toLowerCase().includes(searchTerm.toLowerCase())
+        clip.render_id.toLowerCase().includes(searchTerm.toLowerCase()),
     );
 
     setFilteredClips(filtered);

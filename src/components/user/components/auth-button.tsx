@@ -6,6 +6,7 @@ import {
   ChevronUp,
   Film,
   Home,
+  LayoutDashboardIcon,
   LogOut,
   PlusCircle,
   Settings,
@@ -114,10 +115,14 @@ const AuthButton = ({ initialUser }: { initialUser: User | null }) => {
             </div>
           </div>
           <Separator className="my-2" />
-          <Link href="/" className="w-full" onClick={handleLinkClick}>
+          <Link
+            href="/user/dashboard"
+            className="w-full"
+            onClick={handleLinkClick}
+          >
             <Button variant="ghost" className="w-full justify-start">
-              <Home className="mr-2 h-4 w-4" />
-              Home
+              <LayoutDashboardIcon className="mr-2 h-4 w-4" />
+              Dashboard
             </Button>
           </Link>
           <Link
@@ -164,7 +169,7 @@ const AuthButton = ({ initialUser }: { initialUser: User | null }) => {
   }
 
   return (
-    <Link href="/" passHref>
+    <Link href="/login" passHref>
       <Button
         className="w-full rounded-full px-6 text-sm font-semibold"
         variant="ringHover"

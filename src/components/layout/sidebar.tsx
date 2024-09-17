@@ -1,5 +1,11 @@
 // src/components/layout/sidebar.tsx
-import { Film, HomeIcon, PlusCircle, Settings } from "lucide-react";
+import {
+  Film,
+  HomeIcon,
+  LayoutDashboardIcon,
+  PlusCircle,
+  Settings,
+} from "lucide-react";
 import React, { useState } from "react";
 import {
   Sidebar,
@@ -33,9 +39,9 @@ export default function DashboardLayout({
 
   const links = [
     {
-      label: "Home",
+      label: "Dashboard",
       href: "/",
-      icon: <HomeIcon className="h-7 w-7 flex-shrink-0" />,
+      icon: <LayoutDashboardIcon className="h-7 w-7 flex-shrink-0" />,
     },
     {
       label: "Create Clips",
@@ -56,23 +62,6 @@ export default function DashboardLayout({
 
   return (
     <>
-      <header className="h-[8vh] top-0 z-20 mx-auto flex w-full items-center justify-between p-4 sm:px-10">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between">
-          <Link
-            className="flex items-center rounded-full p-1 my-2 justify-start gap-2 group/sidebar transition-all"
-            href="/"
-          >
-            <img src="/logo.png" className="rounded-lg w-10 h-10" alt="Logo" />
-            <p className="text-lg md:text-xl font-bold transition duration-150 whitespace-pre inline-block !p-0 !m-0">
-              Cash Clips
-            </p>
-          </Link>
-          <div className="z-[10]">
-            <AuthButton initialUser={user} />
-          </div>
-        </div>
-      </header>
-
       <div
         className={cn(
           "flex flex-col md:flex-row w-full flex-1 mx-auto",

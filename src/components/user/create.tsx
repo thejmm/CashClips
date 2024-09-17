@@ -10,6 +10,15 @@ import {
   SkipForwardIcon,
   XIcon,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   DefaultSource,
@@ -24,8 +33,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getVideoUrl, videoCreator } from "@/store/creatomate";
 
 import { Button } from "@/components/ui/button";
+import { PinataSDK } from "pinata";
 import Stepper from "./components/stepper";
 import { User } from "@supabase/supabase-js";
 import VideoViewer from "./components/video-popup";
@@ -34,7 +45,6 @@ import { getRandomFontStyle } from "@/utils/creatomate/fonts";
 import { observer } from "mobx-react-lite";
 import { toast } from "sonner";
 import { useRouter } from "next/router";
-import { videoCreator } from "@/store/creatomate";
 
 const stepTitles = [
   "Select a Template",
@@ -47,17 +57,10 @@ interface CreateProps {
   user: User;
 }
 
-interface GoogleDriveItem {
-  id: string;
-  name: string;
-  mimeType: string;
-  thumbnailLink?: string;
-  webContentLink?: string;
-}
-
-interface FolderContent {
-  [folderId: string]: GoogleDriveItem[];
-}
+const pinata = new PinataSDK({
+  pinataJwt: process.env.PINATA_JWT!,
+  pinataGateway: process.env.NEXT_PUBLIC_GATEWAY_URL!,
+});
 
 const Create: React.FC<CreateProps> = observer(({ user }) => {
   const router = useRouter();
@@ -66,9 +69,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] =
     useState<DefaultSource | null>(null);
-  const [selectedVideo, setSelectedVideo] = useState<GoogleDriveItem | null>(
-    null
-  );
+  const [selectedVideo, setSelectedVideo] = useState<VimeoVideo | null>(null);
   const [isPreviewInitialized, setIsPreviewInitialized] = useState(false);
   const [isCaptionsGenerated, setIsCaptionsGenerated] = useState(false);
   const [isGeneratingCaptions, setIsGeneratingCaptions] = useState(false);
@@ -79,8 +80,10 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  const [folderStructure, setFolderStructure] = useState<GoogleDriveItem[]>([]);
-  const [folderContents, setFolderContents] = useState<FolderContent>({});
+  const [folderStructure, setFolderStructure] = useState<VimeoFolder[]>([]);
+  const [folderContents, setFolderContents] = useState<
+    Record<string, VimeoVideo[]>
+  >({});
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [isLoadingFolders, setIsLoadingFolders] = useState(false);
   const [isLoadingVideos, setIsLoadingVideos] = useState(false);
@@ -92,56 +95,15 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
   const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [hoveredVideo, setHoveredVideo] = useState<VimeoVideo | null>(null);
 
   useEffect(() => {
     if ((isGeneratingCaptions || isRendering) && !isError) {
-      setShowRenderDialog(true); // Show loading dialog
+      setShowRenderDialog(true);
     } else {
-      setShowRenderDialog(false); // Close dialog on success or error
+      setShowRenderDialog(false);
     }
   }, [isGeneratingCaptions, isRendering, isError]);
-
-  useEffect(() => {
-    fetchGoogleDriveContents(process.env.NEXT_PUBLIC_GOOGLE_FOLDER as string);
-  }, []);
-
-  useEffect(() => {
-    const fetchAndSetDefaultFolder = async () => {
-      setIsLoadingFolders(true);
-      try {
-        const response = await fetch(
-          `https://www.googleapis.com/drive/v3/files?q='${process.env.NEXT_PUBLIC_GOOGLE_FOLDER}'+in+parents&fields=files(id,name,mimeType)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`
-        );
-
-        if (!response.ok) {
-          throw new Error(`API request failed with status ${response.status}`);
-        }
-
-        const data = await response.json();
-        const folders = data.files.filter(
-          (file: { mimeType: string }) =>
-            file.mimeType === "application/vnd.google-apps.folder"
-        );
-
-        setFolderStructure(folders || []);
-
-        if (folders.length > 0) {
-          const defaultFolder = folders[0];
-          setDefaultFolderId(defaultFolder.id);
-          setSelectedFolderId(defaultFolder.id);
-          fetchFolderContents(defaultFolder.id);
-        }
-      } catch (err) {
-        console.error("Error fetching Google Drive contents:", err);
-        setError((err as Error).message);
-        toast.error("Failed to load contents from Google Drive");
-      } finally {
-        setIsLoadingFolders(false);
-      }
-    };
-
-    fetchAndSetDefaultFolder();
-  }, []);
 
   useEffect(() => {
     const supabase = createClient();
@@ -188,76 +150,59 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
     }
   }, [currentStep, isPreviewInitialized]);
 
-  const fetchGoogleDriveContents = async (folderId: string) => {
-    setIsLoadingFolders(true);
-    setError(null);
-
-    try {
-      console.log(`Fetching contents for folder: ${folderId}`);
-      const response = await fetch(
-        `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,thumbnailLink,webContentLink)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`
-      );
-
-      console.log("Response status:", response.status);
-
-      const data = await response.json();
-      console.log("Response data:", JSON.stringify(data, null, 2));
-
-      if (!response.ok) {
-        throw new Error(
-          `API request failed with status ${response.status}: ${
-            data.error?.message || "Unknown error"
-          }`
-        );
-      }
-
-      setFolderStructure(
-        data.files.filter(
-          (file: { mimeType: string }) =>
-            file.mimeType === "application/vnd.google-apps.folder"
-        ) || []
-      );
-
-      if (data.files && data.files.length === 0) {
-        console.log("No items found in this folder");
-      } else {
-        console.log(`Found ${data.files.length} items in the folder`);
-      }
-    } catch (err) {
-      console.error("Error fetching Google Drive contents:", err);
-      setError((err as Error).message);
-      toast.error("Failed to load contents from Google Drive");
-    } finally {
-      setIsLoadingFolders(false);
-    }
+  const getBetterQualityThumbnail = (sizes: any[]) => {
+    return sizes.reduce(
+      (best: { width: number }, current: { width: number; height: number }) => {
+        if (
+          current.width <= 640 &&
+          current.height <= 360 &&
+          current.width > best.width
+        ) {
+          return current;
+        }
+        return best;
+      },
+      sizes[0],
+    );
   };
 
-  const fetchFolderContents = async (folderId: string) => {
-    setIsLoadingVideos(true);
-    try {
-      const response = await fetch(
-        `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+mimeType+contains+'video/'&fields=files(id,name,mimeType,thumbnailLink,webContentLink)&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`
-      );
-
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
-      }
-
-      const data = await response.json();
-      setFolderContents((prev) => ({ ...prev, [folderId]: data.files || [] }));
-    } catch (err) {
-      console.error("Error fetching folder contents:", err);
-      toast.error("Failed to load videos from the folder");
-    } finally {
-      setIsLoadingVideos(false);
-    }
+  const formatDuration = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
+
+  useEffect(() => {
+    const fetchVimeoFolders = async () => {
+      setIsLoadingFolders(true);
+      setError(null);
+      try {
+        const response = await fetch("/api/vimeo/folders");
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
+        const data: VimeoAPIResponse = await response.json();
+        setFolderContents(data);
+
+        // Set default folder (Kick Clips if available, otherwise first folder)
+        const folderIds = Object.keys(data);
+        const defaultFolderId = folderIds.includes("22018591")
+          ? "22018591"
+          : folderIds[0];
+        setSelectedFolderId(defaultFolderId);
+      } catch (err) {
+        console.error("Error fetching Vimeo folders:", err);
+        setError((err as Error).message);
+      } finally {
+        setIsLoadingFolders(false);
+      }
+    };
+
+    fetchVimeoFolders();
+  }, []);
 
   const handleFolderChange = (folderId: string) => {
     setSelectedFolderId(folderId);
-    if (!folderContents[folderId]) {
-      fetchFolderContents(folderId);
-    }
   };
 
   const updateUrlStep = useCallback(
@@ -266,7 +211,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
         shallow: true,
       });
     },
-    [router]
+    [router],
   );
 
   const handleTemplateSelect = async (template: DefaultSource) => {
@@ -278,34 +223,32 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
       updateUrlStep(2);
     } catch (err) {
       setError("Failed to set template: " + (err as Error).message);
-      setIsError(true); // Set error state
+      setIsError(true);
     }
   };
 
-  const handleVideoSelect = async (video: GoogleDriveItem) => {
+  const handleVideoSelect = async (video: VimeoVideo) => {
     try {
       setIsBusy(true);
       setSelectedVideo(video);
-      setSelectedVideoUrl(video.webContentLink!);
+
+      const videoUrl = getVideoUrl(video);
+      setSelectedVideoUrl(videoUrl);
       setIsGeneratingCaptions(true);
       setProgress(0);
 
-      // Use the webContentLink directly
       await videoCreator.updateTemplateWithSelectedVideo(
-        video.webContentLink!,
-        videoUrls
+        video,
+        folderContents[selectedFolderId!],
       );
 
-      const captions = await videoCreator.fetchCaptions(
-        video.webContentLink!,
-        "video1"
-      );
+      const captions = await videoCreator.fetchCaptions(videoUrl, "video1");
 
       const randomFontStyle = getRandomFontStyle();
       await videoCreator.queueCaptionsUpdate(
         "video1",
         captions,
-        randomFontStyle
+        randomFontStyle,
       );
 
       setIsCaptionsGenerated(true);
@@ -313,8 +256,10 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
       setCurrentStep(3);
       updateUrlStep(3);
     } catch (err) {
+      console.error("Error selecting video:", err);
       setError("Failed to select video: " + (err as Error).message);
       setIsError(true);
+      toast.error("Failed to select video: " + (err as Error).message);
     } finally {
       setIsGeneratingCaptions(false);
       setIsBusy(false);
@@ -332,12 +277,12 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
       setRenderResult(renderResult);
       toast.success("Video exported successfully");
       setIsFinished(true);
-      setCurrentStep(4); // Move to the finished step
+      setCurrentStep(4);
       updateUrlStep(4);
     } catch (err) {
       console.error("Export error:", err);
       setError("Export error: " + (err as Error).message);
-      setIsError(true); // Set error state
+      setIsError(true);
     } finally {
       setIsRendering(false);
     }
@@ -350,11 +295,11 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
       await videoCreator.initializeVideoPlayer(previewContainerRef.current);
       setIsPreviewInitialized(true);
 
-      if (selectedTemplate && selectedVideoUrl) {
+      if (selectedTemplate && selectedVideo) {
         await videoCreator.setSelectedSource(selectedTemplate);
         await videoCreator.updateTemplateWithSelectedVideo(
-          selectedVideoUrl,
-          videoUrls
+          selectedVideo,
+          folderContents[selectedFolderId!],
         );
       }
 
@@ -366,7 +311,7 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
         setDuration(state.duration);
     } catch (error) {
       setError(
-        "Failed to initialize video player: " + (error as Error).message
+        "Failed to initialize video player: " + (error as Error).message,
       );
     }
   };
@@ -468,11 +413,10 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
                     <SelectValue placeholder="Select a folder" />
                   </SelectTrigger>
                   <SelectContent>
-                    {folderStructure.map((folder) => (
-                      <SelectItem key={folder.id} value={folder.id}>
-                        {folder.name}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="22018591">Kick Clips</SelectItem>
+                    <SelectItem value="22018601">Snap Clips</SelectItem>
+                    <SelectItem value="22018599">B-Roll Clips</SelectItem>
+                    <SelectItem value="22018597">TikTok Clips</SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -489,38 +433,51 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
                       </p>
                     ) : (
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4">
-                        {folderContents[selectedFolderId]?.map((video) => (
-                          <motion.div
-                            key={video.id}
-                            whileHover={{ scale: isBusy ? 1 : 1.05 }}
-                            whileTap={{ scale: isBusy ? 1 : 0.95 }}
-                            className={`border p-4 rounded cursor-pointer transition-colors duration-200 ${
-                              selectedVideo?.id === video.id
-                                ? "border-blue-500 border-2"
-                                : "hover:border-blue-500"
-                            } ${isBusy ? "opacity-50 cursor-not-allowed" : ""}`}
-                            onClick={() => !isBusy && handleVideoSelect(video)}
-                          >
-                            <div className="relative w-full h-40 mb-2">
-                              {video.thumbnailLink ? (
-                                <img
-                                  src={video.thumbnailLink}
-                                  alt={video.name}
-                                  className="w-full h-full object-cover rounded"
-                                />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-gray-200 rounded">
-                                  <span className="text-gray-500">
-                                    No thumbnail
-                                  </span>
+                        {folderContents[selectedFolderId]?.map(
+                          (video: VimeoVideo) => (
+                            <motion.div
+                              key={video.uri}
+                              whileHover={{ scale: isBusy ? 1 : 1.05 }}
+                              whileTap={{ scale: isBusy ? 1 : 0.95 }}
+                              className={`border p-4 rounded cursor-pointer transition-colors duration-200 ${
+                                selectedVideo?.uri === video.uri
+                                  ? "border-blue-500 border-2"
+                                  : "hover:border-blue-500"
+                              } ${
+                                isBusy ? "opacity-50 cursor-not-allowed" : ""
+                              }`}
+                              onClick={() =>
+                                !isBusy && handleVideoSelect(video)
+                              }
+                            >
+                              <div className="relative w-full h-40 mb-2 overflow-hidden rounded">
+                                {video.pictures.sizes.length > 0 ? (
+                                  <img
+                                    src={
+                                      getBetterQualityThumbnail(
+                                        video.pictures.sizes,
+                                      ).link
+                                    }
+                                    alt={video.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                                    <span className="text-gray-500">
+                                      No thumbnail
+                                    </span>
+                                  </div>
+                                )}
+                                <div className="absolute bottom-0 right-0 bg-black bg-opacity-60 text-white px-2 py-1 text-sm rounded-tl">
+                                  {formatDuration(video.duration)}
                                 </div>
-                              )}
-                            </div>
-                            <p className="text-center font-medium truncate">
-                              {video.name}
-                            </p>
-                          </motion.div>
-                        ))}
+                              </div>
+                              <p className="text-center font-medium truncate">
+                                {video.name}
+                              </p>
+                            </motion.div>
+                          ),
+                        )}
                       </div>
                     )}
                   </div>
@@ -698,36 +655,32 @@ const Create: React.FC<CreateProps> = observer(({ user }) => {
           isGeneratingCaptions
             ? "Generating captions..."
             : isRendering
-            ? "Rendering video..."
-            : ""
+              ? "Rendering video..."
+              : ""
         }
         isFinished={isFinished}
         isError={isError}
         progress={progress}
       />
       <AnimatePresence mode="wait">
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="flex flex-row justify-between bg-red-100 border border-red-400 text-red-700 px-4 py-3 items-center rounded relative mb-4"
-            role="alert"
-          >
-            <span className="flex items-center">
-              <AlertCircle className="w-5 h-5 mr-2" />
-              <span className="block sm:inline">{error}</span>
-            </span>
-            <Button
-              variant="ghost"
-              className="hover:border hover:bg-transparent hover:text-red-500"
-              size="icon"
-              onClick={() => setError(null)}
-            >
-              <XIcon className="w-4 h-4" />
-            </Button>
-          </motion.div>
-        )}
+        <AlertDialog open={!!error} onOpenChange={() => setError(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center text-red-600">
+                <AlertCircle className="w-5 h-5 mr-2" />
+                Error
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-red-600">
+                {error}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={() => setError(null)}>
+                Close
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </AnimatePresence>
       {renderStep()}
     </div>

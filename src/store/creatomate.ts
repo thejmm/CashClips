@@ -5,6 +5,15 @@ import { DefaultSource } from "@/utils/creatomate/templates";
 import { FontStyle } from "@/utils/creatomate/font-types";
 import { v4 as uuid } from "uuid";
 
+export function getVideoUrl(video: VimeoVideo): string {
+  const largestSize = video.pictures.sizes.reduce((prev, current) =>
+    prev.width > current.width ? prev : current,
+  );
+  // Replace the image ID with the video ID in the URL
+  const videoId = video.uri.split("/").pop();
+  return largestSize.link.replace(/\/[^\/]+$/, `/${videoId}.mp4`);
+}
+
 class VideoCreatorStore {
   preview?: Preview = undefined;
   state?: PreviewState = undefined;
@@ -105,22 +114,28 @@ class VideoCreatorStore {
   }
 
   async updateTemplateWithSelectedVideo(
-    selectedVideoUrl: string,
-    availableVideoUrls: string[],
+    selectedVideo: VimeoVideo,
+    availableVideos: VimeoVideo[],
   ): Promise<void> {
     if (!this.preview || !this.selectedSource) return;
 
     const source = this.preview.getSource();
+    const selectedVideoUrl = getVideoUrl(selectedVideo);
+    const selectedVideoDuration = selectedVideo.duration;
 
     console.log("Updating template with selected video:", selectedVideoUrl);
+    console.log("Selected video duration:", selectedVideoDuration);
 
-    const proxyUrl = this.convertToProxyIfGoogleDrive(selectedVideoUrl);
+    const updateVideoElement = (el: any) => {
+      el.source = selectedVideoUrl;
+      el.duration = selectedVideoDuration;
+    };
 
     if (this.isBlurTemplate() || this.isPictureInPictureTemplate()) {
       console.log("Applying blur or picture-in-picture template");
       source.elements.forEach((el: any) => {
         if (el.type === "video") {
-          el.source = proxyUrl;
+          updateVideoElement(el);
         }
       });
     } else if (this.isSplitTemplate()) {
@@ -132,13 +147,12 @@ class VideoCreatorStore {
 
       videoElements.forEach((el: any, index: number) => {
         if (index === randomIndex) {
-          el.source = proxyUrl;
+          updateVideoElement(el);
         } else {
-          const randomVideoUrl =
-            availableVideoUrls[
-              Math.floor(Math.random() * availableVideoUrls.length)
-            ];
-          el.source = this.convertToProxyIfGoogleDrive(randomVideoUrl);
+          const randomVideo =
+            availableVideos[Math.floor(Math.random() * availableVideos.length)];
+          el.source = randomVideo;
+          el.duration = selectedVideoDuration;
         }
       });
     } else {
@@ -147,29 +161,24 @@ class VideoCreatorStore {
         (el: any) => el.type === "video",
       );
       if (videoElement) {
-        videoElement.source = proxyUrl;
+        updateVideoElement(videoElement);
       }
     }
 
+    // Update the overall composition duration to match the selected video
+    source.duration = selectedVideoDuration;
+
     console.log(
-      "Source elements after:",
+      "Source elements after update:",
       JSON.stringify(source.elements, null, 2),
     );
 
     await this.preview.setSource(source, true);
-  }
 
-  convertToProxyIfGoogleDrive(url: string): string {
-    const googleDrivePattern = /drive\.google\.com|googleapis\.com/;
-    if (googleDrivePattern.test(url)) {
-      const fileId = url.match(/[-\w]{25,}/)?.[0];
-      const origin =
-        typeof window !== "undefined"
-          ? window.location.origin
-          : "http://localhost:3000";
-      return `${origin}/api/proxy-video/${fileId}`;
-    }
-    return url; // Return the original URL if it's not a Google Drive URL
+    // Update the total duration in the store
+    runInAction(() => {
+      this.totalDuration = selectedVideoDuration;
+    });
   }
 
   async addCaptionsAsElements(
@@ -258,14 +267,6 @@ class VideoCreatorStore {
     }
 
     const source = this.preview.getSource();
-
-    // Convert proxied URLs back to direct Google Drive URLs for rendering
-    source.elements.forEach((el: any) => {
-      if (el.type === "video" && el.source.includes("/api/proxy-video/")) {
-        const fileId = el.source.split("/").pop();
-        el.source = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`;
-      }
-    });
 
     const renderJob = {
       outputFormat,
