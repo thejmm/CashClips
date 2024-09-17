@@ -154,7 +154,8 @@ const features = [
   {
     icon: Globe,
     title: "Platform Support",
-    description: "Supports Kick, Twitch, YouTube, and more.",
+    description:
+      "Supports Kick, Twitch, YouTube, and more. WE support all so YOU dont have to!",
     images: [
       {
         src: "https://via.placeholder.com/200x100.png?text=Collage",

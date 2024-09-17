@@ -1,8 +1,11 @@
+import { AlertCircle, CheckCircle, Clock, ZapIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Bar,
   BarChart,
   CartesianGrid,
+  Line,
+  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -22,14 +25,22 @@ import Link from "next/link";
 import { Progress } from "@/components/ui/progress";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/component";
+import { pricingConfig } from "../landing/pricing";
 
 interface UserData {
   plan_name: string;
   plan_price: number;
   used_credits: number;
   total_credits: number;
-  recent_activity: Array<{ description: string; date: string }>;
+  subscription_status: string;
+  next_billing_date: string;
+  recent_activity: Array<{
+    description: string;
+    date: string;
+    type: "clip" | "subscription" | "other";
+  }>;
   clip_history: Array<{ date: string; clips: number }>;
+  usage_trend: Array<{ date: string; usage: number }>;
 }
 
 const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
@@ -60,7 +71,11 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
   }, [user.id, supabase]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        Loading...
+      </div>
+    );
   }
 
   const usagePercentage =
@@ -68,13 +83,32 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
       ? (userData.used_credits / userData.total_credits) * 100
       : 100;
 
+  const currentPlan = pricingConfig.plans.find(
+    (plan) => plan.name === userData?.plan_name,
+  );
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "active":
+        return "text-green-500";
+      case "past_due":
+        return "text-yellow-500";
+      case "canceled":
+        return "text-red-500";
+      default:
+        return "text-gray-500";
+    }
+  };
+
   return (
-    <div className="container mx-auto max-w-7xl py-12">
-      <div className="max-w-5xl mx-auto space-y-6">
-        <header className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-4xl font-bold mb-2">Welcome, {user.email}</h1>
-            <p className="text-muted-foreground">
+    <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto space-y-8">
+        <header className="flex flex-col sm:flex-row justify-between items-center mb-8">
+          <div className="text-center sm:text-left mb-4 sm:mb-0">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
+              Welcome back, {user.email}
+            </h1>
+            <p className="text-muted-foreground text-sm sm:text-base">
               Manage your CashClips account and track your usage
             </p>
           </div>
@@ -86,7 +120,7 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
           </Avatar>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
               <CardTitle>Current Plan</CardTitle>
@@ -94,12 +128,26 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
                 {userData?.plan_name || "No Active Plan"}
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-row justify-between">
-              <div className="text-3xl font-bold mb-2">
-                ${userData?.plan_price ?? 0}/month
+            <CardContent>
+              <div className="text-2xl sm:text-3xl font-bold mb-2">
+                $
+                {userData?.plan_price
+                  ? (userData.plan_price / 100).toFixed(2)
+                  : 0}
+                /month
+              </div>
+              <div
+                className={`text-sm mb-4 ${getStatusColor(
+                  userData?.subscription_status || "",
+                )}`}
+              >
+                Status: {userData?.subscription_status || "Inactive"}
+              </div>
+              <div className="text-sm mb-4">
+                Next billing date: {userData?.next_billing_date || "Inactive"}
               </div>
               <Link href="/pricing" passHref>
-                <Button variant="ringHover">
+                <Button variant="ringHover" className="w-full">
                   {userData?.plan_name ? "Upgrade Plan" : "Get Started"}
                 </Button>
               </Link>
@@ -116,43 +164,85 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Progress value={usagePercentage} className="w-full" />
-              <p className="mt-2 text-sm text-muted-foreground">
+              <Progress value={usagePercentage} className="w-full mb-2" />
+              <p className="text-sm text-muted-foreground mb-4">
                 {userData
                   ? `${usagePercentage.toFixed(1)}% of your credits used`
                   : "100% - No credits available"}
               </p>
+              <div className="text-sm">
+                <div className="flex justify-between mb-2">
+                  <span>Clips per month:</span>
+                  <span>{currentPlan?.features[0] || "N/A"}</span>
+                </div>
+                <div className="flex justify-between mb-2">
+                  <span>Export quality:</span>
+                  <span>{currentPlan?.features[1] || "N/A"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Auto-captioning:</span>
+                  <span>{currentPlan?.features[2] || "N/A"}</span>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Clip History</CardTitle>
-            <CardDescription>
-              Your clipping activity over the past week
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {userData?.clip_history && userData.clip_history.length > 0 ? (
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={userData.clip_history}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="clips" fill="#8884d8" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            ) : (
-              <p className="text-center py-8 text-muted-foreground">
-                No clip history available
-              </p>
-            )}
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Clip History</CardTitle>
+              <CardDescription>
+                Your clipping activity over the past week
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {userData?.clip_history && userData.clip_history.length > 0 ? (
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={userData.clip_history}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="clips" fill="#8884d8" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <p className="text-center py-8 text-muted-foreground">
+                  No clip history available
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Usage Trend</CardTitle>
+              <CardDescription>Your credit usage over time</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {userData?.usage_trend && userData.usage_trend.length > 0 ? (
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={userData.usage_trend}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="usage" stroke="#82ca9d" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <p className="text-center py-8 text-muted-foreground">
+                  No usage trend data available
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
         <Card>
           <CardHeader>
@@ -164,8 +254,19 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
               <ul className="space-y-4">
                 {userData.recent_activity.map((activity, index) => (
                   <li key={index} className="flex justify-between items-center">
-                    <span>{activity.description}</span>
-                    <span className="text-muted-foreground">
+                    <span className="flex items-center">
+                      {activity.type === "clip" && (
+                        <ZapIcon className="mr-2 h-4 w-4 text-blue-500" />
+                      )}
+                      {activity.type === "subscription" && (
+                        <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
+                      )}
+                      {activity.type === "other" && (
+                        <AlertCircle className="mr-2 h-4 w-4 text-yellow-500" />
+                      )}
+                      {activity.description}
+                    </span>
+                    <span className="text-muted-foreground text-sm">
                       {activity.date}
                     </span>
                   </li>
