@@ -237,6 +237,7 @@ export default function ContactPage() {
       </div>
 
       <motion.div
+        id="faqs"
         className="mt-16"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

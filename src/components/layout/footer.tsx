@@ -1,12 +1,11 @@
-import { Button, buttonVariants } from "@/components/ui/button";
 import {
   ChevronRightIcon,
   LinkedInLogoIcon,
   TwitterLogoIcon,
 } from "@radix-ui/react-icons";
 
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 
 const footerNavs = [
   {
@@ -21,7 +20,7 @@ const footerNavs = [
         name: "How it works",
       },
       {
-        href: "/#faqs",
+        href: "/contact/#faqs",
         name: "FAQ",
       },
       {
