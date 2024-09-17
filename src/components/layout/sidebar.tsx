@@ -40,7 +40,7 @@ export default function DashboardLayout({
   const links = [
     {
       label: "Dashboard",
-      href: "/",
+      href: "/user/dashboard",
       icon: <LayoutDashboardIcon className="h-7 w-7 flex-shrink-0" />,
     },
     {
@@ -93,7 +93,7 @@ export default function DashboardLayout({
             </div>
             <Separator className="mb-2" />
 
-            <ScrollArea className="h-[82vh] w-full justify-center mx-auto">
+            <ScrollArea className="h-full md:min-h-[85vh] w-full justify-center mx-auto">
               {children}
             </ScrollArea>
           </div>

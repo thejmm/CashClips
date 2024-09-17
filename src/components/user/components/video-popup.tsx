@@ -1,7 +1,5 @@
-"use client";
-
 import { AnimatePresence, motion } from "framer-motion";
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { X } from "lucide-react";
 
@@ -11,22 +9,22 @@ interface VideoViewerProps {
   videoUrl: string;
 }
 
-const backdropVariants = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 },
-};
-
-const contentVariants = {
-  hidden: { opacity: 0, scale: 0.8, y: 50 },
-  visible: { opacity: 1, scale: 1, y: 0 },
-  exit: { opacity: 0, scale: 0.8, y: 50 },
-};
-
-const buttonVariants = {
-  hidden: { opacity: 0, scale: 0.8 },
-  visible: { opacity: 1, scale: 1 },
-  exit: { opacity: 0, scale: 0.8 },
+const animationVariants = {
+  backdrop: {
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    exit: { opacity: 0 },
+  },
+  content: {
+    initial: { scale: 0.5, opacity: 0 },
+    animate: { scale: 1, opacity: 1 },
+    exit: { scale: 0.5, opacity: 0 },
+  },
+  button: {
+    initial: { opacity: 0, scale: 0.8 },
+    animate: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, scale: 0.8 },
+  },
 };
 
 const VideoViewer: React.FC<VideoViewerProps> = ({
@@ -35,62 +33,105 @@ const VideoViewer: React.FC<VideoViewerProps> = ({
   videoUrl,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPortrait, setIsPortrait] = useState(false);
+
+  useEffect(() => {
+    const handleVideoLoad = () => {
+      if (videoRef.current) {
+        const { videoWidth, videoHeight } = videoRef.current;
+        setIsPortrait(videoHeight > videoWidth);
+      }
+    };
+
+    const video = videoRef.current;
+    if (video) {
+      video.addEventListener("loadedmetadata", handleVideoLoad);
+    }
+
+    return () => {
+      if (video) {
+        video.removeEventListener("loadedmetadata", handleVideoLoad);
+      }
+    };
+  }, [videoUrl]);
+
+  const getPopupStyle = () => {
+    const maxWidth = Math.min(window.innerWidth * 0.8, 1200);
+    const maxHeight = window.innerHeight * 0.8;
+
+    let width, height;
+
+    if (!isPortrait) {
+      // Landscape (16:9)
+      const aspectRatio = 16 / 9;
+      height = Math.min(maxHeight, maxWidth / aspectRatio);
+      width = height * aspectRatio;
+    } else {
+      // Portrait (9:16)
+      const aspectRatio = 9 / 16;
+      width = Math.min(maxWidth, maxHeight * aspectRatio);
+      height = width / aspectRatio;
+    }
+
+    return {
+      width: `${width}px`,
+      height: `${height}px`,
+      maxWidth: `${maxWidth}px`,
+      maxHeight: `${maxHeight}px`,
+    };
+  };
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
-          {/* Animated Backdrop */}
+        <motion.div
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          className="fixed inset-0 z-50 flex items-center justify-center"
+        >
           <motion.div
-            key="backdrop"
-            variants={backdropVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
+            variants={animationVariants.backdrop}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-10 bg-black/70 transition-opacity duration-300"
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={onClose}
           />
-
-          {/* Animated Dialog Content */}
           <motion.div
-            key="content"
-            variants={contentVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed inset-0 z-[999] flex items-center justify-center"
+            variants={animationVariants.content}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="relative mx-4 md:mx-0 flex items-center justify-center"
+            style={getPopupStyle()}
           >
-            <div className="bg-card relative max-w-sm md:max-w-xl w-full rounded-lg py-10 px-6 flex items-center justify-center overflow-hidden shadow-lg">
-              {/* Close Button */}
-              <motion.button
-                key="close-button"
-                variants={buttonVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                transition={{ duration: 0.2 }}
-                className="absolute top-4 right-4 p-2 rounded-full bg-neutral-800/70 text-white hover:bg-neutral-800/90 dark:bg-neutral-100/70 dark:text-black dark:hover:bg-neutral-100/90"
-                onClick={onClose}
-                aria-label="Close video"
-              >
-                <X size={20} />
-              </motion.button>
-
-              {/* Video Element */}
-              <video
-                ref={videoRef}
-                className="h-full w-auto object-cover max-h-[75vh]"
-                src={videoUrl}
-                controls
-                playsInline
-              >
-                Your browser does not support the video tag.
-              </video>
+            <motion.button
+              variants={animationVariants.button}
+              transition={{ duration: 0.2 }}
+              className="absolute -top-12 right-0 text-white text-xl bg-neutral-900/50 ring-1 backdrop-blur-md rounded-full p-2 dark:bg-neutral-100/50 dark:text-black"
+              onClick={onClose}
+              aria-label="Close video"
+            >
+              <X className="size-5" />
+            </motion.button>
+            <div className="w-full h-full border-2 border-white rounded-2xl overflow-hidden isolate z-[1] relative flex items-center justify-center">
+              {!videoUrl ? (
+                <img
+                  src="https://via.placeholder.com/1280x720"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <video
+                  ref={videoRef}
+                  src={videoUrl}
+                  className="max-w-full max-h-full rounded-2xl object-contain"
+                  controls
+                  playsInline
+                  autoPlay
+                >
+                  Your browser does not support the video tag.
+                </video>
+              )}
             </div>
           </motion.div>
-        </>
+        </motion.div>
       )}
     </AnimatePresence>
   );

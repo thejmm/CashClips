@@ -1,16 +1,18 @@
 import "@/styles/globals.css";
 
-import { useEffect, useRef } from "react";
-
 import { Analytics } from "@vercel/analytics/react";
 import type { AppProps } from "next/app";
 import { Footer } from "@/components/layout/footer";
 import Head from "next/head";
-import Header from "@/components/layout/header";
+import Header from "@/components/layout/header"; // Updated Header import
 import { ThemeProvider } from "@/context/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 
 export default function App({ Component, pageProps }: AppProps) {
+  const router = useRouter();
+
   useEffect(() => {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
@@ -27,6 +29,9 @@ export default function App({ Component, pageProps }: AppProps) {
     }
   }, []);
 
+  // Determine if we are on the home page
+  const isHomePage = router.pathname === "/";
+
   return (
     <ThemeProvider
       attribute="class"
@@ -40,7 +45,8 @@ export default function App({ Component, pageProps }: AppProps) {
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
         />
       </Head>
-      <Header user={pageProps.user} />
+      {/* Conditionally render sticky header only on home page */}
+      <Header user={pageProps.user} sticky={isHomePage} />
       <Component {...pageProps} />
       <Footer />
       <Toaster richColors />

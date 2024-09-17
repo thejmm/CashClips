@@ -1,6 +1,10 @@
 import {
   AlertCircle,
   CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   Clock,
   Download,
   FileVideo,
@@ -15,7 +19,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
 import { DataTableFacetedFilter } from "@/components/ui/faceted-filter";
@@ -58,11 +69,23 @@ const VideoCard: React.FC<{ clip: Clip; userSpecific: boolean }> = ({
 }) => {
   const [isVideoViewerOpen, setIsVideoViewerOpen] = useState(false);
 
-  const formatFileSize = (bytes: number) => {
+  const formatFileSize = (bytes: number | null | undefined) => {
+    if (bytes == null) return "N/A";
     const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-    if (bytes === 0) return "0 Byte";
+    if (bytes === 0) return "0 Bytes";
     const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)).toString());
-    return Math.round(bytes / Math.pow(1024, i)) + " " + sizes[i];
+    return (
+      (Math.round((bytes / Math.pow(1024, i)) * 100) / 100).toFixed(2) +
+      " " +
+      sizes[i]
+    );
+  };
+
+  const formatNumber = (
+    value: number | null | undefined,
+    decimals: number = 2,
+  ) => {
+    return value != null ? value.toFixed(decimals) : "N/A";
   };
 
   const handleDownload = async (url: string) => {
@@ -81,7 +104,6 @@ const VideoCard: React.FC<{ clip: Clip; userSpecific: boolean }> = ({
       anchor.click();
       window.URL.revokeObjectURL(blobUrl);
       document.body.removeChild(anchor);
-      console.log(`File "${fileName}" downloaded successfully.`);
     } catch (error) {
       console.error("Failed to download file:", error);
     }
@@ -124,7 +146,6 @@ const VideoCard: React.FC<{ clip: Clip; userSpecific: boolean }> = ({
           )}
         </CardHeader>
         <CardContent className="flex-grow p-2">
-          {/* Show more details only if userSpecific is true */}
           {userSpecific && (
             <>
               <div className="mb-2">{renderStatus()}</div>
@@ -132,12 +153,13 @@ const VideoCard: React.FC<{ clip: Clip; userSpecific: boolean }> = ({
                 <div className="space-y-1 text-xs">
                   <p className="flex items-center">
                     <FileVideo className="mr-1 h-3 w-3" />
-                    {clip.response.width}x{clip.response.height} @{" "}
-                    {clip.response.frame_rate}FPS
+                    {clip.response.width ?? "N/A"}x
+                    {clip.response.height ?? "N/A"} @{" "}
+                    {formatNumber(clip.response.frame_rate)}FPS
                   </p>
                   <p className="flex items-center">
                     <Clock className="mr-1 h-3 w-3" />
-                    {clip.response.duration}s
+                    {formatNumber(clip.response.duration)}s
                     <HardDrive className="ml-2 mr-1 h-3 w-3" />
                     {formatFileSize(clip.response.file_size)}
                   </p>
@@ -145,7 +167,7 @@ const VideoCard: React.FC<{ clip: Clip; userSpecific: boolean }> = ({
               )}
             </>
           )}
-          {clip.response.url && (
+          {clip.response?.url && (
             <div className="mt-2 aspect-square overflow-hidden rounded">
               <video
                 className="w-full h-full mx-auto object-cover cursor-pointer"
@@ -167,9 +189,95 @@ const VideoCard: React.FC<{ clip: Clip; userSpecific: boolean }> = ({
       <VideoViewer
         isOpen={isVideoViewerOpen}
         onClose={() => setIsVideoViewerOpen(false)}
-        videoUrl={clip.response.url}
+        videoUrl={clip.response?.url}
       />
     </>
+  );
+};
+
+const Pagination: React.FC<{
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  pageSize: number;
+  onPageSizeChange: (size: number) => void;
+  totalItems: number;
+}> = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+  pageSize,
+  onPageSizeChange,
+  totalItems,
+}) => {
+  return (
+    <div className="flex items-center justify-between px-2 py-4">
+      <div className="flex-1 text-sm text-muted-foreground">
+        Showing {Math.min((currentPage - 1) * pageSize + 1, totalItems)} to{" "}
+        {Math.min(currentPage * pageSize, totalItems)} of {totalItems} items
+      </div>
+      <div className="flex items-center space-x-6 lg:space-x-8">
+        <div className="flex items-center space-x-2">
+          <p className="text-sm font-medium">Rows per page</p>
+          <Select
+            value={`${pageSize}`}
+            onValueChange={(value) => onPageSizeChange(Number(value))}
+          >
+            <SelectTrigger className="h-8 w-[70px]">
+              <SelectValue placeholder={pageSize} />
+            </SelectTrigger>
+            <SelectContent side="top">
+              {[10, 20, 30, 40, 50].map((size) => (
+                <SelectItem key={size} value={`${size}`}>
+                  {size}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+          Page {currentPage} of {totalPages}
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            className="hidden h-8 w-8 p-0 lg:flex"
+            onClick={() => onPageChange(1)}
+            disabled={currentPage === 1}
+          >
+            <span className="sr-only">Go to first page</span>
+            <ChevronsLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            className="h-8 w-8 p-0"
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            <span className="sr-only">Go to previous page</span>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            className="h-8 w-8 p-0"
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            <span className="sr-only">Go to next page</span>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            className="hidden h-8 w-8 p-0 lg:flex"
+            onClick={() => onPageChange(totalPages)}
+            disabled={currentPage === totalPages}
+          >
+            <span className="sr-only">Go to last page</span>
+            <ChevronsRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -178,92 +286,74 @@ const Creations: React.FC<CreationsProps> = ({
   title,
 }) => {
   const [clips, setClips] = useState<Clip[]>([]);
-  const [filteredClips, setFilteredClips] = useState<Clip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>("created_at");
   const [filterStatus, setFilterStatus] = useState<string[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
 
   const supabase = createClient();
 
-  useEffect(() => {
-    fetchClips();
-  }, []);
-
-  useEffect(() => {
-    const sorted = [...clips].sort((a, b) => {
-      if (sortBy === "created_at")
-        return (
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
-      if (sortBy === "duration")
-        return b.response.duration - a.response.duration;
-      if (sortBy === "file_size")
-        return b.response.file_size - a.response.file_size;
-      return 0;
-    });
-
-    const filtered = sorted.filter(
-      (clip) =>
-        clip.status !== "failed" && // Exclude failed clips
-        (filterStatus.length === 0 || filterStatus.includes(clip.status)) &&
-        clip.render_id.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-
-    setFilteredClips(filtered);
-  }, [clips, sortBy, filterStatus, searchTerm]);
-
-  const fetchClips = async () => {
+  const fetchClips = useCallback(async () => {
     try {
       setIsLoading(true);
 
-      let data: Clip[] | null = null;
-      let error: any = null;
+      let query = supabase
+        .from("created_clips")
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .range((currentPage - 1) * pageSize, currentPage * pageSize - 1);
 
       if (userSpecific) {
         const {
           data: { user },
           error: userError,
         } = await supabase.auth.getUser();
-
         if (userError) throw new Error(userError.message);
         if (!user) throw new Error("User not authenticated");
-
-        const result = await supabase
-          .from("created_clips")
-          .select("*")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false });
-
-        data = result.data;
-        error = result.error;
-      } else {
-        const result = await supabase
-          .from("created_clips")
-          .select("*")
-          .order("created_at", { ascending: false });
-
-        data = result.data;
-        error = result.error;
+        query = query.eq("user_id", user.id);
       }
+
+      if (filterStatus.length > 0) {
+        query = query.in("status", filterStatus);
+      }
+
+      const { data, error, count } = await query;
 
       if (error) throw error;
 
       setClips(data ?? []);
+      setTotalItems(count ?? 0);
     } catch (err: any) {
       setError(err.message);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentPage, pageSize, userSpecific, filterStatus, supabase]);
+
+  useEffect(() => {
+    fetchClips();
+  }, [fetchClips]);
 
   const handleFilterChange = (selectedValues: string[]) => {
     setFilterStatus(selectedValues);
+    setCurrentPage(1);
   };
 
   const handleSortChange = (selectedValues: string[]) => {
     setSortBy(selectedValues[0] as SortOption);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
   };
 
   if (isLoading) {
@@ -283,6 +373,8 @@ const Creations: React.FC<CreationsProps> = ({
       </div>
     );
   }
+
+  const totalPages = Math.ceil(totalItems / pageSize);
 
   return (
     <div className="w-full max-w-[23rem] sm:max-w-5xl md:max-w-7xl mx-auto space-y-8 p-2 md:p-4">
@@ -317,7 +409,7 @@ const Creations: React.FC<CreationsProps> = ({
       )}
 
       <AnimatePresence>
-        {filteredClips.length === 0 ? (
+        {clips.length === 0 ? (
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -332,7 +424,7 @@ const Creations: React.FC<CreationsProps> = ({
               className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
               layout
             >
-              {filteredClips.map((clip) => (
+              {clips.map((clip) => (
                 <motion.div
                   key={clip.id}
                   layout
@@ -348,6 +440,15 @@ const Creations: React.FC<CreationsProps> = ({
           </LayoutGroup>
         )}
       </AnimatePresence>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        pageSize={pageSize}
+        onPageSizeChange={handlePageSizeChange}
+        totalItems={totalItems}
+      />
     </div>
   );
 };

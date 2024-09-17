@@ -1,3 +1,4 @@
+// src/components/landing/features.tsx
 import {
   AnimatePresence,
   motion,
@@ -10,38 +11,161 @@ import React, { useEffect, useRef, useState } from "react";
 const features = [
   {
     icon: Video,
-    title: "Raw Clip Library",
-    description: "Access thousands of raw clips from various platforms.",
+    title: "Clip Library",
+    description:
+      "Thousands of raw clips available. WE gather the clips so YOU dont have to!",
+    images: [
+      {
+        src: "https://via.placeholder.com/80x80.png?text=Clip+1",
+        alt: "RAW CLIPS",
+        className: "rounded-lg w-1/3 h-1/3 object-cover",
+      },
+      {
+        src: "https://via.placeholder.com/100x100.png?text=Clip+2",
+        alt: "STREAM CLIPS",
+        className:
+          "rounded-lg w-1/4 h-1/4 object-cover absolute top-1/4 right-0",
+      },
+      {
+        src: "https://via.placeholder.com/120x60.png?text=Logo",
+        alt: "SNAP CLIPS",
+        className: "rounded-lg w-1/2 h-1/4 object-contain absolute bottom-0",
+      },
+    ],
   },
   {
     icon: Edit,
-    title: "Custom Templates",
-    description: "Choose from a variety of templates to suit your style.",
+    title: "Templates",
+    description:
+      "Choose from various templates. WE build the templates so YOU dont have to!",
+    images: [
+      {
+        src: "/templates/picture-in-picture.png",
+        alt: "Picture-in-Picture",
+        className: "rounded-lg w-1/2 h-1/4 object-contain absolute top-0",
+      },
+      {
+        src: "/templates/split-screen-portrait.png",
+        alt: "Portrait Split Screen",
+        className:
+          "rounded-lg w-1/2 h-3/4 object-cover absolute top-1/2 right-0",
+      },
+      {
+        src: "/templates/blur-landscape.png",
+        alt: "Landscape Blur Sides",
+        className: "rounded-lg w-1/2 h-1/4 object-contain absolute bottom-0",
+      },
+    ],
   },
   {
     icon: Users,
-    title: "Streamer Selection",
-    description: "Pick your favorite streamer and create clips instantly.",
+    title: "Streamer Picks",
+    description:
+      "Select streamers and create clips. WE pick the top streamers so YOU dont have to!",
+    images: [
+      {
+        src: "https://via.placeholder.com/500x300.png?text=xQc",
+        alt: "xQc",
+        className:
+          "rounded-lg absolute w-[30%] h-[15%] top-[5%] left-[5%] object-cover", // Medium horizontal at top-left
+      },
+      {
+        src: "https://via.placeholder.com/300x500.png?text=NICKMERCS",
+        alt: "NICKMERCS",
+        className:
+          "rounded-lg absolute w-[20%] h-[35%] top-[10%] right-[10%] object-cover", // Tall vertical at top-right
+      },
+      {
+        src: "https://via.placeholder.com/300x300.png?text=MrBeast",
+        alt: "MrBeast",
+        className:
+          "rounded-lg absolute w-[15%] h-[15%] top-[25%] left-[35%] object-cover", // Small square at center-left
+      },
+      {
+        src: "https://via.placeholder.com/600x200.png?text=Trainwreckstv",
+        alt: "Trainwreckstv",
+        className:
+          "rounded-lg absolute w-[40%] h-[12%] top-[50%] left-[10%] object-cover", // Wide horizontal in the middle
+      },
+      {
+        src: "https://via.placeholder.com/200x600.png?text=Adin+Ross",
+        alt: "Adin Ross",
+        className:
+          "rounded-lg absolute w-[15%] h-[40%] top-[10%] left-[60%] object-cover", // Narrow tall at top-center-right
+      },
+      {
+        src: "https://via.placeholder.com/500x500.png?text=Sneako",
+        alt: "Sneako",
+        className:
+          "rounded-lg absolute w-[25%] h-[25%] top-[60%] left-[45%] object-cover", // Medium square towards bottom-center
+      },
+      {
+        src: "https://via.placeholder.com/700x300.png?text=Jack+Doherty",
+        alt: "Jack Doherty",
+        className:
+          "rounded-lg absolute w-[35%] h-[15%] top-[70%] left-[5%] object-cover", // Wide rectangular near bottom-left
+      },
+    ],
   },
   {
     icon: Sparkles,
-    title: "Auto-Captioning",
+    title: "AI Captions",
     description:
-      "Our AI automatically captions your clips for better engagement.",
+      "Auto-caption clips for engagement. WE create captions so YOU dont have to!",
+    images: [
+      {
+        src: "https://via.placeholder.com/150x80.png?text=Caption+Demo",
+        alt: "Caption Demo",
+        className: "rounded-lg w-full h-2/3 object-cover",
+      },
+      {
+        src: "https://via.placeholder.com/60x60.png?text=AI+Icon",
+        alt: "AI Icon",
+        className:
+          "rounded-full w-1/6 h-1/6 object-contain absolute bottom-0 right-0",
+      },
+    ],
   },
   {
     icon: Zap,
-    title: "Instant Generation",
-    description: "Generate polished clips with just a few clicks.",
+    title: "Quick Clips",
+    description:
+      "Generate clips in seconds. YOU share the clips so WE dont have to!",
+    images: [
+      {
+        src: "https://via.placeholder.com/80x80.png?text=Before",
+        alt: "Before Clip",
+        className: "rounded-lg w-1/4 h-1/4 object-cover",
+      },
+      {
+        src: "https://via.placeholder.com/80x80.png?text=After",
+        alt: "After Clip",
+        className:
+          "rounded-lg w-1/3 h-1/3 object-cover absolute bottom-0 right-0",
+      },
+      {
+        src: "https://via.placeholder.com/40x40.png?text=Arrow",
+        alt: "Arrow Icon",
+        className:
+          "w-1/6 h-1/6 object-contain absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2",
+      },
+    ],
   },
   {
     icon: Globe,
-    title: "Multi-Platform Support",
-    description: "We support clips from Twitch, YouTube, and more!",
+    title: "Platform Support",
+    description: "Supports Kick, Twitch, YouTube, and more.",
+    images: [
+      {
+        src: "https://via.placeholder.com/200x100.png?text=Collage",
+        alt: "Platform Collage",
+        className: "rounded-lg w-3/4 h-3/4 object-cover",
+      },
+    ],
   },
 ];
 
-const FEATURE_DURATION = 5000; // 5 seconds
+const FEATURE_DURATION = 5000;
 
 const FeatureIcon: React.FC<{
   icon: React.ElementType;
@@ -94,8 +218,9 @@ const FeatureIcon: React.FC<{
 const FeatureContent: React.FC<{
   title: string;
   description: string;
+  images: { src: string; alt: string; className: string }[];
   isActive: boolean;
-}> = ({ title, description, isActive }) => (
+}> = ({ title, description, images, isActive }) => (
   <AnimatePresence mode="wait">
     {isActive && (
       <motion.div
@@ -104,24 +229,43 @@ const FeatureContent: React.FC<{
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.5 }}
-        className="absolute inset-0 flex flex-col justify-center p-6"
+        className="absolute inset-0 flex flex-col md:flex-row justify-between p-6"
       >
-        <motion.h3
-          className="text-xl md:text-2xl font-bold mb-2"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
+        <div className="md:w-1/2 pr-4">
+          <motion.h3
+            className="text-xl md:text-2xl font-bold mb-2"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
+            {title}
+          </motion.h3>
+          <motion.p
+            className="text-sm md:text-base text-gray-600"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+          >
+            {description}
+          </motion.p>
+        </div>
+        <motion.div
+          className="md:w-3/4 mt-4 md:mt-0 grid grid-cols-2 gap-4"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
         >
-          {title}
-        </motion.h3>
-        <motion.p
-          className="text-sm md:text-base text-gray-600"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-        >
-          {description}
-        </motion.p>
+          {images.map((image, index) => (
+            <div key={index} className="relative w-full h-full">
+              <img
+                src={image.src}
+                alt={image.alt}
+                className={`rounded-lg ${image.className}`}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            </div>
+          ))}
+        </motion.div>
       </motion.div>
     )}
   </AnimatePresence>
@@ -239,6 +383,7 @@ export const FeaturesSection: React.FC = () => {
                 key={index}
                 title={feature.title}
                 description={feature.description}
+                images={feature.images}
                 isActive={activeFeature === index}
               />
             ))}

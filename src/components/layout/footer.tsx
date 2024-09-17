@@ -124,8 +124,10 @@ export function Footer() {
                         href={item.href}
                         className="group inline-flex cursor-pointer items-center justify-start gap-1 text-[15px]/snug font-medium text-neutral-400 duration-200 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
                       >
-                        {item.name}
-                        <ChevronRightIcon className="h-4 w-4 translate-x-0 transform opacity-0 transition-all duration-300 ease-out group-hover:translate-x-1 group-hover:opacity-100" />
+                        <Button variant="linkHover2">
+                          {item.name}
+                          <ChevronRightIcon className="h-4 w-4 translate-x-0 transform opacity-0 transition-all duration-300 ease-out group-hover:translate-x-1 group-hover:opacity-100" />
+                        </Button>
                       </Link>
                     </li>
                   ))}

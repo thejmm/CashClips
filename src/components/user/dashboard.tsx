@@ -18,6 +18,7 @@ import {
 import React, { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { Progress } from "@/components/ui/progress";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/component";
@@ -97,9 +98,11 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
               <div className="text-3xl font-bold mb-2">
                 ${userData?.plan_price ?? 0}/month
               </div>
-              <Button>
-                {userData?.plan_name ? "Upgrade Plan" : "Get Started"}
-              </Button>
+              <Link href="/pricing" passHref>
+                <Button variant="ringHover">
+                  {userData?.plan_name ? "Upgrade Plan" : "Get Started"}
+                </Button>
+              </Link>
             </CardContent>
           </Card>
 
