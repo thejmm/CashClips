@@ -1,4 +1,4 @@
-// utils/auth.ts
+// utils/supabase/auth.ts
 
 import { GetServerSidePropsContext } from "next";
 import { createClient } from "@/utils/supabase/server-props";

@@ -8,11 +8,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Switch } from "@/components/ui/switch";
+import { User } from "@supabase/supabase-js";
+import { createClient } from "@/utils/supabase/component";
 
 export const pricingConfig = {
   plans: [
@@ -31,8 +33,8 @@ export const pricingConfig = {
         "Basic auto-captioning",
       ],
       stripePriceId: {
-        month: "price_1XXXXXXXXXXXXXXXX5",
-        year: "price_1XXXXXXXXXXXXXXXX6",
+        month: "price_1Q0QacGXekY7Ey1HF9xNx8pF",
+        year: "price_1Q0QacGXekY7Ey1HkFuCuQUo",
       },
     },
     {
@@ -50,8 +52,8 @@ export const pricingConfig = {
         "Advanced auto-captioning",
       ],
       stripePriceId: {
-        month: "price_1XXXXXXXXXXXXXXXX5",
-        year: "price_1XXXXXXXXXXXXXXXX6",
+        month: "price_1Q0Qb0GXekY7Ey1HWzDfXZHh",
+        year: "price_1Q0QbKGXekY7Ey1HYViEmROX",
       },
     },
     {
@@ -70,8 +72,8 @@ export const pricingConfig = {
         "Premium auto-captioning",
       ],
       stripePriceId: {
-        month: "price_1XXXXXXXXXXXXXXXX5",
-        year: "price_1XXXXXXXXXXXXXXXX6",
+        month: "price_1Q0Qc4GXekY7Ey1HG9OF9JSS",
+        year: "price_1Q0Qc4GXekY7Ey1HtbeB8r40",
       },
     },
     {
@@ -89,8 +91,8 @@ export const pricingConfig = {
         "Premium auto-captioning",
       ],
       stripePriceId: {
-        month: "price_1XXXXXXXXXXXXXXXX5",
-        year: "price_1XXXXXXXXXXXXXXXX6",
+        month: "price_1Q0QcNGXekY7Ey1HYpeVvxmS",
+        year: "price_1Q0QckGXekY7Ey1HCnoR8GUr",
       },
     },
   ],
@@ -119,12 +121,16 @@ const PlanCard: React.FC<{
   interval: "month" | "year";
   index: number;
   isInView: boolean;
-}> = ({ plan, interval, index, isInView }) => {
+  currentPlan: string | null;
+  isLoggedIn: boolean;
+}> = ({ plan, interval, index, isInView, currentPlan, isLoggedIn }) => {
   const currentPrice =
     interval === "year" ? plan.yearlyPrice : plan.monthlyPrice;
   const priceId = plan.stripePriceId[interval];
   const originalYearlyPrice = plan.monthlyPrice * 12;
   const yearlyDiscount = originalYearlyPrice - plan.yearlyPrice;
+
+  const isCurrentPlan = currentPlan === plan.name;
 
   return (
     <motion.div
@@ -204,15 +210,26 @@ const PlanCard: React.FC<{
           )}
         </CardContent>
         <div className="p-6 pt-0 mt-auto">
-          <Link href={`/checkout?price_id=${priceId}`} passHref>
-            <Button
-              variant="ringHover"
-              className="w-full group transition-all duration-300"
-            >
-              {plan.buttonText}
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+          {isCurrentPlan ? (
+            <Button variant="outline" className="w-full" disabled>
+              Current Plan
             </Button>
-          </Link>
+          ) : (
+            <Link
+              href={
+                isLoggedIn ? `/checkout?price_id=${priceId}` : "/auth/login"
+              }
+              passHref
+            >
+              <Button
+                variant="ringHover"
+                className="w-full group transition-all duration-300"
+              >
+                {isLoggedIn ? plan.buttonText : "Login to Subscribe"}
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </Link>
+          )}
         </div>
       </Card>
     </motion.div>
@@ -225,6 +242,34 @@ export function CashClipsPricing() {
   );
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
+  const [user, setUser] = useState<any | null>(null);
+  const [currentPlan, setCurrentPlan] = useState<string | null>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+
+      if (user) {
+        const { data, error } = await supabase
+          .from("user_data")
+          .select("plan_name")
+          .eq("user_id", user.id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching user plan:", error);
+        } else if (data) {
+          setCurrentPlan(data.plan_name);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   return (
     <section id="pricing" ref={sectionRef} className="container mx-auto py-20">
@@ -284,6 +329,8 @@ export function CashClipsPricing() {
               interval={interval}
               index={index}
               isInView={isInView}
+              currentPlan={currentPlan}
+              isLoggedIn={!!user}
             />
           ))}
         </div>
@@ -309,6 +356,7 @@ export function CashClipsPricing() {
                 </Button>
               </Link>
             </CardContent>
+
             <motion.div
               className="before:content-[''] relative isolate hidden h-[240px] w-full before:absolute before:left-32 before:top-0 before:z-[-1] before:h-full before:w-full before:skew-x-[-45deg] before:border-l before:border-muted before:bg-primary md:block lg:w-2/3"
               initial={{ x: 100, opacity: 0 }}

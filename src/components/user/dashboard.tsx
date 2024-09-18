@@ -1,11 +1,21 @@
-import { AlertCircle, CheckCircle, Clock, ZapIcon } from "lucide-react";
+// src/components/user/dashboard.tsx
+import {
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  RefreshCw,
+  ZapIcon,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Bar,
   BarChart,
   CartesianGrid,
+  Cell,
   Line,
   LineChart,
+  Pie,
+  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -18,7 +28,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -43,40 +53,37 @@ interface UserData {
   usage_trend: Array<{ date: string; usage: number }>;
 }
 
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+
 const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
   const supabase = createClient();
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("user_data")
-          .select("*")
-          .eq("user_id", user.id)
-          .single();
+  const fetchUserData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error } = await supabase
+        .from("user_data")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
 
-        if (error) throw error;
-        setUserData(data as UserData);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        setUserData(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
+      if (error) throw error;
+      setUserData(data as UserData);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      setError("Failed to load user data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }, [user.id, supabase]);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        Loading...
-      </div>
-    );
-  }
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
 
   const usagePercentage =
     userData && userData.total_credits > 0
@@ -99,6 +106,39 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
         return "text-gray-500";
     }
   };
+
+  const renderCustomizedLabel = ({
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    percent,
+  }: any) => {
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos((-midAngle * Math.PI) / 180);
+    const y = cy + radius * Math.sin((-midAngle * Math.PI) / 180);
+
+    return (
+      <text
+        x={x}
+        y={y}
+        fill="white"
+        textAnchor={x > cx ? "start" : "end"}
+        dominantBaseline="central"
+      >
+        {`${(percent * 100).toFixed(0)}%`}
+      </text>
+    );
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <RefreshCw className="animate-spin h-8 w-8" />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
@@ -144,7 +184,7 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
                 Status: {userData?.subscription_status || "Inactive"}
               </div>
               <div className="text-sm mb-4">
-                Next billing date: {userData?.next_billing_date || "Inactive"}
+                Next billing date: {userData?.next_billing_date || "N/A"}
               </div>
               <Link href="/pricing" passHref>
                 <Button variant="ringHover" className="w-full">
@@ -244,41 +284,99 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
           </Card>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {userData?.recent_activity &&
-            userData.recent_activity.length > 0 ? (
-              <ul className="space-y-4">
-                {userData.recent_activity.map((activity, index) => (
-                  <li key={index} className="flex justify-between items-center">
-                    <span className="flex items-center">
-                      {activity.type === "clip" && (
-                        <ZapIcon className="mr-2 h-4 w-4 text-blue-500" />
-                      )}
-                      {activity.type === "subscription" && (
-                        <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                      )}
-                      {activity.type === "other" && (
-                        <AlertCircle className="mr-2 h-4 w-4 text-yellow-500" />
-                      )}
-                      {activity.description}
-                    </span>
-                    <span className="text-muted-foreground text-sm">
-                      {activity.date}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-center py-4 text-muted-foreground">
-                No recent activity
-              </p>
-            )}
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Credit Distribution</CardTitle>
+              <CardDescription>Breakdown of your credit usage</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {userData ? (
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: "Used", value: userData.used_credits },
+                          {
+                            name: "Remaining",
+                            value:
+                              userData.total_credits - userData.used_credits,
+                          },
+                        ]}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={renderCustomizedLabel}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {[
+                          { name: "Used", value: userData.used_credits },
+                          {
+                            name: "Remaining",
+                            value:
+                              userData.total_credits - userData.used_credits,
+                          },
+                        ].map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length]}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <p className="text-center py-8 text-muted-foreground">
+                  No credit data available
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {userData?.recent_activity &&
+              userData.recent_activity.length > 0 ? (
+                <ul className="space-y-4">
+                  {userData.recent_activity.map((activity, index) => (
+                    <li
+                      key={index}
+                      className="flex justify-between items-center"
+                    >
+                      <span className="flex items-center">
+                        {activity.type === "clip" && (
+                          <ZapIcon className="mr-2 h-4 w-4 text-blue-500" />
+                        )}
+                        {activity.type === "subscription" && (
+                          <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
+                        )}
+                        {activity.type === "other" && (
+                          <AlertCircle className="mr-2 h-4 w-4 text-yellow-500" />
+                        )}
+                        {activity.description}
+                      </span>
+                      <span className="text-muted-foreground text-sm">
+                        {activity.date}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-center py-4 text-muted-foreground">
+                  No recent activity
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
