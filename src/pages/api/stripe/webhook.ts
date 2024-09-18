@@ -1,5 +1,4 @@
 // src/pages/api/stripe/webhook.ts
-
 import { NextApiRequest, NextApiResponse } from "next";
 
 import Stripe from "stripe";
@@ -35,16 +34,10 @@ export default async function handler(
   try {
     event = stripe.webhooks.constructEvent(buf, sig, webhookSecret);
   } catch (err) {
-    console.error(
-      `Webhook signature verification failed: ${
-        err instanceof Error ? err.message : "Unknown error"
-      }`,
-    );
+    console.error(`Webhook signature verification failed:`, err);
     return res
       .status(400)
-      .send(
-        `Webhook Error: ${err instanceof Error ? err.message : "Unknown error"}`,
-      );
+      .json({ error: "Webhook signature verification failed" });
   }
 
   const supabase = createClient(req, res);
@@ -77,11 +70,7 @@ export default async function handler(
     }
     res.json({ received: true });
   } catch (err) {
-    console.error(
-      `Error processing webhook: ${
-        err instanceof Error ? err.message : "Unknown error"
-      }`,
-    );
+    console.error(`Error processing webhook:`, err);
     res.status(500).json({ error: "Internal server error" });
   }
 }
@@ -97,8 +86,13 @@ async function handleSubscriptionChange(
     .eq("stripe_customer_id", customerId)
     .single();
 
-  if (userError)
+  if (userError) {
+    console.error(
+      `No user found for Stripe customer ${customerId}:`,
+      userError,
+    );
     throw new Error(`No user found for Stripe customer ${customerId}`);
+  }
 
   const { error: subscriptionError } = await supabase
     .from("subscriptions")
@@ -133,12 +127,28 @@ async function handleSubscriptionChange(
           ? new Date(subscription.trial_end * 1000).toISOString()
           : null,
       },
-      {
-        onConflict: "id",
-      },
+      { onConflict: "id" },
     );
 
-  if (subscriptionError) throw subscriptionError;
+  if (subscriptionError) {
+    console.error("Error upserting subscription:", subscriptionError);
+    throw subscriptionError;
+  }
+
+  const { error: userDataError } = await supabase
+    .from("user_data")
+    .update({
+      subscription_status: subscription.status,
+      next_billing_date: new Date(
+        subscription.current_period_end * 1000,
+      ).toISOString(),
+    })
+    .eq("user_id", userData.id);
+
+  if (userDataError) {
+    console.error("Error updating user_data:", userDataError);
+    throw userDataError;
+  }
 }
 
 async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
@@ -149,15 +159,19 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
     .eq("stripe_customer_id", customerId)
     .single();
 
-  if (userError)
+  if (userError) {
+    console.error(
+      `No user found for Stripe customer ${customerId}:`,
+      userError,
+    );
     throw new Error(`No user found for Stripe customer ${customerId}`);
+  }
 
   const { error: invoiceError } = await supabase.from("invoices").upsert(
     {
       id: invoice.id,
       stripe_invoice_id: invoice.id,
       user_id: userData.id,
-      customer_id: customerId,
       subscription_id: invoice.subscription,
       status: invoice.status,
       currency: invoice.currency,
@@ -168,18 +182,36 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
       period_start: new Date(invoice.period_start * 1000).toISOString(),
       period_end: new Date(invoice.period_end * 1000).toISOString(),
     },
-    {
-      onConflict: "stripe_invoice_id",
-    },
+    { onConflict: "stripe_invoice_id" },
   );
 
-  if (invoiceError) throw invoiceError;
+  if (invoiceError) {
+    console.error("Error upserting invoice:", invoiceError);
+    throw invoiceError;
+  }
 
   if (invoice.subscription) {
-    await supabase
+    const { error: subscriptionError } = await supabase
       .from("subscriptions")
       .update({ status: invoice.status === "paid" ? "active" : "past_due" })
       .eq("id", invoice.subscription);
+
+    if (subscriptionError) {
+      console.error("Error updating subscription status:", subscriptionError);
+      throw subscriptionError;
+    }
+
+    const { error: userDataError } = await supabase
+      .from("user_data")
+      .update({
+        subscription_status: invoice.status === "paid" ? "active" : "past_due",
+      })
+      .eq("user_id", userData.id);
+
+    if (userDataError) {
+      console.error("Error updating user_data status:", userDataError);
+      throw userDataError;
+    }
   }
 }
 
@@ -197,5 +229,21 @@ async function handleCheckoutSessionCompleted(
   if (session.invoice) {
     const invoice = await stripe.invoices.retrieve(session.invoice as string);
     await handleInvoicePayment(invoice, supabase);
+  }
+
+  if (session.metadata?.supabase_user_id) {
+    const { error: userDataError } = await supabase
+      .from("user_data")
+      .update({
+        plan_name: session.metadata.plan_name,
+        plan_price: session.amount_total,
+        subscription_status: "active",
+      })
+      .eq("user_id", session.metadata.supabase_user_id);
+
+    if (userDataError) {
+      console.error("Error updating user_data after checkout:", userDataError);
+      throw userDataError;
+    }
   }
 }

@@ -58,6 +58,7 @@ export default function CheckoutPage() {
   const [plan, setPlan] = useState<any | null>(null);
   const [interval, setInterval] = useState<"month" | "year">("month");
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!price_id) {
@@ -76,26 +77,35 @@ export default function CheckoutPage() {
       setInterval(
         price_id === fetchedPlan.stripePriceId.year ? "year" : "month",
       );
+      setIsLoading(false);
     }
   }, [price_id, router]);
 
   const fetchClientSecret = useCallback(async () => {
+    if (!plan) return;
+
+    setIsLoading(true);
     try {
       const { data } = await axios.post("/api/stripe/create-checkout-session", {
         price_id: price_id,
+        plan_name: plan.name,
       });
       setClientSecret(data.clientSecret);
     } catch (error) {
       console.error("Error fetching client secret:", error);
-      toast.error("An error occurred. Please try again.");
+      toast.error(
+        "An error occurred while preparing the checkout. Please try again.",
+      );
+    } finally {
+      setIsLoading(false);
     }
-  }, [price_id]);
+  }, [price_id, plan]);
 
   useEffect(() => {
-    if (price_id) {
+    if (price_id && plan) {
       fetchClientSecret();
     }
-  }, [fetchClientSecret, price_id]);
+  }, [fetchClientSecret, price_id, plan]);
 
   if (!price_id || !plan) return null;
 
@@ -144,15 +154,19 @@ export default function CheckoutPage() {
 
           <div className="mt-8 md:mt-0">
             <div className="bg-card rounded-3xl overflow-hidden shadow-xl">
-              {stripePromise ? (
+              {isLoading ? (
+                <Skeleton className="animate-pulse min-h-screen" />
+              ) : clientSecret ? (
                 <EmbeddedCheckoutProvider
                   stripe={stripePromise}
                   options={{ clientSecret }}
                 >
-                  <EmbeddedCheckout />
+                  <EmbeddedCheckout className="min-h-screen" />
                 </EmbeddedCheckoutProvider>
               ) : (
-                <Skeleton className="h-screen" />
+                <div className="p-4 text-center">
+                  Failed to load checkout. Please try again.
+                </div>
               )}
             </div>
           </div>
