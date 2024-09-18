@@ -216,16 +216,14 @@ const PlanCard: React.FC<{
             </Button>
           ) : (
             <Link
-              href={
-                isLoggedIn ? `/checkout?price_id=${priceId}` : "/auth/login"
-              }
+              href={isLoggedIn ? `/checkout?price_id=${priceId}` : "/login"}
               passHref
             >
               <Button
                 variant="ringHover"
                 className="w-full group transition-all duration-300"
               >
-                {isLoggedIn ? plan.buttonText : "Login to Subscribe"}
+                {plan.buttonText}
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
