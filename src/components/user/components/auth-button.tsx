@@ -85,7 +85,7 @@ const AuthButton = ({ initialUser }: { initialUser: User | null }) => {
               Menu
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-[400px] p-4 md:p-8">
+          <SheetContent side="right" className="w-[400px] p-4 pt-8 md:p-8">
             <div className="relative flex flex-col space-y-4 h-full">
               {/* User Avatar and Info */}
               <div className="flex items-center space-x-3">

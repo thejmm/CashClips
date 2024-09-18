@@ -1,89 +1,107 @@
 "use client";
 
 import {
-  Camera,
-  ChevronRight,
-  ChevronRightIcon,
-  Film,
-  MessageCircle,
-  Scissors,
-  Tv,
-  Twitch,
-  Users,
-  VideoIcon,
-  Youtube,
-  Zap,
-} from "lucide-react";
-import { FaTwitch, FaYoutube } from "react-icons/fa";
+  FaInstagram,
+  FaSnapchat,
+  FaTiktok,
+  FaTwitch,
+  FaYoutube,
+} from "react-icons/fa";
+import {
+  RiInstagramFill,
+  RiKickFill,
+  RiSnapchatFill,
+  RiTiktokFill,
+  RiTwitchFill,
+  RiYoutubeFill,
+} from "react-icons/ri";
+import {
+  SiInstagram,
+  SiKick,
+  SiTiktok,
+  SiTwitch,
+  SiYoutube,
+} from "react-icons/si";
 import { motion, useAnimation, useInView } from "framer-motion";
 import { useEffect, useId, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
 import Marquee from "@/components/ui/marquee";
-import { RiKickFill } from "react-icons/ri";
-import { SiKick } from "react-icons/si";
 import { cn } from "@/lib/utils";
 
 const tiles = [
   {
-    icon: <FaYoutube className="size-full" />,
+    icon: <RiYoutubeFill className="size-full" />,
     bg: (
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-full bg-gradient-to-r from-red-600 to-red-400 opacity-70 blur-[20px] filter"></div>
     ),
   },
   {
-    icon: <FaTwitch className="size-full" />,
+    icon: <RiTwitchFill className="size-full" />,
     bg: (
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-full bg-gradient-to-r from-purple-600 to-purple-400 opacity-70 blur-[20px] filter"></div>
+    ),
+  },
+  {
+    icon: <RiTiktokFill className="size-full" />,
+    bg: (
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-full bg-gradient-to-r from-gray-800 to-black opacity-70 blur-[20px] filter"></div>
     ),
   },
   {
     icon: <RiKickFill className="size-full" />,
     bg: (
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-full bg-gradient-to-r from-green-600 to-green-400 opacity-70 blur-[20px] filter"></div>
+    ),
+  },
+  {
+    icon: <RiSnapchatFill className="size-full" />,
+    bg: (
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-full bg-gradient-to-r from-yellow-400 to-yellow-300 opacity-70 blur-[20px] filter"></div>
+    ),
+  },
+  {
+    icon: <RiInstagramFill className="size-full" />,
+    bg: (
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-yellow-500 opacity-70 blur-[20px] filter"></div>
+    ),
+  },
+  {
+    icon: <SiYoutube className="size-full" />,
+    bg: (
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-full bg-gradient-to-r from-red-600 to-red-400 opacity-70 blur-[20px] filter"></div>
+    ),
+  },
+  {
+    icon: <SiTwitch className="size-full" />,
+    bg: (
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-full bg-gradient-to-r from-purple-600 to-purple-400 opacity-70 blur-[20px] filter"></div>
+    ),
+  },
+  {
+    icon: <SiTiktok className="size-full" />,
+    bg: (
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-full bg-gradient-to-r from-gray-800 to-black opacity-70 blur-[20px] filter"></div>
     ),
   },
   {
     icon: <SiKick className="size-full" />,
     bg: (
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-full bg-gradient-to-r from-purple-600 to-purple-400 opacity-70 blur-[20px] filter"></div>
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-full bg-gradient-to-r from-green-600 to-green-400 opacity-70 blur-[20px] filter"></div>
     ),
   },
   {
-    icon: <Camera className="size-full" />,
+    icon: <RiSnapchatFill className="size-full" />,
     bg: (
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-full bg-gradient-to-r from-indigo-600 to-indigo-400 opacity-70 blur-[20px] filter"></div>
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-full bg-gradient-to-r from-yellow-400 to-yellow-300 opacity-70 blur-[20px] filter"></div>
     ),
   },
   {
-    icon: <VideoIcon className="size-full" />,
+    icon: <SiInstagram className="size-full" />,
     bg: (
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-full bg-gradient-to-r from-pink-600 to-pink-400 opacity-70 blur-[20px] filter"></div>
-    ),
-  },
-  {
-    icon: <Film className="size-full" />,
-    bg: (
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-full bg-gradient-to-r from-orange-600 to-orange-400 opacity-70 blur-[20px] filter"></div>
-    ),
-  },
-  {
-    icon: <Tv className="size-full" />,
-    bg: (
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-full bg-gradient-to-r from-blue-600 to-blue-400 opacity-70 blur-[20px] filter"></div>
-    ),
-  },
-  {
-    icon: <MessageCircle className="size-full" />,
-    bg: (
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-full bg-gradient-to-r from-teal-600 to-teal-400 opacity-70 blur-[20px] filter"></div>
-    ),
-  },
-  {
-    icon: <Users className="size-full" />,
-    bg: (
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-full bg-gradient-to-r from-gray-600 to-gray-400 opacity-70 blur-[20px] filter"></div>
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-yellow-500 opacity-70 blur-[20px] filter"></div>
     ),
   },
 ];

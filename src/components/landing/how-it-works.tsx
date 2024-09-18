@@ -1,12 +1,16 @@
 "use client";
 
 import { Layout, Scissors, Share } from "lucide-react";
+import React, { useRef } from "react";
+import { motion, useInView } from "framer-motion";
 
 import { FaClosedCaptioning } from "react-icons/fa";
-import React from "react";
 import { Timeline } from "@/components/ui/timeline";
 
 export function HowItWorksSection() {
+  const sectionRef = useRef(null);
+  const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
+
   const data = [
     {
       title: "Pick a Template",
@@ -126,17 +130,65 @@ export function HowItWorksSection() {
     },
   ];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.3,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
+
   return (
-    <section id="how-it-works" className="rounded-3xl bg-accent py-12">
+    <section
+      id="how-it-works"
+      className="rounded-3xl bg-accent py-12"
+      ref={sectionRef}
+    >
       <div className="max-w-7xl mx-auto py-20 px-4 md:px-8 lg:px-10">
-        <h2 className="text-4xl font-bold text-black dark:text-white mb-4">
+        <motion.h2
+          className="text-4xl font-bold text-black dark:text-white mb-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
           How CashClips Works
-        </h2>
-        <p className="text-neutral-700 dark:text-neutral-300 text-base max-w-2xl mb-12">
+        </motion.h2>
+        <motion.p
+          className="text-neutral-700 dark:text-neutral-300 text-base max-w-2xl mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
           Create amazing clips in just four simple steps. CashClips streamlines
           the process, making it easy for you to generate engaging content.
-        </p>
-        <Timeline data={data} />
+        </motion.p>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate={isInView ? "visible" : "hidden"}
+        >
+          <Timeline
+            data={data.map((item, index) => ({
+              ...item,
+              content: (
+                <motion.div
+                  key={index}
+                  variants={itemVariants}
+                  transition={{ duration: 0.6, delay: index * 0.2 }}
+                >
+                  {item.content}
+                </motion.div>
+              ),
+            }))}
+          />
+        </motion.div>
       </div>
     </section>
   );

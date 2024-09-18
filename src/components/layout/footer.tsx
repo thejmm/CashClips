@@ -3,6 +3,14 @@ import {
   LinkedInLogoIcon,
   TwitterLogoIcon,
 } from "@radix-ui/react-icons";
+import {
+  RiDiscordFill,
+  RiInstagramFill,
+  RiKickFill,
+  RiTiktokFill,
+  RiTwitchFill,
+  RiTwitterXFill,
+} from "react-icons/ri";
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -50,12 +58,16 @@ const footerNavs = [
     label: "Resources",
     items: [
       {
-        href: "#",
+        href: "/docs",
         name: "Documentation",
       },
       {
         href: "#",
         name: "Community",
+      },
+      {
+        href: "https://cashclips.promotekit.com",
+        name: "Affiliates",
       },
     ],
   },
@@ -64,13 +76,38 @@ const footerNavs = [
 const footerSocials = [
   {
     href: "#",
-    name: "Linkedin",
-    icon: <LinkedInLogoIcon className="size-4" />,
+    name: "X/Twitter",
+    icon: <RiTwitterXFill className="size-5" />,
   },
   {
     href: "#",
-    name: "Twitter",
-    icon: <TwitterLogoIcon className="size-4" />,
+    name: "Instagram",
+    icon: <RiInstagramFill className="size-5" />,
+  },
+  {
+    href: "#",
+    name: "TikTok",
+    icon: <RiTiktokFill className="size-5" />,
+  },
+  {
+    href: "#",
+    name: "LinkedIn",
+    icon: <LinkedInLogoIcon className="size-5" />,
+  },
+  {
+    href: "#",
+    name: "Twitch",
+    icon: <RiTwitchFill className="size-5" />,
+  },
+  {
+    href: "#",
+    name: "Kick",
+    icon: <RiKickFill className="size-5" />,
+  },
+  {
+    href: "#",
+    name: "Discord",
+    icon: <RiDiscordFill className="size-5" />,
   },
 ];
 

@@ -1,3 +1,5 @@
+// src/components/landing/pricing.tsx
+import { AnimatePresence, motion, useInView } from "framer-motion";
 import { ArrowRight, CheckIcon, Scissors, Video, Zap } from "lucide-react";
 import {
   Card,
@@ -7,7 +9,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import React, { useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -19,50 +20,53 @@ export const pricingConfig = {
       id: "prod_Starter",
       name: "Starter",
       description:
-        "For new clippers looking to start their journey in content creation. Get the essential tools to clip and share your favorite moments.",
-      monthlyPrice: 999, // $9.99
-      yearlyPrice: 10789, // 10% off
+        "For new clippers starting their journey. Get essential tools to clip and share your favorite moments.",
+      monthlyPrice: 1299, // $12.99
+      yearlyPrice: 14029, // 10% off
       buttonText: "Go Starter",
       features: [
-        "Generate 12 clips per month",
+        "Generate 10 clips per month",
         "720p/30fps export quality",
+        "Max 30s video length",
         "Basic auto-captioning",
       ],
       stripePriceId: {
-        month: "price_1XXXXXXXXXXXXXXXX1",
-        year: "price_1XXXXXXXXXXXXXXXX2",
+        month: "price_1XXXXXXXXXXXXXXXX5",
+        year: "price_1XXXXXXXXXXXXXXXX6",
       },
     },
     {
       id: "prod_Pro",
       name: "Pro",
       description:
-        "Ideal for dedicated clippers and growing channels. Enhance your content with more clips and advanced features to stand out from the crowd.",
-      monthlyPrice: 2999, // $29.99
-      yearlyPrice: 32389, // 10% off
+        "Ideal for dedicated clippers and growing channels. Enhance your content with more clips.",
+      monthlyPrice: 4999, // $49.99
+      yearlyPrice: 53989, // 10% off
       buttonText: "Go Pro",
       features: [
-        "Generate 50 clips per month",
-        "1080p/60fps export quality",
+        "Generate 20 clips per month",
+        "720p/30fps export quality",
+        "Max 60s video length",
         "Advanced auto-captioning",
       ],
       stripePriceId: {
-        month: "price_1XXXXXXXXXXXXXXXX3",
-        year: "price_1XXXXXXXXXXXXXXXX4",
+        month: "price_1XXXXXXXXXXXXXXXX5",
+        year: "price_1XXXXXXXXXXXXXXXX6",
       },
     },
     {
       id: "prod_Ultimate",
       name: "Ultimate",
       description:
-        "For professional clippers and popular streamers. Maximize your content output with high-quality clips to grow your audience.",
-      monthlyPrice: 4999, // $49.99
-      yearlyPrice: 53989, // 10% off
+        "For professional clippers and popular streamers. Maximize your content output with high-quality clips.",
+      monthlyPrice: 9999, // $99.99
+      yearlyPrice: 107989, // 10% off
       buttonText: "Go Ultimate",
       isPro: true,
       features: [
-        "Generate 100 clips per month",
-        "1080p/60fps export quality",
+        "Generate 30 clips per month",
+        "1080p/30fps export quality",
+        "Max 60s video length",
         "Premium auto-captioning",
       ],
       stripePriceId: {
@@ -74,18 +78,19 @@ export const pricingConfig = {
       id: "prod_Agency",
       name: "Agency",
       description:
-        "Perfect for clip agencies and large creator teams. Get unlimited clipping power and collaborative tools to manage multiple channels efficiently.",
-      monthlyPrice: 9999, // $99.99
-      yearlyPrice: 107989, // 10% off
+        "Perfect for clip agencies and large creator teams. Get powerful tools to manage multiple channels efficiently.",
+      monthlyPrice: 19999, // $199.99
+      yearlyPrice: 215989, // 10% off
       buttonText: "Go Agency",
       features: [
-        "Generate 200 clips per month",
+        "Generate 60 clips per month",
         "1080p/60fps export quality",
+        "Max 60s video length",
         "Premium auto-captioning",
       ],
       stripePriceId: {
-        month: "price_1XXXXXXXXXXXXXXXX7",
-        year: "price_1XXXXXXXXXXXXXXXX8",
+        month: "price_1XXXXXXXXXXXXXXXX5",
+        year: "price_1XXXXXXXXXXXXXXXX6",
       },
     },
   ],
@@ -115,8 +120,9 @@ const PlanCard: React.FC<{
   index: number;
   isInView: boolean;
 }> = ({ plan, interval, index, isInView }) => {
+  const currentPrice =
+    interval === "year" ? plan.yearlyPrice : plan.monthlyPrice;
   const priceId = plan.stripePriceId[interval];
-  const price = interval === "year" ? plan.yearlyPrice : plan.monthlyPrice;
   const originalYearlyPrice = plan.monthlyPrice * 12;
   const yearlyDiscount = originalYearlyPrice - plan.yearlyPrice;
 
@@ -141,48 +147,48 @@ const PlanCard: React.FC<{
           <CardDescription>{plan.description}</CardDescription>
         </CardHeader>
         <CardContent className="flex-grow">
-          <motion.div
-            key={`${plan.id}-${interval}`}
-            className="mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.4, ease: [0.21, 0.47, 0.32, 0.98] }}
-          >
-            {interval === "year" ? (
-              <>
-                <div className="text-muted-foreground mb-1">
-                  <span className="text-2xl line-through">
-                    {" "}
-                    ${toHumanPrice(originalYearlyPrice, 2)}
-                  </span>
-                  <span className="text-sm font-normal">/year</span>
-                </div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`${plan.id}-${interval}-${currentPrice}`}
+              className="mb-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4, ease: [0.21, 0.47, 0.32, 0.98] }}
+            >
+              {interval === "year" ? (
+                <>
+                  <div className="text-muted-foreground mb-1">
+                    <span className="text-2xl line-through">
+                      ${toHumanPrice(originalYearlyPrice, 2)}
+                    </span>
+                    <span className="text-sm font-normal">/year</span>
+                  </div>
+                  <div className="text-4xl font-bold">
+                    ${toHumanPrice(currentPrice, 2)}
+                    <span className="text-sm font-normal text-muted-foreground">
+                      /year
+                    </span>
+                  </div>
+                  <motion.p
+                    className="text-sm text-green-500 font-semibold mt-1"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.2 }}
+                  >
+                    Save ${toHumanPrice(yearlyDiscount, 2)} per year!
+                  </motion.p>
+                </>
+              ) : (
                 <div className="text-4xl font-bold">
-                  ${toHumanPrice(price, 2)}
+                  ${toHumanPrice(currentPrice, 2)}
                   <span className="text-sm font-normal text-muted-foreground">
-                    /year
+                    /month
                   </span>
                 </div>
-                <motion.p
-                  className="text-sm text-green-500 font-semibold mt-1"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={
-                    isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }
-                  }
-                  transition={{ duration: 0.4, delay: 0.2 }}
-                >
-                  Save ${toHumanPrice(yearlyDiscount, 2)} per year!
-                </motion.p>
-              </>
-            ) : (
-              <div className="text-4xl font-bold">
-                ${toHumanPrice(price, 2)}
-                <span className="text-sm font-normal text-muted-foreground">
-                  /month
-                </span>
-              </div>
-            )}
-          </motion.div>
+              )}
+            </motion.div>
+          </AnimatePresence>
           {plan.features && plan.features.length > 0 && (
             <div>
               <p className="mb-2 text-sm text-muted-foreground">Features:</p>
