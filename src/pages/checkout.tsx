@@ -57,6 +57,7 @@ export default function CheckoutPage() {
   const { price_id } = router.query;
   const [plan, setPlan] = useState<any | null>(null);
   const [interval, setInterval] = useState<"month" | "year">("month");
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
 
   useEffect(() => {
     if (!price_id) {
@@ -83,13 +84,18 @@ export default function CheckoutPage() {
       const { data } = await axios.post("/api/stripe/create-checkout-session", {
         price_id: price_id,
       });
-      return data.clientSecret;
+      setClientSecret(data.clientSecret);
     } catch (error) {
       console.error("Error fetching client secret:", error);
       toast.error("An error occurred. Please try again.");
-      throw error;
     }
   }, [price_id]);
+
+  useEffect(() => {
+    if (price_id) {
+      fetchClientSecret();
+    }
+  }, [fetchClientSecret, price_id]);
 
   if (!price_id || !plan) return null;
 
@@ -141,7 +147,7 @@ export default function CheckoutPage() {
               {stripePromise ? (
                 <EmbeddedCheckoutProvider
                   stripe={stripePromise}
-                  options={{ fetchClientSecret }}
+                  options={{ clientSecret }}
                 >
                   <EmbeddedCheckout />
                 </EmbeddedCheckoutProvider>

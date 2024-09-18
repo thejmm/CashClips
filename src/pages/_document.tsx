@@ -5,9 +5,10 @@ export default function Document() {
     <Html lang="en">
       <Head>
         <meta name="theme-color" content="#000000" />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        <script
+          async
+          src="https://cdn.promotekit.com/promotekit.js"
+          data-promotekit="a1ede120-2bf6-4afa-9c88-f9bf10ebbd46"
         />
       </Head>
       <body>

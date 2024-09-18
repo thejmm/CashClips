@@ -9,9 +9,11 @@ import { ThemeProvider } from "@/context/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
+import { useStripePaymentLinks } from "@/hooks/stripe-promote-kit";
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
+  useStripePaymentLinks();
 
   useEffect(() => {
     if ("serviceWorker" in navigator) {
@@ -31,6 +33,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   // Determine if we are on the home page
   const isHomePage = router.pathname === "/";
+  const isDocsRoute = router.pathname.includes("/docs");
 
   return (
     <ThemeProvider
@@ -46,7 +49,7 @@ export default function App({ Component, pageProps }: AppProps) {
         />
       </Head>
       {/* Conditionally render sticky header only on home page */}
-      <Header user={pageProps.user} sticky={isHomePage} />
+      <Header user={pageProps.user} sticky={isHomePage || isDocsRoute} />
       <Component {...pageProps} />
       <Footer />
       <Toaster richColors />
