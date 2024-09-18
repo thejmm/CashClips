@@ -1,8 +1,8 @@
+// src/pages/api/stripe/checkout-sessions.ts
 import { NextApiRequest, NextApiResponse } from "next";
 
 import Stripe from "stripe";
 import createClient from "@/utils/supabase/api";
-import { pricingConfig } from "@/components/landing/pricing";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2024-06-20",
@@ -12,104 +12,105 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
     return res.status(405).end("Method Not Allowed");
   }
 
-  const { price_id, plan_name } = req.body;
-  if (!price_id || !plan_name) {
-    return res.status(400).json({ error: "Missing price_id or plan_name" });
+  const { session_id } = req.query;
+  if (!session_id || typeof session_id !== "string") {
+    return res.status(400).json({ error: "Invalid session_id" });
   }
 
   const supabase = createClient(req, res);
 
   try {
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      console.error("Authentication error:", userError);
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-
-    let stripeCustomerId = user.user_metadata?.stripe_customer_id;
-
-    if (stripeCustomerId) {
-      try {
-        await stripe.customers.retrieve(stripeCustomerId);
-      } catch (error) {
-        console.error("Error retrieving Stripe customer:", error);
-        stripeCustomerId = null;
-      }
-    }
-
-    if (!stripeCustomerId) {
-      try {
-        const customer = await stripe.customers.create({
-          email: user.email,
-          metadata: { supabase_user_id: user.id },
-        });
-        stripeCustomerId = customer.id;
-        await supabase.auth.updateUser({
-          data: { stripe_customer_id: stripeCustomerId },
-        });
-        await supabase
-          .from("auth.users")
-          .update({ stripe_customer_id: stripeCustomerId })
-          .eq("id", user.id);
-      } catch (error) {
-        console.error("Error creating Stripe customer:", error);
-        return res
-          .status(500)
-          .json({ error: "Failed to create Stripe customer" });
-      }
-    }
-
-    const planDetails = pricingConfig.plans.find((p) => p.name === plan_name);
-    if (!planDetails) {
-      return res.status(400).json({ error: "Invalid plan name" });
-    }
-
-    const session = await stripe.checkout.sessions.create({
-      ui_mode: "embedded",
-      customer: stripeCustomerId,
-      line_items: [{ price: price_id, quantity: 1 }],
-      mode: "subscription",
-      metadata: {
-        supabase_user_id: user.id,
-        plan_name: plan_name,
-      },
-      subscription_data: {
-        metadata: {
-          supabase_user_id: user.id,
-        },
-      },
-      return_url: `${req.headers.origin}/user/return?session_id={CHECKOUT_SESSION_ID}`,
+    const session = await stripe.checkout.sessions.retrieve(session_id, {
+      expand: ["customer", "subscription", "payment_intent"],
     });
 
-    const totalCredits = parseInt(planDetails.features[0].split(" ")[1], 10);
-    const { error: userDataError } = await supabase.from("user_data").upsert(
-      {
-        user_id: user.id,
-        stripe_customer_id: stripeCustomerId,
-        plan_name: plan_name,
-        plan_price: planDetails.monthlyPrice,
-        subscription_status: "pending",
-        total_credits: totalCredits,
-        used_credits: 0,
-      },
-      { onConflict: "user_id" },
-    );
+    let customerEmail = "";
+    let userId = "";
+    if (session.customer && typeof session.customer !== "string") {
+      const { data: userData, error: userError } = await supabase
+        .from("user_data")
+        .select("user_id")
+        .eq("stripe_customer_id", session.customer.id)
+        .single();
 
-    if (userDataError) {
-      console.error("Error updating user_data:", userDataError);
+      if (userError) {
+        console.error("Error fetching user data:", userError);
+        return res.status(404).json({ error: "User not found" });
+      }
+      userId = userData.user_id;
+
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.admin.getUserById(userId);
+      if (authError) {
+        console.error("Error fetching user email:", authError);
+      } else if (user) {
+        customerEmail = user.email as string;
+      }
     }
 
-    res.status(200).json({ clientSecret: session.client_secret });
-  } catch (error) {
-    console.error("Error creating Stripe checkout session:", error);
-    res.status(500).json({ error: "Failed to create checkout session" });
+    let subscriptionStatus = null;
+    let subscriptionId = null;
+    if (session.subscription && typeof session.subscription !== "string") {
+      subscriptionStatus = session.subscription.status;
+      subscriptionId = session.subscription.id;
+    }
+
+    let paymentStatus = null;
+    if (session.payment_intent && typeof session.payment_intent !== "string") {
+      paymentStatus = session.payment_intent.status;
+    }
+
+    if (userId) {
+      const { error: userDataError } = await supabase
+        .from("user_data")
+        .update({
+          subscription_status: subscriptionStatus,
+          next_billing_date:
+            session.subscription && typeof session.subscription !== "string"
+              ? new Date(
+                  session.subscription.current_period_end * 1000,
+                ).toISOString()
+              : null,
+        })
+        .eq("user_id", userId);
+
+      if (userDataError) {
+        console.error("Error updating user_data:", userDataError);
+      }
+
+      if (subscriptionId) {
+        const { error: subscriptionError } = await supabase
+          .from("subscriptions")
+          .upsert(
+            {
+              id: subscriptionId,
+              user_id: userId,
+              status: subscriptionStatus,
+            },
+            { onConflict: "id" },
+          );
+
+        if (subscriptionError) {
+          console.error("Error updating subscription:", subscriptionError);
+        }
+      }
+    }
+
+    res.status(200).json({
+      status: session.status,
+      customer_email: customerEmail,
+      subscription_status: subscriptionStatus,
+      payment_status: paymentStatus,
+    });
+  } catch (err: any) {
+    console.error("Error retrieving checkout session:", err);
+    res.status(err.statusCode || 500).json({ error: err.message });
   }
 }

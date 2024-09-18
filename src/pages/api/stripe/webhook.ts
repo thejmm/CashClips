@@ -81,8 +81,8 @@ async function handleSubscriptionChange(
 ) {
   const customerId = subscription.customer as string;
   const { data: userData, error: userError } = await supabase
-    .from("auth.users")
-    .select("id")
+    .from("user_data")
+    .select("user_id")
     .eq("stripe_customer_id", customerId)
     .single();
 
@@ -99,7 +99,7 @@ async function handleSubscriptionChange(
     .upsert(
       {
         id: subscription.id,
-        user_id: userData.id,
+        user_id: userData.user_id,
         status: subscription.status,
         price_id: subscription.items.data[0].price.id,
         quantity: subscription.items.data[0].quantity,
@@ -143,7 +143,7 @@ async function handleSubscriptionChange(
         subscription.current_period_end * 1000,
       ).toISOString(),
     })
-    .eq("user_id", userData.id);
+    .eq("user_id", userData.user_id);
 
   if (userDataError) {
     console.error("Error updating user_data:", userDataError);
@@ -154,8 +154,8 @@ async function handleSubscriptionChange(
 async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
   const customerId = invoice.customer as string;
   const { data: userData, error: userError } = await supabase
-    .from("auth.users")
-    .select("id")
+    .from("user_data")
+    .select("user_id")
     .eq("stripe_customer_id", customerId)
     .single();
 
@@ -171,7 +171,7 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
     {
       id: invoice.id,
       stripe_invoice_id: invoice.id,
-      user_id: userData.id,
+      user_id: userData.user_id,
       subscription_id: invoice.subscription,
       status: invoice.status,
       currency: invoice.currency,
@@ -206,7 +206,7 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
       .update({
         subscription_status: invoice.status === "paid" ? "active" : "past_due",
       })
-      .eq("user_id", userData.id);
+      .eq("user_id", userData.user_id);
 
     if (userDataError) {
       console.error("Error updating user_data status:", userDataError);
