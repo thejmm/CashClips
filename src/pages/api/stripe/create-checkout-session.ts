@@ -91,24 +91,6 @@ export default async function handler(
       return_url: `${req.headers.origin}/user/return?session_id={CHECKOUT_SESSION_ID}`,
     });
 
-    const { error: userDataError } = await supabase.from("user_data").upsert(
-      {
-        user_id: user.id,
-        stripe_customer_id: stripeCustomerId,
-        plan_name: plan_name,
-        plan_price: planDetails.monthlyPrice,
-        subscription_status: "pending",
-        total_credits: parseInt(planDetails.features[0].split(" ")[1], 10),
-        used_credits: 0,
-        promotekit_referral: promotekit_referral || null,
-      },
-      { onConflict: "user_id" },
-    );
-
-    if (userDataError) {
-      console.error("Error updating user_data:", userDataError);
-    }
-
     res.status(200).json({ clientSecret: session.client_secret });
   } catch (error) {
     console.error("Error creating Stripe checkout session:", error);

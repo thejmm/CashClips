@@ -167,7 +167,7 @@ const AffiliatePage: React.FC = () => {
           >
             {benefits.map((benefit, index) => (
               <motion.div key={index} variants={fadeInUp}>
-                <Card className="h-full">
+                <Card key={benefit.title} className="h-full">
                   <CardHeader>
                     <benefit.icon className="w-8 h-8 mb-2 text-primary" />
                     <CardTitle>{benefit.title}</CardTitle>

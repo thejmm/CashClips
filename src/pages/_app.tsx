@@ -5,6 +5,7 @@ import type { AppProps } from "next/app";
 import { Footer } from "@/components/layout/footer";
 import Head from "next/head";
 import Header from "@/components/layout/header"; // Updated Header import
+import Script from "next/script";
 import { ThemeProvider } from "@/context/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { useEffect } from "react";
@@ -44,12 +45,12 @@ export default function App({ Component, pageProps }: AppProps) {
           name="viewport"
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
         />
-        <script
-          async
-          src="https://cdn.promotekit.com/promotekit.js"
-          data-promotekit="a1ede120-2bf6-4afa-9c88-f9bf10ebbd46"
-        />
       </Head>
+      <Script
+        src="https://cdn.promotekit.com/promotekit.js"
+        data-promotekit="a1ede120-2bf6-4afa-9c88-f9bf10ebbd46"
+        strategy="afterInteractive"
+      />
       {/* Conditionally render sticky header only on home page */}
       <Header user={pageProps.user} sticky={!isUserLayout} />
       <Component {...pageProps} />

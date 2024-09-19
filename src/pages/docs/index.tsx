@@ -104,7 +104,7 @@ const DocsHome: React.FC = () => {
                   <CardDescription>{section.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Link href={section.link} passHref>
+                  <Link key={section.title} href={section.link} passHref>
                     <Button
                       variant="ringHover"
                       className="group transition-all duration-300"
