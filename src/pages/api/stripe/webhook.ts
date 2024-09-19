@@ -21,7 +21,7 @@ export const config = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -51,20 +51,20 @@ export default async function handler(
       case "customer.subscription.deleted":
         await handleSubscriptionChange(
           event.data.object as Stripe.Subscription,
-          supabase
+          supabase,
         );
         break;
       case "invoice.paid":
       case "invoice.payment_failed":
         await handleInvoicePayment(
           event.data.object as Stripe.Invoice,
-          supabase
+          supabase,
         );
         break;
       case "checkout.session.completed":
         await handleCheckoutSessionCompleted(
           event.data.object as Stripe.Checkout.Session,
-          supabase
+          supabase,
         );
         break;
       default:
@@ -79,7 +79,7 @@ export default async function handler(
 
 async function handleSubscriptionChange(
   subscription: Stripe.Subscription,
-  supabase: any
+  supabase: any,
 ) {
   const customerId = subscription.customer as string;
   const { data: userData, error: userError } = await supabase
@@ -91,7 +91,7 @@ async function handleSubscriptionChange(
   if (userError) {
     console.error(
       `No user found for Stripe customer ${customerId}:`,
-      userError
+      userError,
     );
     throw new Error(`No user found for Stripe customer ${customerId}`);
   }
@@ -110,10 +110,10 @@ async function handleSubscriptionChange(
         cancel_at_period_end: subscription.cancel_at_period_end,
         created_at: new Date(subscription.created * 1000).toISOString(),
         current_period_start: new Date(
-          subscription.current_period_start * 1000
+          subscription.current_period_start * 1000,
         ).toISOString(),
         current_period_end: new Date(
-          subscription.current_period_end * 1000
+          subscription.current_period_end * 1000,
         ).toISOString(),
         ended_at: subscription.ended_at
           ? new Date(subscription.ended_at * 1000).toISOString()
@@ -131,7 +131,7 @@ async function handleSubscriptionChange(
           ? new Date(subscription.trial_end * 1000).toISOString()
           : null,
       },
-      { onConflict: "stripe_subscription_id" }
+      { onConflict: "stripe_subscription_id" },
     );
 
   if (subscriptionError) {
@@ -144,7 +144,7 @@ async function handleSubscriptionChange(
     .update({
       subscription_status: subscription.status,
       next_billing_date: new Date(
-        subscription.current_period_end * 1000
+        subscription.current_period_end * 1000,
       ).toISOString(),
     })
     .eq("user_id", userData.user_id);
@@ -166,7 +166,7 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
   if (userError) {
     console.error(
       `No user found for Stripe customer ${customerId}:`,
-      userError
+      userError,
     );
     throw new Error(`No user found for Stripe customer ${customerId}`);
   }
@@ -195,7 +195,7 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
         "amount_remaining",
         "updated_at",
       ],
-    }
+    },
   );
 
   if (invoiceError) {
@@ -230,7 +230,7 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
 
 async function handleCheckoutSessionCompleted(
   session: Stripe.Checkout.Session,
-  supabase: any
+  supabase: any,
 ) {
   if (session.payment_status !== "paid") {
     console.log("Checkout session not paid. Skipping user data update.");
@@ -239,7 +239,7 @@ async function handleCheckoutSessionCompleted(
 
   if (session.mode === "subscription" && session.subscription) {
     const subscription = await stripe.subscriptions.retrieve(
-      session.subscription as string
+      session.subscription as string,
     );
     await handleSubscriptionChange(subscription, supabase);
   }
@@ -260,7 +260,7 @@ async function handleCheckoutSessionCompleted(
       }
 
       const totalCreditsMatch = planDetails.features[0].match(
-        /Generate (\d+) clips per month/
+        /Generate (\d+) clips per month/,
       );
       if (!totalCreditsMatch) {
         console.error("Unable to parse total credits from plan features");
@@ -278,13 +278,13 @@ async function handleCheckoutSessionCompleted(
           total_credits: totalCredits,
           used_credits: 0,
         },
-        { onConflict: "user_id" }
+        { onConflict: "user_id" },
       );
 
       if (userDataError) {
         console.error(
           "Error updating user_data after checkout:",
-          userDataError
+          userDataError,
         );
         throw userDataError;
       }
