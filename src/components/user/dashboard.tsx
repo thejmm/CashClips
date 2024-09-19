@@ -1,27 +1,6 @@
-import {
-  AlertCircle,
-  CheckCircle,
-  Loader,
-  RefreshCw,
-  ZapIcon,
-} from "lucide-react";
+// src/components/user/dashboard.tsx
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Label,
-  Line,
-  LineChart,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Sector,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import {
   Card,
   CardContent,
@@ -29,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "../ui/chart";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   Table,
@@ -40,6 +20,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Loader } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/component";
@@ -171,8 +152,36 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
       : 100;
 
   const currentPlan = pricingConfig.plans.find(
-    (plan) => plan.name === userData?.plan_name,
+    (plan) => plan.name === userData?.plan_name
   );
+
+  const formatClipData = (data: ClipData[]) => {
+    const last7Days = [...Array(7)]
+      .map((_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        return d.toISOString().split("T")[0];
+      })
+      .reverse();
+
+    const countsByDate = data.reduce((acc, clip) => {
+      const date = new Date(clip.created_at).toISOString().split("T")[0];
+      acc[date] = (acc[date] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return last7Days.map((date) => ({
+      date,
+      clips: countsByDate[date] || 0,
+    }));
+  };
+
+  const chartConfig = {
+    clips: {
+      label: "Clips Created",
+      color: "hsl(var(--chart-1))",
+    },
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -235,7 +244,7 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
               </div>
               <div
                 className={`text-sm mb-4 ${getStatusColor(
-                  userData?.subscription_status || "",
+                  userData?.subscription_status || ""
                 )}`}
               >
                 Status: {userData?.subscription_status || "Inactive"}
@@ -245,7 +254,7 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
               </div>
               <Link href="/pricing" passHref>
                 <Button variant="ringHover" className="w-full">
-                  {userData?.plan_name ? "Upgrade Plan" : "Get Started"}
+                  {userData?.plan_name ? "Change Plan" : "Get Started"}
                 </Button>
               </Link>
             </CardContent>
@@ -299,23 +308,51 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {clipData && clipData.length > 0 ? (
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={clipData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="created_at" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="status" fill="#8884d8" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              ) : (
-                <p className="text-center py-8 text-muted-foreground">
-                  No clip history available
-                </p>
-              )}
+              <ChartContainer config={chartConfig} className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={clipData ? formatClipData(clipData) : []}>
+                    <XAxis
+                      dataKey="date"
+                      stroke="#888888"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) =>
+                        new Date(value).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        })
+                      }
+                    />
+                    <YAxis
+                      stroke="#888888"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => `${value}`}
+                    />
+                    <Bar
+                      dataKey="clips"
+                      fill="var(--chart-1)"
+                      radius={[4, 4, 0, 0]}
+                    />
+                    <ChartTooltip
+                      content={
+                        <ChartTooltipContent
+                          labelFormatter={(label) =>
+                            new Date(label).toLocaleDateString("en-US", {
+                              weekday: "long",
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })
+                          }
+                        />
+                      }
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
         </div>
