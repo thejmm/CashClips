@@ -1,24 +1,24 @@
-// src/components/layout/sidebar.tsx
 import {
   Film,
-  HomeIcon,
   LayoutDashboardIcon,
+  Loader,
   PlusCircle,
   Settings,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Sidebar,
   SidebarBody,
   SidebarLink,
 } from "@/components/ui/sidebar-side";
 
-import AuthButton from "../user/components/auth-button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { User } from "@supabase/supabase-js";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/utils/supabase/component";
 import { useRouter } from "next/router";
 
 interface DashboardLayoutProps {
@@ -26,6 +26,7 @@ interface DashboardLayoutProps {
   children: React.ReactNode;
   title: string;
   icon: React.ReactNode;
+  checkSubscription?: boolean; // Optional prop to check subscription
 }
 
 export default function DashboardLayout({
@@ -33,9 +34,15 @@ export default function DashboardLayout({
   children,
   title,
   icon,
+  checkSubscription = false, // Default to false
 }: DashboardLayoutProps) {
   const [open, setOpen] = useState(false);
+  const [isActiveSubscription, setIsActiveSubscription] = useState<
+    boolean | null
+  >(null);
+  const [loading, setLoading] = useState(checkSubscription); // Only set loading if we check the subscription
   const router = useRouter();
+  const supabase = createClient();
 
   const links = [
     {
@@ -59,6 +66,35 @@ export default function DashboardLayout({
       icon: <Settings className="h-7 w-7 flex-shrink-0" />,
     },
   ];
+
+  // Fetch subscription data if the checkSubscription prop is true
+  const fetchSubscriptionStatus = async () => {
+    if (!checkSubscription) return; // Skip fetching if checkSubscription is false
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("subscriptions")
+        .select("status")
+        .eq("user_id", user.id)
+        .single();
+
+      if (error) throw error;
+
+      setIsActiveSubscription(data?.status === "active");
+    } catch (error) {
+      console.error("Error fetching subscription data:", error);
+      setIsActiveSubscription(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (checkSubscription) {
+      fetchSubscriptionStatus();
+    }
+  }, [user.id, checkSubscription]);
 
   return (
     <>
@@ -94,7 +130,24 @@ export default function DashboardLayout({
             <Separator className="mb-2" />
 
             <ScrollArea className="h-full md:min-h-[85vh] w-full justify-center mx-auto">
-              {children}
+              {loading ? (
+                <div className="flex justify-center items-center h-full">
+                  <Loader className="mr-2 h-8 w-8 animate-spin" />
+                  <p>Loading...</p>
+                </div>
+              ) : checkSubscription && !isActiveSubscription ? (
+                <div className="flex flex-col text-center items-center justify-center h-full min-h-96">
+                  <p className="mb-4 text-lg font-semibold">
+                    You do not have an active plan. Please upgrade your plan to
+                    use this feature.
+                  </p>
+                  <Link href="/pricing" passHref>
+                    <Button variant="ringHover">Go to Pricing</Button>
+                  </Link>
+                </div>
+              ) : (
+                children
+              )}
             </ScrollArea>
           </div>
         </div>

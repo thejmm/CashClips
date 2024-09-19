@@ -1,8 +1,7 @@
-// src/components/user/dashboard.tsx
 import {
   AlertCircle,
   CheckCircle,
-  Clock,
+  Loader,
   RefreshCw,
   ZapIcon,
 } from "lucide-react";
@@ -12,11 +11,13 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  Label,
   Line,
   LineChart,
   Pie,
   PieChart,
   ResponsiveContainer,
+  Sector,
   Tooltip,
   XAxis,
   YAxis,
@@ -29,6 +30,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import React, { useCallback, useEffect, useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -53,28 +61,100 @@ interface UserData {
   usage_trend: Array<{ date: string; usage: number }>;
 }
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+interface ClipData {
+  id: number;
+  render_id: string;
+  user_id: string;
+  status: string;
+  response: any;
+  payload: any;
+  created_at: string;
+  updated_at: string;
+}
+
+interface InvoiceData {
+  id: string;
+  stripe_invoice_id: string;
+  user_id: string;
+  subscription_id: string;
+  status: string;
+  currency: string;
+  amount_due: number;
+  amount_paid: number;
+  amount_remaining: number;
+  created: string;
+  period_start: string;
+  period_end: string;
+}
+
+interface SubscriptionData {
+  id: string;
+  user_id: string;
+  status: string;
+  price_id: string;
+  quantity: number;
+  cancel_at_period_end: boolean;
+  created_at: string;
+  current_period_start: string;
+  current_period_end: string;
+  ended_at: string;
+  trial_start: string;
+  trial_end: string;
+}
 
 const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [clipData, setClipData] = useState<ClipData[] | null>(null);
+  const [invoiceData, setInvoiceData] = useState<InvoiceData[] | null>(null);
+  const [subscriptionData, setSubscriptionData] = useState<
+    SubscriptionData[] | null
+  >(null);
+
   const supabase = createClient();
 
   const fetchUserData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const { data, error } = await supabase
+      // Fetching user data
+      const { data: userData, error: userError } = await supabase
         .from("user_data")
         .select("*")
         .eq("user_id", user.id)
         .single();
 
-      if (error) throw error;
-      setUserData(data as UserData);
+      if (userError) throw userError;
+
+      // Fetching created clips data
+      const { data: clipData, error: clipError } = await supabase
+        .from("created_clips")
+        .select("*")
+        .eq("user_id", user.id);
+
+      if (clipError) throw clipError;
+
+      // Fetching invoice data
+      const { data: invoiceData, error: invoiceError } = await supabase
+        .from("invoices")
+        .select("*")
+        .eq("user_id", user.id);
+
+      if (invoiceError) throw invoiceError;
+
+      // Fetching subscription data
+      const { data: subscriptionData, error: subscriptionError } =
+        await supabase.from("subscriptions").select("*").eq("user_id", user.id);
+
+      if (subscriptionError) throw subscriptionError;
+
+      setUserData(userData as UserData);
+      setClipData(clipData as ClipData[]);
+      setInvoiceData(invoiceData as InvoiceData[]);
+      setSubscriptionData(subscriptionData as SubscriptionData[]);
     } catch (error) {
-      console.error("Error fetching user data:", error);
+      console.error("Error fetching data:", error);
       setError("Failed to load user data. Please try again.");
     } finally {
       setLoading(false);
@@ -107,35 +187,11 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
     }
   };
 
-  const renderCustomizedLabel = ({
-    cx,
-    cy,
-    midAngle,
-    innerRadius,
-    outerRadius,
-    percent,
-  }: any) => {
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos((-midAngle * Math.PI) / 180);
-    const y = cy + radius * Math.sin((-midAngle * Math.PI) / 180);
-
-    return (
-      <text
-        x={x}
-        y={y}
-        fill="white"
-        textAnchor={x > cx ? "start" : "end"}
-        dominantBaseline="central"
-      >
-        {`${(percent * 100).toFixed(0)}%`}
-      </text>
-    );
-  };
-
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <RefreshCw className="animate-spin h-8 w-8" />
+      <div className="absolute inset-0 flex items-center justify-center">
+        <Loader className="h-12 w-12 animate-spin" />
+        <p className="text-xl font-bold ml-4">Loading Dashboard...</p>
       </div>
     );
   }
@@ -160,6 +216,7 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
           </Avatar>
         </header>
 
+        {/* Plan and Credit Usage */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
@@ -219,16 +276,21 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
                   <span>Export quality:</span>
                   <span>{currentPlan?.features[1] || "N/A"}</span>
                 </div>
+                <div className="flex justify-between mb-2">
+                  <span>Video length:</span>
+                  <span>{currentPlan?.features[2] || "N/A"}</span>
+                </div>
                 <div className="flex justify-between">
                   <span>Auto-captioning:</span>
-                  <span>{currentPlan?.features[2] || "N/A"}</span>
+                  <span>{currentPlan?.features[3] || "N/A"}</span>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Clip History */}
+        <div className="grid grid-cols-1 gap-6">
           <Card>
             <CardHeader>
               <CardTitle>Clip History</CardTitle>
@@ -237,15 +299,15 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {userData?.clip_history && userData.clip_history.length > 0 ? (
+              {clipData && clipData.length > 0 ? (
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={userData.clip_history}>
+                    <BarChart data={clipData}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
+                      <XAxis dataKey="created_at" />
                       <YAxis />
                       <Tooltip />
-                      <Bar dataKey="clips" fill="#8884d8" />
+                      <Bar dataKey="status" fill="#8884d8" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -256,122 +318,42 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
               )}
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Usage Trend</CardTitle>
-              <CardDescription>Your credit usage over time</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {userData?.usage_trend && userData.usage_trend.length > 0 ? (
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={userData.usage_trend}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="usage" stroke="#82ca9d" />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              ) : (
-                <p className="text-center py-8 text-muted-foreground">
-                  No usage trend data available
-                </p>
-              )}
-            </CardContent>
-          </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Invoice Table */}
+        <div className="grid grid-cols-1 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Credit Distribution</CardTitle>
-              <CardDescription>Breakdown of your credit usage</CardDescription>
+              <CardTitle>Invoices</CardTitle>
+              <CardDescription>List of your invoices</CardDescription>
             </CardHeader>
             <CardContent>
-              {userData ? (
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={[
-                          { name: "Used", value: userData.used_credits },
-                          {
-                            name: "Remaining",
-                            value:
-                              userData.total_credits - userData.used_credits,
-                          },
-                        ]}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={renderCustomizedLabel}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {[
-                          { name: "Used", value: userData.used_credits },
-                          {
-                            name: "Remaining",
-                            value:
-                              userData.total_credits - userData.used_credits,
-                          },
-                        ].map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
+              {invoiceData && invoiceData.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableCell>Invoice ID</TableCell>
+                      <TableCell>Status</TableCell>
+                      <TableCell>Amount Due</TableCell>
+                      <TableCell>Amount Paid</TableCell>
+                      <TableCell>Currency</TableCell>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {invoiceData?.map((invoice) => (
+                      <TableRow key={invoice.id}>
+                        <TableCell>{invoice.stripe_invoice_id}</TableCell>
+                        <TableCell>{invoice.status}</TableCell>
+                        <TableCell>{invoice.amount_due}</TableCell>
+                        <TableCell>{invoice.amount_paid}</TableCell>
+                        <TableCell>{invoice.currency}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               ) : (
                 <p className="text-center py-8 text-muted-foreground">
-                  No credit data available
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {userData?.recent_activity &&
-              userData.recent_activity.length > 0 ? (
-                <ul className="space-y-4">
-                  {userData.recent_activity.map((activity, index) => (
-                    <li
-                      key={index}
-                      className="flex justify-between items-center"
-                    >
-                      <span className="flex items-center">
-                        {activity.type === "clip" && (
-                          <ZapIcon className="mr-2 h-4 w-4 text-blue-500" />
-                        )}
-                        {activity.type === "subscription" && (
-                          <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                        )}
-                        {activity.type === "other" && (
-                          <AlertCircle className="mr-2 h-4 w-4 text-yellow-500" />
-                        )}
-                        {activity.description}
-                      </span>
-                      <span className="text-muted-foreground text-sm">
-                        {activity.date}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-center py-4 text-muted-foreground">
-                  No recent activity
+                  No invoices available currently
                 </p>
               )}
             </CardContent>

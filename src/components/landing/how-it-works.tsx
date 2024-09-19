@@ -1,10 +1,10 @@
 "use client";
 
+import { FaClosedCaptioning, FaGamepad, FaStream } from "react-icons/fa";
 import { Layout, Scissors, Share } from "lucide-react";
 import React, { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 
-import { FaClosedCaptioning } from "react-icons/fa";
 import { Timeline } from "@/components/ui/timeline";
 
 export function HowItWorksSection() {
@@ -26,45 +26,63 @@ export function HowItWorksSection() {
             <img
               src="https://via.placeholder.com/500x500.png?text=Template+Gallery"
               alt="Template selection"
-              width={500}
-              height={500}
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]"
+              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
             />
             <img
               src="https://via.placeholder.com/500x500.png?text=Template+Customization"
               alt="Template customization"
-              width={500}
-              height={500}
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]"
+              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
             />
           </div>
         </div>
       ),
     },
     {
-      title: "Choose Your Clip",
+      title: "Choose Game Type",
       content: (
         <div>
           <div className="flex items-center mb-4">
-            <Scissors className="w-8 h-8 mr-4 text-primary" />
+            <FaGamepad className="w-8 h-8 mr-4 text-primary" />
             <p className="text-neutral-800 dark:text-neutral-200 text-sm font-normal">
-              Select from our vast library of raw clips.
+              Select the type of game and customize additional settings like
+              split templates.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <img
-              src="https://via.placeholder.com/500x500.png?text=Clip+Library"
-              alt="Clip library"
-              width={500}
-              height={500}
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]"
+              src="https://via.placeholder.com/500x500.png?text=Game+Type"
+              alt="Game Type"
+              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
             />
             <img
-              src="https://via.placeholder.com/500x500.png?text=Clip+Selection"
-              alt="Clip selection"
-              width={500}
-              height={500}
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]"
+              src="https://via.placeholder.com/500x500.png?text=Split+Template+Options"
+              alt="Split Template"
+              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
+            />
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Select Your Streamer",
+      content: (
+        <div>
+          <div className="flex items-center mb-4">
+            <FaStream className="w-8 h-8 mr-4 text-primary" />
+            <p className="text-neutral-800 dark:text-neutral-200 text-sm font-normal">
+              Pick the streamer you want to generate clips for from our library.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <img
+              src="https://via.placeholder.com/500x500.png?text=Streamer+Selection"
+              alt="Streamer selection"
+              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
+            />
+            <img
+              src="https://via.placeholder.com/500x500.png?text=Mass+Clips+View"
+              alt="Mass clips view"
+              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
             />
           </div>
         </div>
@@ -77,23 +95,19 @@ export function HowItWorksSection() {
           <div className="flex items-center mb-4">
             <FaClosedCaptioning className="w-8 h-8 mr-4 text-primary" />
             <p className="text-neutral-800 dark:text-neutral-200 text-sm font-normal">
-              Choose to auto caption or no caption at all.
+              Choose to auto-caption your clips or manually add captions.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <img
               src="https://via.placeholder.com/500x500.png?text=Auto+Captioning"
               alt="Auto captioning"
-              width={500}
-              height={500}
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]"
+              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
             />
             <img
-              src="https://via.placeholder.com/500x500.png?text=Caption+Editing"
-              alt="Caption editing"
-              width={500}
-              height={500}
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]"
+              src="https://via.placeholder.com/500x500.png?text=Manual+Captioning"
+              alt="Manual captioning"
+              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
             />
           </div>
         </div>
@@ -106,23 +120,19 @@ export function HowItWorksSection() {
           <div className="flex items-center mb-4">
             <Share className="w-8 h-8 mr-4 text-primary" />
             <p className="text-neutral-800 dark:text-neutral-200 text-sm font-normal">
-              Create your clip, save it, and share it with the world!
+              Create your clip, download, and share it across platforms.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <img
               src="https://via.placeholder.com/500x500.png?text=Clip+Generation"
               alt="Clip generation"
-              width={500}
-              height={500}
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]"
+              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
             />
             <img
               src="https://via.placeholder.com/500x500.png?text=Sharing+Options"
               alt="Sharing options"
-              width={500}
-              height={500}
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]"
+              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
             />
           </div>
         </div>

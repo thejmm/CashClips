@@ -19,7 +19,6 @@ const sidebar = [
 
 const DocsLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const NavLinks = () => (
     <>
