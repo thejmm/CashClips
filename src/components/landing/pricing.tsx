@@ -1,6 +1,13 @@
 // src/components/landing/pricing.tsx
 import { AnimatePresence, motion, useInView } from "framer-motion";
-import { ArrowRight, CheckIcon, Scissors, Video, Zap } from "lucide-react";
+import {
+  ArrowRight,
+  CheckIcon,
+  Scissors,
+  Video,
+  XIcon,
+  Zap,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -13,7 +20,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Switch } from "@/components/ui/switch";
-import { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/component";
 
 export const pricingConfig = {
@@ -234,7 +240,13 @@ const PlanCard: React.FC<{
   );
 };
 
-export function CashClipsPricing() {
+export function CashClipsPricing({
+  showFeaturesTable = false,
+  showBenefitsSection = false,
+}: {
+  showFeaturesTable?: boolean;
+  showBenefitsSection?: boolean;
+}) {
   const [interval, setInterval] = useState<"month" | "year">(
     pricingConfig.defaultInterval,
   );
@@ -268,6 +280,41 @@ export function CashClipsPricing() {
 
     fetchUserData();
   }, []);
+
+  // Define the features for the table
+  const amountFeatures = [
+    "Clip Amounts",
+    "Clip Qualities",
+    "Clip Lengths",
+    "Caption Qualities",
+  ];
+
+  const booleanFeatures = [
+    "Choose Any Streamers",
+    "Choose Any Template",
+    "Export to Any Platform",
+  ];
+
+  // Function to parse plan.features into a feature map
+  function getPlanFeatureMap(planFeatures: string[]): {
+    [key: string]: string;
+  } {
+    const featureMap: { [key: string]: string } = {};
+
+    for (const feature of planFeatures) {
+      if (feature.startsWith("Generate")) {
+        featureMap["Clip Amounts"] = feature.replace("Generate ", "");
+      } else if (feature.includes("export quality")) {
+        featureMap["Clip Qualities"] = feature.replace(" export quality", "");
+      } else if (feature.startsWith("Max")) {
+        featureMap["Clip Lengths"] = feature.replace(" video length", "");
+      } else if (feature.endsWith("auto-captioning")) {
+        featureMap["Caption Qualities"] = feature;
+      }
+    }
+
+    return featureMap;
+  }
 
   return (
     <section id="pricing" ref={sectionRef} className="container mx-auto py-20">
@@ -319,6 +366,7 @@ export function CashClipsPricing() {
           />
           <span className={interval === "year" ? "font-bold" : ""}>Yearly</span>
         </motion.div>
+        {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {pricingConfig.plans.map((plan, index) => (
             <PlanCard
@@ -332,6 +380,66 @@ export function CashClipsPricing() {
             />
           ))}
         </div>
+
+        {/* Features Table */}
+        {showFeaturesTable && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+          >
+            <div className="overflow-x-auto mt-12">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr>
+                    <th className="p-4 text-left font-medium"></th>
+                    {pricingConfig.plans.map((plan) => (
+                      <th
+                        key={plan.name}
+                        className="p-4 text-center font-medium border-b"
+                      >
+                        {plan.name}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Amount Features */}
+                  {amountFeatures.map((feature) => (
+                    <tr key={feature} className="border-b">
+                      <td className="py-4 px-4 text-left font-medium">
+                        {feature}
+                      </td>
+                      {pricingConfig.plans.map((plan) => {
+                        const featureMap = getPlanFeatureMap(plan.features);
+                        return (
+                          <td key={plan.id} className="py-4 px-4 text-center">
+                            {featureMap[feature] || "-"}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                  {/* Boolean Features */}
+                  {booleanFeatures.map((feature) => (
+                    <tr key={feature} className="border-b">
+                      <td className="py-4 px-4 text-left font-medium">
+                        {feature}
+                      </td>
+                      {pricingConfig.plans.map((plan) => (
+                        <td key={plan.id} className="py-4 px-4 text-center">
+                          <CheckIcon className="mx-auto h-5 w-5 text-green-500" />
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Enterprise Option */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
@@ -386,33 +494,37 @@ export function CashClipsPricing() {
           </Card>
         </motion.div>
       </div>
-      <motion.div
-        className="mt-16 text-center"
-        initial={{ opacity: 0, y: 20 }}
-        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-        transition={{ delay: 1.4 }}
-      >
-        <h3 className="text-2xl font-bold mb-4">
-          Get the most value with CashClips!
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <Scissors className="mx-auto h-12 w-12 text-primary mb-4" />
-            <h3 className="font-semibold mb-2">Effortless Clipping</h3>
-            <p>Create engaging clips with just a few clicks</p>
+
+      {/* Benefits Section */}
+      {showBenefitsSection && (
+        <motion.div
+          className="mt-16 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ delay: 1.4 }}
+        >
+          <h3 className="text-2xl font-bold mb-4">
+            Get the most value with CashClips!
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <Scissors className="mx-auto h-12 w-12 text-primary mb-4" />
+              <h3 className="font-semibold mb-2">Effortless Clipping</h3>
+              <p>Create engaging clips with just a few clicks</p>
+            </div>
+            <div>
+              <Video className="mx-auto h-12 w-12 text-primary mb-4" />
+              <h3 className="font-semibold mb-2">High-Quality Exports</h3>
+              <p>Export your clips in stunning quality</p>
+            </div>
+            <div>
+              <Zap className="mx-auto h-12 w-12 text-primary mb-4" />
+              <h3 className="font-semibold mb-2">Boost Your Content</h3>
+              <p>Increase engagement and grow your audience</p>
+            </div>
           </div>
-          <div>
-            <Video className="mx-auto h-12 w-12 text-primary mb-4" />
-            <h3 className="font-semibold mb-2">High-Quality Exports</h3>
-            <p>Export your clips in stunning quality</p>
-          </div>
-          <div>
-            <Zap className="mx-auto h-12 w-12 text-primary mb-4" />
-            <h3 className="font-semibold mb-2">Boost Your Content</h3>
-            <p>Increase engagement and grow your audience</p>
-          </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      )}
     </section>
   );
 }

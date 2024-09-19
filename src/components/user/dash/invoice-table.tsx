@@ -1,3 +1,4 @@
+// src/components/user/dash/invoice-table.tsx
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
 import {
   Card,
@@ -111,19 +112,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 20,
   },
-  logo: { width: 120, height: 50 },
   title: { fontSize: 24, fontWeight: "bold", color: "#333" },
   infoBlock: { marginBottom: 20 },
   infoRow: { flexDirection: "row", marginBottom: 5 },
   infoLabel: { width: 100, fontWeight: 500 },
   infoValue: { flex: 1 },
-  addressBlock: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 20,
-  },
-  address: { width: "48%" },
-  addressTitle: { fontWeight: "bold", marginBottom: 5 },
+  paymentDetails: { marginTop: 20 },
+  paymentDetailRow: { flexDirection: "row", marginBottom: 5 },
+  paymentLabel: { width: 150, fontWeight: "bold" },
+  paymentValue: { flex: 1 },
   table: { flexDirection: "column", marginTop: 20 },
   tableHeader: {
     flexDirection: "row",
@@ -161,18 +158,19 @@ const styles = StyleSheet.create({
 const InvoicePDF = ({ invoice }: { invoice: InvoiceData }) => (
   <Document>
     <Page size="A4" style={styles.page}>
+      {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>CashClips</Text>
-        <img style={styles.logo} src="/logo.png" />
+        <Text style={styles.title}>CashClips-TEST</Text>
       </View>
 
+      {/* Invoice Info */}
       <View style={styles.infoBlock}>
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>Invoice Number:</Text>
           <Text style={styles.infoValue}>{invoice.stripe_invoice_id}</Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Date of Issue:</Text>
+          <Text style={styles.infoLabel}>Payment Date:</Text>
           <Text style={styles.infoValue}>
             {format(new Date(invoice.created), "MMMM d, yyyy")}
           </Text>
@@ -185,24 +183,45 @@ const InvoicePDF = ({ invoice }: { invoice: InvoiceData }) => (
         </View>
       </View>
 
-      <View style={styles.addressBlock}>
-        <View style={styles.address}>
-          <Text style={styles.addressTitle}>CashClips</Text>
-          <Text>support@cashclips.com</Text>
+      {/* Payment Details */}
+      <View style={styles.paymentDetails}>
+        <View style={styles.paymentDetailRow}>
+          <Text style={styles.paymentLabel}>Amount Paid:</Text>
+          <Text style={styles.paymentValue}>
+            {new Intl.NumberFormat("en-US", {
+              style: "currency",
+              currency: invoice.currency,
+            }).format(invoice.amount_paid / 100)}
+          </Text>
         </View>
-        <View style={styles.address}>
-          <Text style={styles.addressTitle}>Bill To</Text>
-          <Text>{invoice.user_id}</Text>
+        <View style={styles.paymentDetailRow}>
+          <Text style={styles.paymentLabel}>Amount Due:</Text>
+          <Text style={styles.paymentValue}>
+            {new Intl.NumberFormat("en-US", {
+              style: "currency",
+              currency: invoice.currency,
+            }).format(invoice.amount_due / 100)}
+          </Text>
+        </View>
+        <View style={styles.paymentDetailRow}>
+          <Text style={styles.paymentLabel}>Amount Remaining:</Text>
+          <Text style={styles.paymentValue}>
+            {new Intl.NumberFormat("en-US", {
+              style: "currency",
+              currency: invoice.currency,
+            }).format(invoice.amount_remaining / 100)}
+          </Text>
         </View>
       </View>
 
+      {/* Items Table */}
       <View style={styles.table}>
         <View style={styles.tableHeader}>
           <Text style={styles.tableCell}>Description</Text>
           <Text style={styles.tableCellAmount}>Amount</Text>
         </View>
         <View style={styles.tableRow}>
-          <Text style={styles.tableCell}>Subscription Fee</Text>
+          <Text style={styles.tableCell}>Agency</Text>
           <Text style={styles.tableCellAmount}>
             {new Intl.NumberFormat("en-US", {
               style: "currency",
@@ -212,18 +231,20 @@ const InvoicePDF = ({ invoice }: { invoice: InvoiceData }) => (
         </View>
       </View>
 
+      {/* Total */}
       <View style={styles.totalRow}>
-        <Text style={styles.totalLabel}>Total Due:</Text>
+        <Text style={styles.totalLabel}>Total Paid:</Text>
         <Text style={styles.totalValue}>
           {new Intl.NumberFormat("en-US", {
             style: "currency",
             currency: invoice.currency,
-          }).format(invoice.amount_due / 100)}
+          }).format(invoice.amount_paid / 100)}
         </Text>
       </View>
 
+      {/* Footer */}
       <Text style={styles.footer}>
-        Thank you for using CashClips. For any questions, please contact
+        Thank you for your business! If you have any questions, please contact
         support@cashclips.com
       </Text>
     </Page>
@@ -231,7 +252,30 @@ const InvoicePDF = ({ invoice }: { invoice: InvoiceData }) => (
 );
 
 function InvoiceActionCell({ invoice }: { invoice: InvoiceData }) {
-  const [isPdfDialogOpen, setIsPdfDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleViewInvoice = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `/api/stripe/get-invoice-url?invoice_id=${invoice.stripe_invoice_id}`,
+        {
+          method: "GET",
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch the invoice URL");
+      }
+
+      const data = await response.json();
+      window.open(data.url, "_blank");
+    } catch (error) {
+      console.error("Error fetching invoice URL:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -244,6 +288,7 @@ function InvoiceActionCell({ invoice }: { invoice: InvoiceData }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() =>
               navigator.clipboard.writeText(invoice.stripe_invoice_id)
@@ -251,31 +296,14 @@ function InvoiceActionCell({ invoice }: { invoice: InvoiceData }) {
           >
             Copy invoice ID
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setIsPdfDialogOpen(true)}>
-            View Invoice
+          <DropdownMenuItem
+            onClick={handleViewInvoice}
+            disabled={loading || !invoice}
+          >
+            {loading ? "Gathering data..." : "View Invoice"}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      <Dialog open={isPdfDialogOpen} onOpenChange={setIsPdfDialogOpen}>
-        <DialogContent className="w-full max-w-3xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">
-              Invoice Details
-            </DialogTitle>
-            <DialogDescription className="text-sm text-gray-500">
-              Comprehensive information for invoice {invoice.stripe_invoice_id}
-            </DialogDescription>
-          </DialogHeader>
-          <PDFViewer width="100%" height="600px">
-            <InvoicePDF invoice={invoice} />
-          </PDFViewer>
-          <DialogFooter>
-            <Button onClick={() => setIsPdfDialogOpen(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

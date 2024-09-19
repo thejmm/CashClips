@@ -67,9 +67,8 @@ export default function DashboardLayout({
     },
   ];
 
-  // Fetch subscription data if the checkSubscription prop is true
   const fetchSubscriptionStatus = async () => {
-    if (!checkSubscription) return; // Skip fetching if checkSubscription is false
+    if (!checkSubscription) return;
 
     setLoading(true);
     try {
@@ -131,9 +130,9 @@ export default function DashboardLayout({
 
             <ScrollArea className="h-full md:min-h-[85vh] w-full justify-center mx-auto">
               {loading ? (
-                <div className="flex justify-center items-center h-full">
-                  <Loader className="mr-2 h-8 w-8 animate-spin" />
-                  <p>Loading...</p>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Loader className="h-12 w-12 animate-spin" />
+                  <p className="text-xl font-bold ml-4">Fetching Plan...</p>
                 </div>
               ) : checkSubscription && !isActiveSubscription ? (
                 <div className="flex flex-col text-center items-center justify-center h-full min-h-96">

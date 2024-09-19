@@ -6,7 +6,7 @@ import ClipHistory from "./dash/clip-history";
 import InvoiceTable from "./dash/invoice-table";
 import { Loader } from "lucide-react";
 import PlanCreditUsage from "./dash/plan-credit-usage";
-import { User } from "@supabase/supabase-js";
+import { User as SupabaseAuthUser } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/component";
 
 interface UserData {
@@ -66,7 +66,7 @@ interface SubscriptionData {
   trial_end: string;
 }
 
-const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
+const CashClipsDashboard: React.FC<{ user: SupabaseAuthUser }> = ({ user }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -81,17 +81,9 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
   const fetchUserData = useCallback(async () => {
     setLoading(true);
     setError(null);
+
     try {
-      // Fetching user data
-      const { data: userData, error: userError } = await supabase
-        .from("user_data")
-        .select("*")
-        .eq("user_id", user.id)
-        .single();
-
-      if (userError) throw userError;
-
-      // Fetching created clips data
+      // Fetching created clips data based on the auth user id
       const { data: clipData, error: clipError } = await supabase
         .from("created_clips")
         .select("*")
@@ -113,7 +105,6 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
 
       if (subscriptionError) throw subscriptionError;
 
-      setUserData(userData as UserData);
       setClipData(clipData as ClipData[]);
       setInvoiceData(invoiceData as InvoiceData[]);
       setSubscriptionData(subscriptionData as SubscriptionData[]);
@@ -138,17 +129,9 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="absolute inset-0 flex items-center justify-center">
-        <p className="text-xl font-bold text-red-500">{error}</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
-      <div className="max-w-[22rem] md:max-w-6xl mx-auto space-y-8">
+    <div className="container mx-auto px-2 py-8 sm:px-6 lg:px-8">
+      <div className="max-w-[22rem] md:max-w-full md:w-full mx-auto space-y-8">
         <header className="flex flex-col sm:flex-row justify-between items-center mb-8">
           <div className="text-center sm:text-left mb-4 sm:mb-0">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">

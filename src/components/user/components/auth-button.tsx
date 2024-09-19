@@ -26,6 +26,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/component";
 
@@ -85,10 +86,16 @@ const AuthButton = ({ initialUser }: { initialUser: User | null }) => {
               Menu
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-[400px] p-4 pt-8 md:p-8">
+          <SheetContent
+            side="right"
+            className="w-full md:w-[400px] p-4 pt-8 md:p-8"
+          >
             <div className="relative flex flex-col space-y-4 h-full">
+              <div className="absolute top-4 right-0">
+                <ThemeToggle />
+              </div>
               {/* User Avatar and Info */}
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center">
                 <Avatar className="mr-2">
                   <AvatarImage
                     className="w-10 h-10 rounded-full border border-black dark:border-white"
