@@ -82,6 +82,8 @@ async function handleSubscriptionChange(
   supabase: any,
 ) {
   const customerId = subscription.customer as string;
+
+  // Fetch the user data by Stripe customer ID
   const { data: userData, error: userError } = await supabase
     .from("user_data")
     .select("user_id")
@@ -96,8 +98,14 @@ async function handleSubscriptionChange(
     throw new Error(`No user found for Stripe customer ${customerId}`);
   }
 
+  // Ensure subscription items exist
+  if (!subscription.items || subscription.items.data.length === 0) {
+    throw new Error("No items found in subscription");
+  }
+
   const priceId = subscription.items.data[0]?.price.id;
 
+  // Upsert the subscription record
   const { error: subscriptionError } = await supabase
     .from("subscriptions")
     .upsert(
@@ -139,6 +147,7 @@ async function handleSubscriptionChange(
     throw subscriptionError;
   }
 
+  // Update the user_data table with subscription status
   const { error: userDataError } = await supabase
     .from("user_data")
     .update({
@@ -157,6 +166,8 @@ async function handleSubscriptionChange(
 
 async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
   const customerId = invoice.customer as string;
+
+  // Fetch the user data by Stripe customer ID
   const { data: userData, error: userError } = await supabase
     .from("user_data")
     .select("user_id")
@@ -171,6 +182,31 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
     throw new Error(`No user found for Stripe customer ${customerId}`);
   }
 
+  // Check if the subscription exists, if not, create it
+  if (invoice.subscription) {
+    const { data: existingSubscription, error: subscriptionError } =
+      await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("stripe_subscription_id", invoice.subscription)
+        .single();
+
+    if (subscriptionError || !existingSubscription) {
+      console.log(
+        "Subscription not found, fetching from Stripe and creating...",
+      );
+      try {
+        const stripeSubscription = await stripe.subscriptions.retrieve(
+          invoice.subscription as string,
+        );
+        await handleSubscriptionChange(stripeSubscription, supabase);
+      } catch (error) {
+        console.error("Error fetching or creating subscription:", error);
+      }
+    }
+  }
+
+  // Upsert the invoice
   const { error: invoiceError } = await supabase.from("invoices").upsert(
     {
       id: uuidv4(),
@@ -203,6 +239,7 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
     throw invoiceError;
   }
 
+  // Update the subscription and user_data status based on invoice status
   if (invoice.subscription) {
     const { error: subscriptionError } = await supabase
       .from("subscriptions")
@@ -211,20 +248,18 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
 
     if (subscriptionError) {
       console.error("Error updating subscription status:", subscriptionError);
-      throw subscriptionError;
     }
+  }
 
-    const { error: userDataError } = await supabase
-      .from("user_data")
-      .update({
-        subscription_status: invoice.status === "paid" ? "active" : "past_due",
-      })
-      .eq("user_id", userData.user_id);
+  const { error: userDataError } = await supabase
+    .from("user_data")
+    .update({
+      subscription_status: invoice.status === "paid" ? "active" : "past_due",
+    })
+    .eq("user_id", userData.user_id);
 
-    if (userDataError) {
-      console.error("Error updating user_data status:", userDataError);
-      throw userDataError;
-    }
+  if (userDataError) {
+    console.error("Error updating user_data status:", userDataError);
   }
 }
 

@@ -1,3 +1,4 @@
+// src/pages/api/stripe/create-checkout-session.ts
 import { NextApiRequest, NextApiResponse } from "next";
 
 import Stripe from "stripe";
