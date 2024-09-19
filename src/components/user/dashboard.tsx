@@ -152,7 +152,7 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
       : 100;
 
   const currentPlan = pricingConfig.plans.find(
-    (plan) => plan.name === userData?.plan_name
+    (plan) => plan.name === userData?.plan_name,
   );
 
   const formatClipData = (data: ClipData[]) => {
@@ -164,11 +164,14 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
       })
       .reverse();
 
-    const countsByDate = data.reduce((acc, clip) => {
-      const date = new Date(clip.created_at).toISOString().split("T")[0];
-      acc[date] = (acc[date] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const countsByDate = data.reduce(
+      (acc, clip) => {
+        const date = new Date(clip.created_at).toISOString().split("T")[0];
+        acc[date] = (acc[date] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
     return last7Days.map((date) => ({
       date,
@@ -244,7 +247,7 @@ const CashClipsDashboard: React.FC<{ user: User }> = ({ user }) => {
               </div>
               <div
                 className={`text-sm mb-4 ${getStatusColor(
-                  userData?.subscription_status || ""
+                  userData?.subscription_status || "",
                 )}`}
               >
                 Status: {userData?.subscription_status || "Inactive"}
