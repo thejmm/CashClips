@@ -58,7 +58,7 @@ export default function CheckoutPage() {
   const [plan, setPlan] = useState<any | null>(null);
   const [interval, setInterval] = useState<"month" | "year">("month");
   const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!price_id) {
@@ -77,14 +77,13 @@ export default function CheckoutPage() {
       setInterval(
         price_id === fetchedPlan.stripePriceId.year ? "year" : "month",
       );
-      setIsLoading(false);
+      setLoading(false);
     }
   }, [price_id, router]);
 
   const fetchClientSecret = useCallback(async () => {
     if (!plan) return;
 
-    setIsLoading(true);
     try {
       const { data } = await axios.post("/api/stripe/create-checkout-session", {
         price_id: price_id,
@@ -96,8 +95,6 @@ export default function CheckoutPage() {
       toast.error(
         "An error occurred while preparing the checkout. Please try again.",
       );
-    } finally {
-      setIsLoading(false);
     }
   }, [price_id, plan]);
 
@@ -154,9 +151,7 @@ export default function CheckoutPage() {
 
           <div className="mt-8 md:mt-0">
             <div className="bg-card rounded-3xl overflow-hidden shadow-xl">
-              {isLoading ? (
-                <Skeleton className="animate-pulse min-h-screen" />
-              ) : clientSecret ? (
+              {clientSecret ? (
                 <EmbeddedCheckoutProvider
                   stripe={stripePromise}
                   options={{ clientSecret }}
@@ -164,9 +159,7 @@ export default function CheckoutPage() {
                   <EmbeddedCheckout className="min-h-screen" />
                 </EmbeddedCheckoutProvider>
               ) : (
-                <div className="p-4 text-center">
-                  Failed to load checkout. Please try again.
-                </div>
+                <Skeleton className="animate-pulse min-h-screen" />
               )}
             </div>
           </div>

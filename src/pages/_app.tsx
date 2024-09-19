@@ -32,8 +32,7 @@ export default function App({ Component, pageProps }: AppProps) {
   }, []);
 
   // Determine if we are on the home page
-  const isHomePage = router.pathname === "/";
-  const isDocsRoute = router.pathname.includes("/docs");
+  const isUserLayout = router.pathname.includes("/user");
 
   return (
     <ThemeProvider
@@ -49,7 +48,7 @@ export default function App({ Component, pageProps }: AppProps) {
         />
       </Head>
       {/* Conditionally render sticky header only on home page */}
-      <Header user={pageProps.user} sticky={isHomePage || isDocsRoute} />
+      <Header user={pageProps.user} sticky={!isUserLayout} />
       <Component {...pageProps} />
       <Footer />
       <Toaster richColors />

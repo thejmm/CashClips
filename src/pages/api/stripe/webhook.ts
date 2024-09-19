@@ -4,6 +4,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import Stripe from "stripe";
 import { buffer } from "micro";
 import createClient from "@/utils/supabase/api";
+import { pricingConfig } from "@/components/landing/pricing";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2024-06-20",
@@ -94,14 +95,16 @@ async function handleSubscriptionChange(
     throw new Error(`No user found for Stripe customer ${customerId}`);
   }
 
+  const priceId = subscription.items.data[0]?.price.id; // Extract price_id
+
   const { error: subscriptionError } = await supabase
     .from("subscriptions")
     .upsert(
       {
-        id: subscription.id,
+        stripe_subscription_id: subscription.id,
         user_id: userData.user_id,
         status: subscription.status,
-        price_id: subscription.items.data[0].price.id,
+        price_id: priceId, // Ensure price_id is set
         quantity: subscription.items.data[0].quantity,
         cancel_at_period_end: subscription.cancel_at_period_end,
         created_at: new Date(subscription.created * 1000).toISOString(),
@@ -127,7 +130,7 @@ async function handleSubscriptionChange(
           ? new Date(subscription.trial_end * 1000).toISOString()
           : null,
       },
-      { onConflict: "id" },
+      { onConflict: "stripe_subscription_id" },
     );
 
   if (subscriptionError) {
@@ -169,10 +172,9 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
 
   const { error: invoiceError } = await supabase.from("invoices").upsert(
     {
-      id: invoice.id,
       stripe_invoice_id: invoice.id,
       user_id: userData.user_id,
-      subscription_id: invoice.subscription,
+      stripe_subscription_id: invoice.subscription,
       status: invoice.status,
       currency: invoice.currency,
       amount_due: invoice.amount_due,
@@ -194,7 +196,7 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
     const { error: subscriptionError } = await supabase
       .from("subscriptions")
       .update({ status: invoice.status === "paid" ? "active" : "past_due" })
-      .eq("id", invoice.subscription);
+      .eq("stripe_subscription_id", invoice.subscription);
 
     if (subscriptionError) {
       console.error("Error updating subscription status:", subscriptionError);
@@ -219,7 +221,12 @@ async function handleCheckoutSessionCompleted(
   session: Stripe.Checkout.Session,
   supabase: any,
 ) {
-  if (session.mode === "subscription") {
+  if (session.payment_status !== "paid") {
+    console.log("Checkout session not paid. Skipping user data update.");
+    return;
+  }
+
+  if (session.mode === "subscription" && session.subscription) {
     const subscription = await stripe.subscriptions.retrieve(
       session.subscription as string,
     );
@@ -231,19 +238,49 @@ async function handleCheckoutSessionCompleted(
     await handleInvoicePayment(invoice, supabase);
   }
 
-  if (session.metadata?.supabase_user_id) {
-    const { error: userDataError } = await supabase
-      .from("user_data")
-      .update({
-        plan_name: session.metadata.plan_name,
-        plan_price: session.amount_total,
-        subscription_status: "active",
-      })
-      .eq("user_id", session.metadata.supabase_user_id);
+  if (session.metadata) {
+    const { supabase_user_id, plan_name } = session.metadata;
 
-    if (userDataError) {
-      console.error("Error updating user_data after checkout:", userDataError);
-      throw userDataError;
+    if (supabase_user_id && plan_name) {
+      const planDetails = pricingConfig.plans.find((p) => p.name === plan_name);
+      if (!planDetails) {
+        console.error("Invalid plan name in session metadata:", plan_name);
+        return;
+      }
+
+      const totalCreditsMatch = planDetails.features[0].match(
+        /Generate (\d+) clips per month/,
+      );
+      if (!totalCreditsMatch) {
+        console.error("Unable to parse total credits from plan features");
+        return;
+      }
+
+      const totalCredits = parseInt(totalCreditsMatch[1], 10);
+
+      const { error: userDataError } = await supabase.from("user_data").upsert(
+        {
+          user_id: supabase_user_id,
+          plan_name: plan_name,
+          plan_price: session.amount_total,
+          subscription_status: "active",
+          total_credits: totalCredits,
+          used_credits: 0,
+        },
+        { onConflict: "user_id" },
+      );
+
+      if (userDataError) {
+        console.error(
+          "Error updating user_data after checkout:",
+          userDataError,
+        );
+        throw userDataError;
+      }
+    } else {
+      console.error("Missing required metadata in checkout session");
     }
+  } else {
+    console.error("No metadata found in checkout session");
   }
 }

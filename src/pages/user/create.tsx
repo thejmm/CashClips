@@ -14,6 +14,7 @@ interface CreatePageProps {
 export default function CreatePage({ user }: CreatePageProps) {
   return (
     <DashboardLayout
+      checkSubscription={true}
       user={user}
       title="Create Clips"
       icon={<PlusCircle className="w-6 h-6" />}

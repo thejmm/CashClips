@@ -225,7 +225,7 @@ const AffiliatePage: React.FC = () => {
 
         <motion.section variants={fadeInUp} className="text-center">
           <p className="text-sm text-muted-foreground">
-            <Link href="/terms-and-conditions-affiliate" passHref>
+            <Link href="/terms-of-service-affiliate" passHref>
               <Button variant="linkHover2" className="text-sm px-0">
                 Terms and conditions{" "}
               </Button>

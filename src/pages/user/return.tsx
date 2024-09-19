@@ -152,7 +152,7 @@ const ReturnPage = () => {
             variants={itemVariants}
           >
             <Button
-              onClick={() => router.push("/user")}
+              onClick={() => router.push("/user/dashboard")}
               className="inline-flex items-center px-6 py-3"
             >
               Go to Dashboard

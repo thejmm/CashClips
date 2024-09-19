@@ -15,6 +15,7 @@ interface CreatedPageProps {
 export default function CreatedPage({ user }: CreatedPageProps) {
   return (
     <DashboardLayout
+      checkSubscription={true}
       user={user}
       title="Created Clips"
       icon={<Film className="w-6 h-6" />}
