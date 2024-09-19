@@ -1,4 +1,3 @@
-// src/pages/api/stripe/create-checkout-session.ts
 import { NextApiRequest, NextApiResponse } from "next";
 
 import Stripe from "stripe";
@@ -11,14 +10,14 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse
 ) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).end("Method Not Allowed");
   }
 
-  const { price_id, plan_name } = req.body;
+  const { price_id, plan_name, promotekit_referral } = req.body;
   if (!price_id || !plan_name) {
     return res.status(400).json({ error: "Missing price_id or plan_name" });
   }
@@ -50,7 +49,10 @@ export default async function handler(
       try {
         const customer = await stripe.customers.create({
           email: user.email,
-          metadata: { supabase_user_id: user.id },
+          metadata: {
+            supabase_user_id: user.id,
+            promotekit_referral: promotekit_referral || "",
+          },
         });
         stripeCustomerId = customer.id;
         await supabase.auth.updateUser({
@@ -77,10 +79,12 @@ export default async function handler(
       metadata: {
         supabase_user_id: user.id,
         plan_name: plan_name,
+        promotekit_referral: promotekit_referral || "",
       },
       subscription_data: {
         metadata: {
           supabase_user_id: user.id,
+          promotekit_referral: promotekit_referral || "",
         },
       },
       return_url: `${req.headers.origin}/user/return?session_id={CHECKOUT_SESSION_ID}`,
@@ -95,8 +99,9 @@ export default async function handler(
         subscription_status: "pending",
         total_credits: parseInt(planDetails.features[0].split(" ")[1], 10),
         used_credits: 0,
+        promotekit_referral: promotekit_referral || null,
       },
-      { onConflict: "user_id" },
+      { onConflict: "user_id" }
     );
 
     if (userDataError) {

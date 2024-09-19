@@ -13,6 +13,7 @@ import {
 import React, { useCallback, useEffect, useState } from "react";
 
 import { CheckCircle } from "lucide-react";
+import Head from "next/head";
 import { Skeleton } from "@/components/ui/skeleton";
 import axios from "axios";
 import { loadStripe } from "@stripe/stripe-js";
@@ -21,8 +22,14 @@ import { toast } from "sonner";
 import { useRouter } from "next/router";
 
 const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string,
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string
 );
+
+declare global {
+  interface Window {
+    promotekit_referral?: string;
+  }
+}
 
 const billingQuestions = [
   {
@@ -67,7 +74,7 @@ export default function CheckoutPage() {
     }
 
     const fetchedPlan = pricingConfig.plans.find((p) =>
-      Object.values(p.stripePriceId).includes(price_id as string),
+      Object.values(p.stripePriceId).includes(price_id as string)
     );
 
     if (!fetchedPlan) {
@@ -75,7 +82,7 @@ export default function CheckoutPage() {
     } else {
       setPlan(fetchedPlan);
       setInterval(
-        price_id === fetchedPlan.stripePriceId.year ? "year" : "month",
+        price_id === fetchedPlan.stripePriceId.year ? "year" : "month"
       );
       setLoading(false);
     }
@@ -88,12 +95,16 @@ export default function CheckoutPage() {
       const { data } = await axios.post("/api/stripe/create-checkout-session", {
         price_id: price_id,
         plan_name: plan.name,
+        promotekit_referral:
+          typeof window !== "undefined"
+            ? window.promotekit_referral
+            : undefined,
       });
       setClientSecret(data.clientSecret);
     } catch (error) {
       console.error("Error fetching client secret:", error);
       toast.error(
-        "An error occurred while preparing the checkout. Please try again.",
+        "An error occurred while preparing the checkout. Please try again."
       );
     }
   }, [price_id, plan]);
@@ -107,64 +118,76 @@ export default function CheckoutPage() {
   if (!price_id || !plan) return null;
 
   return (
-    <div className="min-h-screen">
-      <div className="container mx-auto max-w-7xl py-16">
-        <div className="max-w-6xl mx-auto md:grid md:grid-cols-2 gap-12">
-          <div className="p-6 md:sticky md:top-0 md:self-start space-y-8">
-            <div className="mt-16">
-              <h2 className="text-3xl font-semibold mb-4">{plan.name} Plan</h2>
-              <p className="text-xl mb-6">{plan.description}</p>
-              <div className="text-4xl font-bold mb-6">
-                $
-                {(
-                  (interval === "year" ? plan.yearlyPrice : plan.monthlyPrice) /
-                  100
-                ).toFixed(2)}
-                <span className="text-sm font-normal text-muted-foreground">
-                  /{interval}
-                </span>
+    <>
+      <Head>
+        <script
+          async
+          src="https://cdn.promotekit.com/promotekit.js"
+          data-promotekit="a1ede120-2bf6-4afa-9c88-f9bf10ebbd46"
+        />
+      </Head>
+      <div className="min-h-screen">
+        <div className="container mx-auto max-w-7xl py-16">
+          <div className="max-w-6xl mx-auto md:grid md:grid-cols-2 gap-12">
+            <div className="p-6 md:sticky md:top-0 md:self-start space-y-8">
+              <div className="mt-16">
+                <h2 className="text-3xl font-semibold mb-4">
+                  {plan.name} Plan
+                </h2>
+                <p className="text-xl mb-6">{plan.description}</p>
+                <div className="text-4xl font-bold mb-6">
+                  $
+                  {(
+                    (interval === "year"
+                      ? plan.yearlyPrice
+                      : plan.monthlyPrice) / 100
+                  ).toFixed(2)}
+                  <span className="text-sm font-normal text-muted-foreground">
+                    /{interval}
+                  </span>
+                </div>
+                <ul className="space-y-3">
+                  {plan.features.map((feature: string, index: number) => (
+                    <li key={index} className="flex items-start">
+                      <CheckCircle className="mr-2 h-5 w-5 text-green-500 flex-shrink-0 mt-1" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <ul className="space-y-3">
-                {plan.features.map((feature: string, index: number) => (
-                  <li key={index} className="flex items-start">
-                    <CheckCircle className="mr-2 h-5 w-5 text-green-500 flex-shrink-0 mt-1" />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
+
+              <div>
+                <h3 className="text-2xl font-semibold mb-4">
+                  Billing Information
+                </h3>
+                <Accordion type="single" collapsible className="w-full">
+                  {billingQuestions.map((faq, index) => (
+                    <AccordionItem key={index} value={`item-${index}`}>
+                      <AccordionTrigger>{faq.question}</AccordionTrigger>
+                      <AccordionContent>{faq.answer}</AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </div>
             </div>
 
-            <div>
-              <h3 className="text-2xl font-semibold mb-4">
-                Billing Information
-              </h3>
-              <Accordion type="single" collapsible className="w-full">
-                {billingQuestions.map((faq, index) => (
-                  <AccordionItem key={index} value={`item-${index}`}>
-                    <AccordionTrigger>{faq.question}</AccordionTrigger>
-                    <AccordionContent>{faq.answer}</AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </div>
-          </div>
-
-          <div className="mt-8 md:mt-0">
-            <div className="bg-card rounded-3xl overflow-hidden shadow-xl">
-              {clientSecret ? (
-                <EmbeddedCheckoutProvider
-                  stripe={stripePromise}
-                  options={{ clientSecret }}
-                >
-                  <EmbeddedCheckout className="min-h-screen" />
-                </EmbeddedCheckoutProvider>
-              ) : (
-                <Skeleton className="animate-pulse min-h-screen" />
-              )}
+            <div className="mt-8 md:mt-0">
+              <div className="bg-card rounded-3xl overflow-hidden shadow-xl">
+                {clientSecret ? (
+                  <EmbeddedCheckoutProvider
+                    stripe={stripePromise}
+                    options={{ clientSecret }}
+                  >
+                    <EmbeddedCheckout className="min-h-screen" />
+                  </EmbeddedCheckoutProvider>
+                ) : (
+                  <Skeleton className="animate-pulse min-h-screen" />
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -9,11 +9,9 @@ import { ThemeProvider } from "@/context/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-import { useStripePaymentLinks } from "@/hooks/stripe-promote-kit";
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
-  useStripePaymentLinks();
 
   useEffect(() => {
     if ("serviceWorker" in navigator) {
