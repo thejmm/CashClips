@@ -26,7 +26,7 @@ interface DashboardLayoutProps {
   children: React.ReactNode;
   title: string;
   icon: React.ReactNode;
-  checkSubscription?: boolean; // Optional prop to check subscription
+  checkSubscription?: boolean;
 }
 
 export default function DashboardLayout({
