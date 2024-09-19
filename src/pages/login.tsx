@@ -86,7 +86,7 @@ const LoginPage: React.FC = () => {
         query: { authStage: newAuthStage, authAction: newAuthAction },
       },
       undefined,
-      { shallow: true }
+      { shallow: true },
     );
   };
 
@@ -108,7 +108,7 @@ const LoginPage: React.FC = () => {
       switch (authStage) {
         case "signIn":
           const { error: signInError } = await supabase.auth.signInWithPassword(
-            { email, password }
+            { email, password },
           );
           if (signInError) throw new Error(signInError.message); // Use Supabase error
           setLastSignInMethod("email");
@@ -295,23 +295,23 @@ const LoginPage: React.FC = () => {
             {authStage === "signIn"
               ? "Sign In"
               : authStage === "signUp"
-              ? "Sign Up"
-              : authStage === "resetPassword"
-              ? "Reset Password"
-              : authAction === "signup"
-              ? "Verify Your Email"
-              : "Check Your Email"}
+                ? "Sign Up"
+                : authStage === "resetPassword"
+                  ? "Reset Password"
+                  : authAction === "signup"
+                    ? "Verify Your Email"
+                    : "Check Your Email"}
           </motion.h2>
           <motion.p variants={itemVariants} className="mt-2 text-sm">
             {authStage === "signIn"
               ? "Enter your credentials to access your account"
               : authStage === "signUp"
-              ? "Create an account to get started"
-              : authStage === "resetPassword"
-              ? "Enter your email to reset your password"
-              : authAction === "signup"
-              ? "Please check your email to verify your account."
-              : "Please check your email for further instructions to reset your password."}
+                ? "Create an account to get started"
+                : authStage === "resetPassword"
+                  ? "Enter your email to reset your password"
+                  : authAction === "signup"
+                    ? "Please check your email to verify your account."
+                    : "Please check your email for further instructions to reset your password."}
           </motion.p>
         </motion.div>
         <AnimatePresence mode="wait" initial={false}>
@@ -348,7 +348,7 @@ const LoginPage: React.FC = () => {
                 onClick={() =>
                   updateURL(
                     authStage === "signIn" ? "signUp" : "signIn",
-                    authStage === "signIn" ? "signup" : "signin"
+                    authStage === "signIn" ? "signup" : "signin",
                   )
                 }
               >

@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/router";
 
 const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string,
 );
 
 declare global {
@@ -74,7 +74,7 @@ export default function CheckoutPage() {
     }
 
     const fetchedPlan = pricingConfig.plans.find((p) =>
-      Object.values(p.stripePriceId).includes(price_id as string)
+      Object.values(p.stripePriceId).includes(price_id as string),
     );
 
     if (!fetchedPlan) {
@@ -82,7 +82,7 @@ export default function CheckoutPage() {
     } else {
       setPlan(fetchedPlan);
       setInterval(
-        price_id === fetchedPlan.stripePriceId.year ? "year" : "month"
+        price_id === fetchedPlan.stripePriceId.year ? "year" : "month",
       );
       setLoading(false);
     }
@@ -104,7 +104,7 @@ export default function CheckoutPage() {
     } catch (error) {
       console.error("Error fetching client secret:", error);
       toast.error(
-        "An error occurred while preparing the checkout. Please try again."
+        "An error occurred while preparing the checkout. Please try again.",
       );
     }
   }, [price_id, plan]);

@@ -10,7 +10,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -101,7 +101,7 @@ export default async function handler(
         used_credits: 0,
         promotekit_referral: promotekit_referral || null,
       },
-      { onConflict: "user_id" }
+      { onConflict: "user_id" },
     );
 
     if (userDataError) {

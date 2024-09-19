@@ -1,4 +1,3 @@
-// src/pages/api/stripe/webhook.ts
 import { NextApiRequest, NextApiResponse } from "next";
 
 import Stripe from "stripe";
@@ -95,7 +94,7 @@ async function handleSubscriptionChange(
     throw new Error(`No user found for Stripe customer ${customerId}`);
   }
 
-  const priceId = subscription.items.data[0]?.price.id; // Extract price_id
+  const priceId = subscription.items.data[0]?.price.id;
 
   const { error: subscriptionError } = await supabase
     .from("subscriptions")
@@ -104,7 +103,7 @@ async function handleSubscriptionChange(
         stripe_subscription_id: subscription.id,
         user_id: userData.user_id,
         status: subscription.status,
-        price_id: priceId, // Ensure price_id is set
+        price_id: priceId,
         quantity: subscription.items.data[0].quantity,
         cancel_at_period_end: subscription.cancel_at_period_end,
         created_at: new Date(subscription.created * 1000).toISOString(),
@@ -172,6 +171,7 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
 
   const { error: invoiceError } = await supabase.from("invoices").upsert(
     {
+      id: invoice.id,
       stripe_invoice_id: invoice.id,
       user_id: userData.user_id,
       stripe_subscription_id: invoice.subscription,
@@ -184,7 +184,16 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
       period_start: new Date(invoice.period_start * 1000).toISOString(),
       period_end: new Date(invoice.period_end * 1000).toISOString(),
     },
-    { onConflict: "stripe_invoice_id" },
+    {
+      onConflict: "stripe_invoice_id",
+      update: [
+        "status",
+        "amount_due",
+        "amount_paid",
+        "amount_remaining",
+        "updated_at",
+      ],
+    },
   );
 
   if (invoiceError) {
