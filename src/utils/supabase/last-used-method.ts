@@ -1,11 +1,15 @@
-// src/utils/cookies.ts
+// src/utils/supabase/last-used-method.ts
 
 import Cookies from "js-cookie";
 
-export const setLastSignInMethod = (method: "email") => {
+export const setLastSignInMethod = (method: "github" | "google" | "email") => {
   Cookies.set("lastSignInMethod", method, { expires: 400 * 365 });
 };
 
-export const getLastSignInMethod = (): "email" | null => {
-  return Cookies.get("lastSignInMethod") as "email" | null;
+export const getLastSignInMethod = (): "github" | "google" | "email" | null => {
+  return Cookies.get("lastSignInMethod") as
+    | "github"
+    | "google"
+    | "email"
+    | null;
 };

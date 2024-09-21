@@ -1,31 +1,32 @@
 // src/pages/index.tsx
-import { CallToAction } from "@/components/landing/cta";
-import { CashClipsPricing } from "@/components/landing/pricing";
-import { FeaturesSection } from "@/components/landing/features";
-import { HeroSection } from "@/components/landing/hero";
-import { HowItWorksSection } from "@/components/landing/how-it-works";
-import React from "react";
-import Script from "next/script";
-import { SocialProofTestimonials } from "@/components/landing/testimonials";
+import { Box, Layers, Palette, Zap } from "lucide-react";
 
-const LandingPage: React.FC = () => {
+import { CallToAction } from "@/components/landing/sections/cta";
+import { FAQ } from "@/components/landing/sections/faq";
+import Features from "@/components/landing/sections/features";
+import Hero from "@/components/landing/sections/hero";
+import { HowItWorksSection } from "@/components/landing/sections/how-it-works";
+import { Pricing } from "@/components/landing/sections/pricing";
+import RetroGrid from "@/components/ui/retro-grid";
+import { SocialProofTestimonials } from "@/components/landing/sections/social-proof";
+import { Stats } from "@/components/landing/sections/stats";
+import WebsiteBuilderFeatures from "@/components/landing/sections/bento-grid";
+
+export default function Home() {
   return (
     <>
-      <Script
-        src="https://cdn.promotekit.com/promotekit.js"
-        data-promotekit="a1ede120-2bf6-4afa-9c88-f9bf10ebbd46"
-        strategy="afterInteractive"
-      />
-      <div className="min-h-screen bg-background">
-        <HeroSection />
-        <FeaturesSection />
-        <HowItWorksSection />
+      <div className="mx-auto px-4 md:px-8">
+        <Hero />
+        <WebsiteBuilderFeatures />
+        <Stats />
+        <Features />
+      </div>
+      <HowItWorksSection />
+      <div className="mx-auto px-4 md:px-8">
         <SocialProofTestimonials />
-        <CashClipsPricing />
+        <Pricing />
         <CallToAction />
       </div>
     </>
   );
-};
-
-export default LandingPage;
+}

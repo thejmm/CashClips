@@ -1,4 +1,5 @@
 // src/pages/api/auth/confirm.ts
+
 import { type EmailOtpType } from "@supabase/supabase-js";
 import type { NextApiRequest, NextApiResponse } from "next";
 

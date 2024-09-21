@@ -1,4 +1,3 @@
-// src/pages/api/stripe/checkout-sessions.ts
 import { NextApiRequest, NextApiResponse } from "next";
 
 import Stripe from "stripe";
@@ -67,7 +66,6 @@ export default async function handler(
         ? new Date(subscription.current_period_end * 1000).toISOString()
         : null;
 
-      // Retrieve all necessary fields
       priceId = subscription.items.data[0]?.price.id || null;
       quantity = subscription.items.data[0]?.quantity || null;
       cancelAtPeriodEnd = subscription.cancel_at_period_end || false;
@@ -108,6 +106,15 @@ export default async function handler(
         .update({
           subscription_status: subscriptionStatus,
           next_billing_date: nextBillingDate,
+          page_limit: session.metadata?.page_limit
+            ? parseInt(session.metadata.page_limit)
+            : null,
+          team_seats: session.metadata?.team_seats
+            ? parseInt(session.metadata.team_seats)
+            : null,
+          api_key_limit: session.metadata?.api_key_limit
+            ? parseInt(session.metadata.api_key_limit)
+            : null,
         })
         .eq("user_id", userId);
 
@@ -131,7 +138,7 @@ export default async function handler(
               user_id: userId,
               status: subscriptionStatus,
               price_id: priceId,
-              quantity: quantity, // Ensure quantity is provided
+              quantity: quantity,
               cancel_at_period_end: cancelAtPeriodEnd,
               created_at: createdAt,
               current_period_start: currentPeriodStart,

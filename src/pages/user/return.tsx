@@ -16,7 +16,7 @@ import { Progress } from "@/components/ui/progress";
 import axios from "axios";
 import confetti from "canvas-confetti";
 import { createClient } from "@/utils/supabase/component";
-import { pricingConfig } from "@/components/landing/pricing";
+import { pricingConfig } from "@/components/landing/sections/pricing";
 import { useRouter } from "next/router";
 
 interface SessionData {

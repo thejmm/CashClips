@@ -1,4 +1,5 @@
 // src\utils\supabase\server-props.ts
+
 import { type GetServerSidePropsContext } from "next";
 import { createServerClient, serializeCookieHeader } from "@supabase/ssr";
 

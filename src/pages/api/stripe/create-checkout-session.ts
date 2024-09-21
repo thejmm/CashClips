@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 import Stripe from "stripe";
 import createClient from "@/utils/supabase/api";
-import { pricingConfig } from "@/components/landing/pricing";
+import { pricingConfig } from "@/components/landing/sections/pricing";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2024-06-20",
@@ -18,7 +18,7 @@ export default async function handler(
     return res.status(405).end("Method Not Allowed");
   }
 
-  const { price_id, plan_name, promotekit_referral } = req.body;
+  const { price_id, plan_name } = req.body;
   if (!price_id || !plan_name) {
     return res.status(400).json({ error: "Missing price_id or plan_name" });
   }
@@ -52,7 +52,6 @@ export default async function handler(
           email: user.email,
           metadata: {
             supabase_user_id: user.id,
-            promotekit_referral: promotekit_referral || "",
           },
         });
         stripeCustomerId = customer.id;
@@ -72,6 +71,22 @@ export default async function handler(
       return res.status(400).json({ error: "Invalid plan name" });
     }
 
+    const pageLimitFeature = planDetails.features.find((f) =>
+      f.includes("Page Limit"),
+    );
+    const teamSeatsFeature = planDetails.features.find((f) =>
+      f.includes("Team Seat"),
+    );
+    const apiKeyLimit = planDetails.features.find((f) => f.includes("API Key"));
+
+    const pageLimit = pageLimitFeature
+      ? parseInt(pageLimitFeature.match(/\d+/)![0])
+      : 0;
+    const teamSeats = teamSeatsFeature
+      ? parseInt(teamSeatsFeature.match(/\d+/)![0])
+      : 0;
+    const apiLimit = apiKeyLimit ? parseInt(apiKeyLimit.match(/\d+/)![0]) : 0;
+
     const session = await stripe.checkout.sessions.create({
       ui_mode: "embedded",
       customer: stripeCustomerId,
@@ -80,17 +95,19 @@ export default async function handler(
       metadata: {
         supabase_user_id: user.id,
         plan_name: plan_name,
-        promotekit_referral: promotekit_referral || "",
+        page_limit: pageLimit.toString(),
+        team_seats: teamSeats.toString(),
+        api_key_limit: apiLimit.toString(),
       },
       subscription_data: {
         metadata: {
           supabase_user_id: user.id,
-          promotekit_referral: promotekit_referral || "",
         },
       },
       return_url: `${req.headers.origin}/user/return?session_id={CHECKOUT_SESSION_ID}`,
     });
 
+    console.log("Checkout session created:", session.id);
     res.status(200).json({ clientSecret: session.client_secret });
   } catch (error) {
     console.error("Error creating Stripe checkout session:", error);

@@ -4,7 +4,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import Stripe from "stripe";
 import { buffer } from "micro";
 import createClient from "@/utils/supabase/api";
-import { pricingConfig } from "@/components/landing/pricing";
+import { pricingConfig } from "@/components/landing/sections/pricing";
 import { v4 as uuidv4 } from "uuid";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -285,33 +285,30 @@ async function handleCheckoutSessionCompleted(
   }
 
   if (session.metadata) {
-    const { supabase_user_id, plan_name } = session.metadata;
+    const {
+      supabase_user_id,
+      plan_name,
+      page_limit,
+      team_seats,
+      api_key_limit,
+    } = session.metadata;
 
-    if (supabase_user_id && plan_name) {
-      const planDetails = pricingConfig.plans.find((p) => p.name === plan_name);
-      if (!planDetails) {
-        console.error("Invalid plan name in session metadata:", plan_name);
-        return;
-      }
-
-      const totalCreditsMatch = planDetails.features[0].match(
-        /Generate (\d+) clips per month/,
-      );
-      if (!totalCreditsMatch) {
-        console.error("Unable to parse total credits from plan features");
-        return;
-      }
-
-      const totalCredits = parseInt(totalCreditsMatch[1], 10);
-
+    if (
+      supabase_user_id &&
+      plan_name &&
+      page_limit &&
+      team_seats &&
+      api_key_limit
+    ) {
       const { error: userDataError } = await supabase.from("user_data").upsert(
         {
           user_id: supabase_user_id,
           plan_name: plan_name,
           plan_price: session.amount_total,
           subscription_status: "active",
-          total_credits: totalCredits,
-          used_credits: 0,
+          page_limit: parseInt(page_limit),
+          team_seats: parseInt(team_seats),
+          api_key_limit: parseInt(api_key_limit),
         },
         { onConflict: "user_id" },
       );

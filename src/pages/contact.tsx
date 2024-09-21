@@ -23,69 +23,54 @@ import { toast } from "sonner";
 
 const faqs = [
   {
-    question: "What is CashClips?",
+    question: "What is BuildFlow?",
     answer:
-      "CashClips is a powerful platform that helps content creators easily clip, edit, and share moments from their streams or videos. We offer automated features and a wide range of templates to make content creation effortless and engaging.",
+      "BuildFlow is a powerful website builder that allows you to create stunning websites using a drag-and-drop interface. It offers a wide range of templates, components, and tools to help you build professional-looking websites without coding knowledge.",
   },
   {
-    question: "How do I get started with CashClips?",
+    question: "Is BuildFlow free to use?",
     answer:
-      "Sign up for an account, choose a plan, and start creating clips right away using our intuitive interface. You can immediately access thousands of videos from popular streamers and use our templates to create engaging content.",
+      "BuildFlow offers free tools with an account, including an SEO Optimizer, Meta Tag Generator, Accessibility Checker, and Theme Generator. However, to use the full editor for building and exporting code, you'll need to subscribe to one of our paid plans.",
   },
   {
-    question: "What payment methods do you accept?",
+    question: "Do I need coding skills to use BuildFlow?",
     answer:
-      "We accept all major credit cards and PayPal for our subscription plans.",
+      "No, you don't need coding skills to use BuildFlow. Our drag-and-drop builder and pre-designed templates make it easy for anyone to create professional-looking websites. However, if you have coding knowledge, you can also customize your site further using our code editor.",
   },
   {
-    question: "Can I cancel my subscription at any time?",
+    question: "What kind of websites can I build with BuildFlow?",
     answer:
-      "Yes, you can cancel your subscription at any time. Your access will continue until the end of your current billing period.",
+      "BuildFlow is versatile and can be used to create various types of websites, including personal blogs, portfolios, business websites, e-commerce stores, landing pages, and more. Our template library covers a wide range of industries and purposes.",
   },
   {
-    question: "How many videos do you have in your library?",
+    question: "Can I use my own domain name with BuildFlow?",
     answer:
-      "We automatically add thousands of videos from popular streamers to our library. Our collection is constantly growing, ensuring you always have fresh content to work with.",
+      "Yes, you can use your own domain name with BuildFlow. We provide easy-to-follow instructions for connecting your custom domain to your BuildFlow website. This feature is available on our paid plans.",
   },
   {
-    question: "What if I can't find videos from my favorite streamer?",
+    question: "Is BuildFlow SEO-friendly?",
     answer:
-      "If you don't see videos from your favorite streamer, you can request them through our platform. We're always expanding our library based on user requests.",
+      "Yes, BuildFlow is designed with SEO in mind. We offer built-in SEO tools, including our SEO Optimizer and Meta Tag Generator, to help improve your website's search engine rankings. Additionally, our generated code follows SEO best practices.",
   },
   {
-    question: "How many templates do you offer?",
+    question: "Can I export my website's code?",
     answer:
-      "We currently offer 10+ professionally designed templates, with more being added regularly. These templates cover a wide range of styles and formats to suit different content needs.",
+      "Yes, with our paid plans, you can export your website's code. This allows you to host your website on any platform you prefer or make further customizations outside of BuildFlow.",
   },
   {
-    question: "Do you offer automatic captioning?",
+    question: "Is my website mobile-responsive?",
     answer:
-      "Yes! We automatically generate captions for your videos when you're creating clips. This feature enhances accessibility and engagement for your content.",
+      "Yes, all websites created with BuildFlow are automatically mobile-responsive. Our templates and components are designed to look great on desktop, tablet, and mobile devices, ensuring a consistent user experience across all screen sizes.",
   },
   {
-    question: "What are split videos?",
+    question: "What are the free tools available with BuildFlow?",
     answer:
-      "Split videos are pre-made gaming or event segments that you can use to enhance your clips. We offer hundreds of these split videos, allowing you to easily add them to your content.",
+      "BuildFlow offers several free tools with an account, including: SEO Optimizer, Meta Tag Generator, Accessibility Checker, and Theme Generator. These tools can be used to improve your website's performance and appearance without a paid subscription.",
   },
   {
-    question: "Is there a limit to how many clips I can create?",
+    question: "Do you offer customer support?",
     answer:
-      "The number of clips you can create depends on your subscription plan. Check our pricing page for detailed information on clip limits for each plan.",
-  },
-  {
-    question: "Can I collaborate with other creators on CashClips?",
-    answer:
-      "Currently, CashClips is designed for individual use. However, we're exploring collaboration features for future updates. Stay tuned!",
-  },
-  {
-    question: "How often do you update your video library?",
-    answer:
-      "We update our video library regularly, adding new content from popular streamers and events. This ensures you always have access to the latest and most relevant content.",
-  },
-  {
-    question: "Is there a mobile app for CashClips?",
-    answer:
-      "Yes! CashClips is 100% compatible with desktop and mobile devices. Our platform is designed to work seamlessly across all platforms.",
+      "Yes, we offer customer support to all our users. Free users can access our comprehensive knowledge base and community forums. Paid subscribers receive priority email support, and our higher-tier plans include live chat and phone support options.",
   },
 ];
 
@@ -229,7 +214,14 @@ export default function ContactPage() {
             <CardContent className="space-y-4">
               <div className="flex items-center">
                 <Mail className="h-5 w-5 mr-3 text-primary" />
-                <p>support@cashclips.com</p>
+                <a
+                  href="mailto:support@buildflow.com"
+                  className="underline"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  support@buildflow.site
+                </a>
               </div>
             </CardContent>
           </Card>
