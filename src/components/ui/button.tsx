@@ -11,8 +11,6 @@ const buttonVariants = cva(
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        destructiveRingHover:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/80  transition-all duration-300 hover:ring-2 hover:ring-destructive/90 hover:ring-offset-2",
         outline:
           "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary:
@@ -23,8 +21,8 @@ const buttonVariants = cva(
           "group relative text-primary-foreground bg-primary hover:bg-primary/90",
         ringHover:
           "bg-primary text-primary-foreground transition-all duration-300 hover:bg-primary/90 hover:ring-2 hover:ring-primary/90 hover:ring-offset-2",
-        outlineRingHover:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground hover:ring-2 hover:ring-primary/90 hover:ring-offset-2 transition-all duration-300",
+        ringHoverOutline:
+          "border border-input bg-background transition-all duration-300  hover:ring-2 hover:ring-primary/90 hover:ring-offset-2",
         shine:
           "text-primary-foreground animate-shine bg-gradient-to-r from-primary via-primary/75 to-primary bg-[length:400%_100%] ",
         gooeyRight:
