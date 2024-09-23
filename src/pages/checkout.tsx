@@ -95,6 +95,7 @@ export default function CheckoutPage() {
       const { data } = await axios.post("/api/stripe/create-checkout-session", {
         price_id: price_id,
         plan_name: plan.name,
+        interval: interval,
         promotekit_referral:
           typeof window !== "undefined"
             ? window.promotekit_referral
@@ -104,10 +105,10 @@ export default function CheckoutPage() {
     } catch (error) {
       console.error("Error fetching client secret:", error);
       toast.error(
-        "An error occurred while preparing the checkout. Please try again.",
+        "An error occurred while preparing the checkout. Please try again."
       );
     }
-  }, [price_id, plan]);
+  }, [price_id, plan, interval]); 
 
   useEffect(() => {
     if (price_id && plan) {

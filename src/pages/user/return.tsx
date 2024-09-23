@@ -23,6 +23,7 @@ interface SessionData {
   status: string;
   subscription_status: string | null;
   payment_status: string | null;
+  user_data: UserData;
 }
 
 interface UserData {
@@ -115,23 +116,15 @@ const ReturnPage = () => {
       if (session_id) {
         try {
           const sessionResponse = await axios.get(
-            `/api/stripe/checkout-sessions?session_id=${session_id}`,
+            `/api/stripe/checkout-sessions?session_id=${session_id}`
           );
           setSessionData(sessionResponse.data);
+          setUserData(sessionResponse.data.user_data); // Update this line
 
           const {
             data: { user },
           } = await supabase.auth.getUser();
           if (user) {
-            const { data: userData, error: userError } = await supabase
-              .from("user_data")
-              .select("*")
-              .eq("user_id", user.id)
-              .single();
-
-            if (userError) throw userError;
-            setUserData(userData);
-
             const { data: subscriptionData, error: subscriptionError } =
               await supabase
                 .from("subscriptions")

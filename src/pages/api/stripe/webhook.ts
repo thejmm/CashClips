@@ -20,7 +20,7 @@ export const config = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse
 ) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -50,20 +50,20 @@ export default async function handler(
       case "customer.subscription.deleted":
         await handleSubscriptionChange(
           event.data.object as Stripe.Subscription,
-          supabase,
+          supabase
         );
         break;
       case "invoice.paid":
       case "invoice.payment_failed":
         await handleInvoicePayment(
           event.data.object as Stripe.Invoice,
-          supabase,
+          supabase
         );
         break;
       case "checkout.session.completed":
         await handleCheckoutSessionCompleted(
           event.data.object as Stripe.Checkout.Session,
-          supabase,
+          supabase
         );
         break;
       default:
@@ -78,7 +78,7 @@ export default async function handler(
 
 async function handleSubscriptionChange(
   subscription: Stripe.Subscription,
-  supabase: any,
+  supabase: any
 ) {
   const customerId = subscription.customer as string;
 
@@ -91,7 +91,7 @@ async function handleSubscriptionChange(
   if (userError) {
     console.error(
       `No user found for Stripe customer ${customerId}:`,
-      userError,
+      userError
     );
     throw new Error(`No user found for Stripe customer ${customerId}`);
   }
@@ -102,53 +102,12 @@ async function handleSubscriptionChange(
 
   const priceId = subscription.items.data[0]?.price.id;
 
-  const { error: subscriptionError } = await supabase
-    .from("subscriptions")
-    .upsert(
-      {
-        stripe_subscription_id: subscription.id,
-        user_id: userData.user_id,
-        status: subscription.status,
-        price_id: priceId,
-        quantity: subscription.items.data[0].quantity,
-        cancel_at_period_end: subscription.cancel_at_period_end,
-        created_at: new Date(subscription.created * 1000).toISOString(),
-        current_period_start: new Date(
-          subscription.current_period_start * 1000,
-        ).toISOString(),
-        current_period_end: new Date(
-          subscription.current_period_end * 1000,
-        ).toISOString(),
-        ended_at: subscription.ended_at
-          ? new Date(subscription.ended_at * 1000).toISOString()
-          : null,
-        cancel_at: subscription.cancel_at
-          ? new Date(subscription.cancel_at * 1000).toISOString()
-          : null,
-        canceled_at: subscription.canceled_at
-          ? new Date(subscription.canceled_at * 1000).toISOString()
-          : null,
-        trial_start: subscription.trial_start
-          ? new Date(subscription.trial_start * 1000).toISOString()
-          : null,
-        trial_end: subscription.trial_end
-          ? new Date(subscription.trial_end * 1000).toISOString()
-          : null,
-      },
-      { onConflict: "stripe_subscription_id" },
-    );
-
-  if (subscriptionError) {
-    console.error("Error upserting subscription:", subscriptionError);
-    throw subscriptionError;
-  }
-
   const { error: userDataError } = await supabase
     .from("user_data")
     .update({
       subscription_status: subscription.status,
       next_billing_date: new Date(
-        subscription.current_period_end * 1000,
+        subscription.current_period_end * 1000
       ).toISOString(),
     })
     .eq("user_id", userData.user_id);
@@ -171,32 +130,9 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
   if (userError) {
     console.error(
       `No user found for Stripe customer ${customerId}:`,
-      userError,
+      userError
     );
     throw new Error(`No user found for Stripe customer ${customerId}`);
-  }
-
-  if (invoice.subscription) {
-    const { data: existingSubscription, error: subscriptionError } =
-      await supabase
-        .from("subscriptions")
-        .select("*")
-        .eq("stripe_subscription_id", invoice.subscription)
-        .single();
-
-    if (subscriptionError || !existingSubscription) {
-      console.log(
-        "Subscription not found, fetching from Stripe and creating...",
-      );
-      try {
-        const stripeSubscription = await stripe.subscriptions.retrieve(
-          invoice.subscription as string,
-        );
-        await handleSubscriptionChange(stripeSubscription, supabase);
-      } catch (error) {
-        console.error("Error fetching or creating subscription:", error);
-      }
-    }
   }
 
   const { error: invoiceError } = await supabase.from("invoices").upsert(
@@ -223,23 +159,12 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
         "amount_remaining",
         "updated_at",
       ],
-    },
+    }
   );
 
   if (invoiceError) {
     console.error("Error upserting invoice:", invoiceError);
     throw invoiceError;
-  }
-
-  if (invoice.subscription) {
-    const { error: subscriptionError } = await supabase
-      .from("subscriptions")
-      .update({ status: invoice.status === "paid" ? "active" : "past_due" })
-      .eq("stripe_subscription_id", invoice.subscription);
-
-    if (subscriptionError) {
-      console.error("Error updating subscription status:", subscriptionError);
-    }
   }
 
   const { error: userDataError } = await supabase
@@ -256,56 +181,60 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
 
 async function handleCheckoutSessionCompleted(
   session: Stripe.Checkout.Session,
-  supabase: any,
+  supabase: any
 ) {
+  console.log("Handling completed checkout session:", session.id);
+
   if (session.payment_status !== "paid") {
     console.log("Checkout session not paid. Skipping user data update.");
     return;
   }
 
-  if (session.mode === "subscription" && session.subscription) {
-    const subscription = await stripe.subscriptions.retrieve(
-      session.subscription as string,
-    );
-    await handleSubscriptionChange(subscription, supabase);
+  if (!session.metadata) {
+    console.error("No metadata found in checkout session");
+    return;
   }
 
-  if (session.invoice) {
-    const invoice = await stripe.invoices.retrieve(session.invoice as string);
-    await handleInvoicePayment(invoice, supabase);
+  const { supabase_user_id, plan_name, total_credits } = session.metadata;
+
+  if (!supabase_user_id || !plan_name || !total_credits) {
+    console.error("Missing required metadata in checkout session");
+    return;
   }
 
-  if (session.metadata) {
-    const { supabase_user_id, plan_name, total_credits } = session.metadata;
+  try {
+    let subscription: Stripe.Subscription | null = null;
+    if (session.subscription && typeof session.subscription === "string") {
+      subscription = await stripe.subscriptions.retrieve(session.subscription);
+    }
 
-    if (supabase_user_id && plan_name && total_credits) {
-      const { error: userDataError } = await supabase.from("user_data").upsert(
+    const { data: userData, error: userDataError } = await supabase
+      .from("user_data")
+      .upsert(
         {
           user_id: supabase_user_id,
+          stripe_customer_id: session.customer as string,
           plan_name: plan_name,
           plan_price: session.amount_total,
           subscription_status: "active",
-          total_credits: parseInt(total_credits, 10),
+          total_credits: parseInt(total_credits),
           used_credits: 0,
-          stripe_customer_id: session.customer as string,
-          promotekit_referral: session.metadata.promotekit_referral || null,
+          next_billing_date: subscription
+            ? new Date(subscription.current_period_end * 1000).toISOString()
+            : null,
         },
-        { onConflict: "user_id" },
-      );
+        { onConflict: "user_id" }
+      )
+      .select();
 
-      if (userDataError) {
-        console.error(
-          "Error updating user_data after checkout:",
-          userDataError,
-        );
-        throw userDataError;
-      }
-
-      console.log("User data updated successfully after checkout");
-    } else {
-      console.error("Missing required metadata in checkout session");
+    if (userDataError) {
+      throw userDataError;
     }
-  } else {
-    console.error("No metadata found in checkout session");
+
+    console.log("User data updated:", userData);
+
+    console.log("User data updated successfully");
+  } catch (error) {
+    console.error("Error updating user data:", error);
   }
 }
