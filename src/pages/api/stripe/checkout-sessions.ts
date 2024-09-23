@@ -29,35 +29,17 @@ export default async function handler(
       expand: ["customer", "subscription", "payment_intent"],
     });
 
-    let userId = "";
-    if (session.customer && typeof session.customer !== "string") {
-      const { data: userData, error: userError } = await supabase
-        .from("user_data")
-        .select("user_id")
-        .eq("stripe_customer_id", session.customer.id)
-        .single();
-
-      if (userError) {
-        console.error("Error fetching user data:", userError);
-        return res.status(404).json({ error: "User not found" });
-      }
-      userId = userData.user_id;
+    if (!session.metadata?.supabase_user_id) {
+      return res.status(400).json({ error: "Invalid session metadata" });
     }
+
+    const userId = session.metadata.supabase_user_id;
 
     let subscriptionStatus: string | null = null;
     let subscriptionId: string | null = null;
     let nextBillingDate: string | null = null;
     let priceId: string | null = null;
     let quantity: number | null = null;
-    let cancelAtPeriodEnd: boolean | null = null;
-    let createdAt: string | null = null;
-    let currentPeriodStart: string | null = null;
-    let currentPeriodEnd: string | null = null;
-    let trialStart: string | null = null;
-    let trialEnd: string | null = null;
-    let endedAt: string | null = null;
-    let cancelAt: string | null = null;
-    let canceledAt: string | null = null;
 
     if (session.subscription && typeof session.subscription !== "string") {
       const subscription = session.subscription;
@@ -66,35 +48,48 @@ export default async function handler(
       nextBillingDate = subscription.current_period_end
         ? new Date(subscription.current_period_end * 1000).toISOString()
         : null;
-
-      // Retrieve all necessary fields
       priceId = subscription.items.data[0]?.price.id || null;
       quantity = subscription.items.data[0]?.quantity || null;
-      cancelAtPeriodEnd = subscription.cancel_at_period_end || false;
-      createdAt = subscription.created
-        ? new Date(subscription.created * 1000).toISOString()
-        : null;
-      currentPeriodStart = subscription.current_period_start
-        ? new Date(subscription.current_period_start * 1000).toISOString()
-        : null;
-      currentPeriodEnd = subscription.current_period_end
-        ? new Date(subscription.current_period_end * 1000).toISOString()
-        : null;
-      trialStart = subscription.trial_start
-        ? new Date(subscription.trial_start * 1000).toISOString()
-        : null;
-      trialEnd = subscription.trial_end
-        ? new Date(subscription.trial_end * 1000).toISOString()
-        : null;
-      endedAt = subscription.ended_at
-        ? new Date(subscription.ended_at * 1000).toISOString()
-        : null;
-      cancelAt = subscription.cancel_at
-        ? new Date(subscription.cancel_at * 1000).toISOString()
-        : null;
-      canceledAt = subscription.canceled_at
-        ? new Date(subscription.canceled_at * 1000).toISOString()
-        : null;
+
+      const { error: subscriptionError } = await supabase
+        .from("subscriptions")
+        .upsert(
+          {
+            stripe_subscription_id: subscriptionId,
+            user_id: userId,
+            status: subscriptionStatus,
+            price_id: priceId,
+            quantity: quantity,
+            cancel_at_period_end: subscription.cancel_at_period_end,
+            created_at: new Date(subscription.created * 1000).toISOString(),
+            current_period_start: new Date(
+              subscription.current_period_start * 1000,
+            ).toISOString(),
+            current_period_end: new Date(
+              subscription.current_period_end * 1000,
+            ).toISOString(),
+            ended_at: subscription.ended_at
+              ? new Date(subscription.ended_at * 1000).toISOString()
+              : null,
+            cancel_at: subscription.cancel_at
+              ? new Date(subscription.cancel_at * 1000).toISOString()
+              : null,
+            canceled_at: subscription.canceled_at
+              ? new Date(subscription.canceled_at * 1000).toISOString()
+              : null,
+            trial_start: subscription.trial_start
+              ? new Date(subscription.trial_start * 1000).toISOString()
+              : null,
+            trial_end: subscription.trial_end
+              ? new Date(subscription.trial_end * 1000).toISOString()
+              : null,
+          },
+          { onConflict: "stripe_subscription_id" },
+        );
+
+      if (subscriptionError) {
+        console.error("Error updating subscription:", subscriptionError);
+      }
     }
 
     let paymentStatus: string | null = null;
@@ -102,57 +97,23 @@ export default async function handler(
       paymentStatus = session.payment_intent.status;
     }
 
-    if (userId) {
-      const { error: userDataError } = await supabase
-        .from("user_data")
-        .update({
-          subscription_status: subscriptionStatus,
-          next_billing_date: nextBillingDate,
-        })
-        .eq("user_id", userId);
+    const { error: userDataError } = await supabase.from("user_data").upsert(
+      {
+        user_id: userId,
+        stripe_customer_id: session.customer as string,
+        plan_name: session.metadata.plan_name,
+        plan_price: session.amount_total || 0,
+        subscription_status: subscriptionStatus || "active",
+        next_billing_date: nextBillingDate,
+        total_credits: parseInt(session.metadata.total_credits || "0", 10),
+        used_credits: 0,
+        promotekit_referral: session.metadata.promotekit_referral || null,
+      },
+      { onConflict: "user_id" },
+    );
 
-      if (userDataError) {
-        console.error("Error updating user_data:", userDataError);
-      }
-
-      if (
-        subscriptionId &&
-        priceId &&
-        quantity !== null &&
-        createdAt &&
-        currentPeriodStart &&
-        currentPeriodEnd
-      ) {
-        const { error: subscriptionError } = await supabase
-          .from("subscriptions")
-          .upsert(
-            {
-              stripe_subscription_id: subscriptionId,
-              user_id: userId,
-              status: subscriptionStatus,
-              price_id: priceId,
-              quantity: quantity, // Ensure quantity is provided
-              cancel_at_period_end: cancelAtPeriodEnd,
-              created_at: createdAt,
-              current_period_start: currentPeriodStart,
-              current_period_end: currentPeriodEnd,
-              ended_at: endedAt,
-              cancel_at: cancelAt,
-              canceled_at: canceledAt,
-              trial_start: trialStart,
-              trial_end: trialEnd,
-            },
-            { onConflict: "stripe_subscription_id" },
-          );
-
-        if (subscriptionError) {
-          console.error("Error updating subscription:", subscriptionError);
-        }
-      } else {
-        console.error(
-          "Missing required fields for updating subscription: subscriptionId, priceId, quantity, createdAt, currentPeriodStart, or currentPeriodEnd",
-        );
-      }
+    if (userDataError) {
+      console.error("Error updating user_data:", userDataError);
     }
 
     res.status(200).json({

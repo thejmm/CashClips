@@ -30,13 +30,13 @@ export default async function handler(
       data: { user },
       error: userError,
     } = await supabase.auth.getUser();
+
     if (userError || !user) {
       console.error("Authentication error:", userError);
       return res.status(401).json({ error: "Unauthorized" });
     }
 
     let stripeCustomerId = user.user_metadata?.stripe_customer_id;
-
     if (stripeCustomerId) {
       try {
         await stripe.customers.retrieve(stripeCustomerId);
@@ -72,6 +72,16 @@ export default async function handler(
       return res.status(400).json({ error: "Invalid plan name" });
     }
 
+    const totalCreditsMatch = planDetails.features[0].match(
+      /Generate (\d+) clips per month/,
+    );
+    if (!totalCreditsMatch) {
+      console.error("Unable to parse total credits from plan features");
+      return res.status(400).json({ error: "Invalid plan configuration" });
+    }
+
+    const totalCredits = parseInt(totalCreditsMatch[1], 10);
+
     const session = await stripe.checkout.sessions.create({
       ui_mode: "embedded",
       customer: stripeCustomerId,
@@ -81,6 +91,7 @@ export default async function handler(
         supabase_user_id: user.id,
         plan_name: plan_name,
         promotekit_referral: promotekit_referral || "",
+        total_credits: totalCredits.toString(),
       },
       subscription_data: {
         metadata: {
@@ -91,6 +102,7 @@ export default async function handler(
       return_url: `${req.headers.origin}/user/return?session_id={CHECKOUT_SESSION_ID}`,
     });
 
+    console.log("Checkout session created:", session.id);
     res.status(200).json({ clientSecret: session.client_secret });
   } catch (error) {
     console.error("Error creating Stripe checkout session:", error);

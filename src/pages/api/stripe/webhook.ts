@@ -4,7 +4,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import Stripe from "stripe";
 import { buffer } from "micro";
 import createClient from "@/utils/supabase/api";
-import { pricingConfig } from "@/components/landing/pricing";
 import { v4 as uuidv4 } from "uuid";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -83,7 +82,6 @@ async function handleSubscriptionChange(
 ) {
   const customerId = subscription.customer as string;
 
-  // Fetch the user data by Stripe customer ID
   const { data: userData, error: userError } = await supabase
     .from("user_data")
     .select("user_id")
@@ -98,14 +96,12 @@ async function handleSubscriptionChange(
     throw new Error(`No user found for Stripe customer ${customerId}`);
   }
 
-  // Ensure subscription items exist
   if (!subscription.items || subscription.items.data.length === 0) {
     throw new Error("No items found in subscription");
   }
 
   const priceId = subscription.items.data[0]?.price.id;
 
-  // Upsert the subscription record
   const { error: subscriptionError } = await supabase
     .from("subscriptions")
     .upsert(
@@ -147,7 +143,6 @@ async function handleSubscriptionChange(
     throw subscriptionError;
   }
 
-  // Update the user_data table with subscription status
   const { error: userDataError } = await supabase
     .from("user_data")
     .update({
@@ -167,7 +162,6 @@ async function handleSubscriptionChange(
 async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
   const customerId = invoice.customer as string;
 
-  // Fetch the user data by Stripe customer ID
   const { data: userData, error: userError } = await supabase
     .from("user_data")
     .select("user_id")
@@ -182,7 +176,6 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
     throw new Error(`No user found for Stripe customer ${customerId}`);
   }
 
-  // Check if the subscription exists, if not, create it
   if (invoice.subscription) {
     const { data: existingSubscription, error: subscriptionError } =
       await supabase
@@ -206,7 +199,6 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
     }
   }
 
-  // Upsert the invoice
   const { error: invoiceError } = await supabase.from("invoices").upsert(
     {
       id: uuidv4(),
@@ -239,7 +231,6 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
     throw invoiceError;
   }
 
-  // Update the subscription and user_data status based on invoice status
   if (invoice.subscription) {
     const { error: subscriptionError } = await supabase
       .from("subscriptions")
@@ -285,33 +276,19 @@ async function handleCheckoutSessionCompleted(
   }
 
   if (session.metadata) {
-    const { supabase_user_id, plan_name } = session.metadata;
+    const { supabase_user_id, plan_name, total_credits } = session.metadata;
 
-    if (supabase_user_id && plan_name) {
-      const planDetails = pricingConfig.plans.find((p) => p.name === plan_name);
-      if (!planDetails) {
-        console.error("Invalid plan name in session metadata:", plan_name);
-        return;
-      }
-
-      const totalCreditsMatch = planDetails.features[0].match(
-        /Generate (\d+) clips per month/,
-      );
-      if (!totalCreditsMatch) {
-        console.error("Unable to parse total credits from plan features");
-        return;
-      }
-
-      const totalCredits = parseInt(totalCreditsMatch[1], 10);
-
+    if (supabase_user_id && plan_name && total_credits) {
       const { error: userDataError } = await supabase.from("user_data").upsert(
         {
           user_id: supabase_user_id,
           plan_name: plan_name,
           plan_price: session.amount_total,
           subscription_status: "active",
-          total_credits: totalCredits,
+          total_credits: parseInt(total_credits, 10),
           used_credits: 0,
+          stripe_customer_id: session.customer as string,
+          promotekit_referral: session.metadata.promotekit_referral || null,
         },
         { onConflict: "user_id" },
       );
@@ -323,6 +300,8 @@ async function handleCheckoutSessionCompleted(
         );
         throw userDataError;
       }
+
+      console.log("User data updated successfully after checkout");
     } else {
       console.error("Missing required metadata in checkout session");
     }
