@@ -105,10 +105,10 @@ export default function CheckoutPage() {
     } catch (error) {
       console.error("Error fetching client secret:", error);
       toast.error(
-        "An error occurred while preparing the checkout. Please try again."
+        "An error occurred while preparing the checkout. Please try again.",
       );
     }
-  }, [price_id, plan, interval]); 
+  }, [price_id, plan, interval]);
 
   useEffect(() => {
     if (price_id && plan) {

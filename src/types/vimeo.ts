@@ -1,11 +1,12 @@
-type VimeoSize = {
+// src/types/vimeo.ts
+export type VimeoSize = {
   width: number;
   height: number;
   link: string;
   link_with_play_button: string;
 };
 
-type VimeoPictures = {
+export type VimeoPictures = {
   uri: string;
   active: boolean;
   type: string;
@@ -15,22 +16,16 @@ type VimeoPictures = {
   default_picture: boolean;
 };
 
-type VimeoVideo = {
+export type VimeoVideo = {
   uri: string;
   name: string;
-  description: null | string;
-  pictures: {
-    sizes: Array<{
-      width: number;
-      height: number;
-      link: string;
-    }>;
-  };
+  description: string | null; // Ensures that the description can be null.
+  pictures: VimeoPictures;
   duration: number;
 };
 
-type VimeoAPIResponse = {
+export type VimeoAPIResponse = {
   [folderId: string]: VimeoVideo[];
 };
 
-type VimeoFolder = [VimeoVideo];
+export type VimeoFolder = VimeoVideo[];

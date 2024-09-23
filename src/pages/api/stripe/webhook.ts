@@ -20,7 +20,7 @@ export const config = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -50,20 +50,20 @@ export default async function handler(
       case "customer.subscription.deleted":
         await handleSubscriptionChange(
           event.data.object as Stripe.Subscription,
-          supabase
+          supabase,
         );
         break;
       case "invoice.paid":
       case "invoice.payment_failed":
         await handleInvoicePayment(
           event.data.object as Stripe.Invoice,
-          supabase
+          supabase,
         );
         break;
       case "checkout.session.completed":
         await handleCheckoutSessionCompleted(
           event.data.object as Stripe.Checkout.Session,
-          supabase
+          supabase,
         );
         break;
       default:
@@ -78,7 +78,7 @@ export default async function handler(
 
 async function handleSubscriptionChange(
   subscription: Stripe.Subscription,
-  supabase: any
+  supabase: any,
 ) {
   const customerId = subscription.customer as string;
 
@@ -91,7 +91,7 @@ async function handleSubscriptionChange(
   if (userError) {
     console.error(
       `No user found for Stripe customer ${customerId}:`,
-      userError
+      userError,
     );
     throw new Error(`No user found for Stripe customer ${customerId}`);
   }
@@ -107,7 +107,7 @@ async function handleSubscriptionChange(
     .update({
       subscription_status: subscription.status,
       next_billing_date: new Date(
-        subscription.current_period_end * 1000
+        subscription.current_period_end * 1000,
       ).toISOString(),
     })
     .eq("user_id", userData.user_id);
@@ -130,7 +130,7 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
   if (userError) {
     console.error(
       `No user found for Stripe customer ${customerId}:`,
-      userError
+      userError,
     );
     throw new Error(`No user found for Stripe customer ${customerId}`);
   }
@@ -159,7 +159,7 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
         "amount_remaining",
         "updated_at",
       ],
-    }
+    },
   );
 
   if (invoiceError) {
@@ -181,7 +181,7 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
 
 async function handleCheckoutSessionCompleted(
   session: Stripe.Checkout.Session,
-  supabase: any
+  supabase: any,
 ) {
   console.log("Handling completed checkout session:", session.id);
 
@@ -223,7 +223,7 @@ async function handleCheckoutSessionCompleted(
             ? new Date(subscription.current_period_end * 1000).toISOString()
             : null,
         },
-        { onConflict: "user_id" }
+        { onConflict: "user_id" },
       )
       .select();
 

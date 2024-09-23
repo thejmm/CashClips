@@ -10,7 +10,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
@@ -58,10 +58,10 @@ export default async function handler(
         cancel_at_period_end: subscription.cancel_at_period_end,
         created_at: new Date(subscription.created * 1000).toISOString(),
         current_period_start: new Date(
-          subscription.current_period_start * 1000
+          subscription.current_period_start * 1000,
         ).toISOString(),
         current_period_end: new Date(
-          subscription.current_period_end * 1000
+          subscription.current_period_end * 1000,
         ).toISOString(),
         ended_at: subscription.ended_at
           ? new Date(subscription.ended_at * 1000).toISOString()

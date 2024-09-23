@@ -1,15 +1,16 @@
+// src/store/creatomate.ts
 import { Preview, PreviewState } from "@creatomate/preview";
 import { makeAutoObservable, runInAction } from "mobx";
 
 import { DefaultSource } from "@/utils/creatomate/templates";
 import { FontStyle } from "@/utils/creatomate/font-types";
+import { VimeoVideo } from "@/types/vimeo";
 import { v4 as uuid } from "uuid";
 
 export function getVideoUrl(video: VimeoVideo): string {
   const largestSize = video.pictures.sizes.reduce((prev, current) =>
     prev.width > current.width ? prev : current,
   );
-  // Replace the image ID with the video ID in the URL
   const videoId = video.uri.split("/").pop();
   return largestSize.link.replace(/\/[^\/]+$/, `/${videoId}.mp4`);
 }

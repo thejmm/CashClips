@@ -11,7 +11,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -64,9 +64,13 @@ export default async function handler(
     if (!planDetails) {
       return res.status(400).json({ error: "Invalid plan name" });
     }
-    
-    const totalCreditsMatch = planDetails.features[0].match(/Generate (\d+) clips per month/);
-    const totalCredits = totalCreditsMatch ? parseInt(totalCreditsMatch[1], 10) : 0;
+
+    const totalCreditsMatch = planDetails.features[0].match(
+      /Generate (\d+) clips per month/,
+    );
+    const totalCredits = totalCreditsMatch
+      ? parseInt(totalCreditsMatch[1], 10)
+      : 0;
 
     const session = await stripe.checkout.sessions.create({
       ui_mode: "embedded",
