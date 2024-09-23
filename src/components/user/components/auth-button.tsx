@@ -134,19 +134,10 @@ const AuthButton = ({ initialUser }: { initialUser: User | null }) => {
                   Create Clips
                 </Button>
               </Link>
-              <Link href="/user/created" onClick={handleLinkClick}>
-                <Button
-                  variant="outlineRingHover"
-                  className="w-full group justify-start transition-all duration-300 ease-out group"
-                >
-                  <Film className="mr-2 size-4 transition-all duration-300 ease-out group-hover:-translate-x-1" />
-                  Created Clips
-                </Button>
-              </Link>
               <Link href="/user/settings" onClick={handleLinkClick}>
                 <Button
                   variant="outlineRingHover"
-                  className="w-full group justify-start transition-all duration-300 ease-out group"
+                  className="absolute bottom-14 w-full justify-start transition-all duration-300 ease-out group"
                 >
                   <Settings className="mr-2 size-4 transition-all duration-300 ease-out group-hover:-translate-x-1" />
                   Settings

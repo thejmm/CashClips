@@ -173,7 +173,7 @@ const ClipHistory: React.FC<ClipHistoryProps> = ({ clipData }) => {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="space-y-3">
         <CardTitle>Clip History</CardTitle>
         <CardDescription>
           View your clipping activity over a selected time period

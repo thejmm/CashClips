@@ -19,7 +19,7 @@ interface SidebarContextProps {
 }
 
 const SidebarContext = createContext<SidebarContextProps | undefined>(
-  undefined,
+  undefined
 );
 
 export const useSidebar = () => {
@@ -89,8 +89,8 @@ export const DesktopSidebar = ({
     <>
       <motion.div
         className={cn(
-          "h-full px-3 hidden  md:flex md:flex-col w-[180px] flex-shrink-0",
-          className,
+          "h-[90svh] px-3 hidden  md:flex md:flex-col w-[180px] flex-shrink-0",
+          className
         )}
         animate={{
           width: animate ? (open ? "180px" : "60px") : "180px",
@@ -121,7 +121,7 @@ export const SidebarLink = ({
       href={link.href}
       className={cn(
         "flex items-center rounded-full p-1 my-2 justify-start gap-2 group/sidebar",
-        className,
+        className
       )}
       onClick={(e) => {
         if (onClick) {

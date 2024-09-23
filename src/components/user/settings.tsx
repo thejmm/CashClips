@@ -1,5 +1,4 @@
 // src/components/user/settings.tsx
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,14 +13,45 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import React, { useEffect, useState } from "react";
 
-import { User as AuthUser } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import InvoiceTable from "./dash/invoice-table";
 import { Loader } from "lucide-react";
+import PlanCreditUsage from "./dash/plan-credit-usage";
 import { Separator } from "@/components/ui/separator";
+import { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/component";
 import { toast } from "sonner";
 import { useRouter } from "next/router";
+
+interface UserData {
+  plan_name: string | null;
+  plan_price: number | null;
+  used_credits: number | null;
+  total_credits: number | null;
+  subscription_status: string | null;
+  next_billing_date: string | null;
+}
+
+interface InvoiceData {
+  id: string;
+  amount_due: number;
+  amount_paid: number;
+  created: string;
+  status: string;
+  stripe_invoice_id: string;
+  user_id: string;
+  currency: string;
+  amount_remaining: number;
+  period_start: string;
+  period_end: string;
+  stripe_subscription_id?: string;
+}
+
+interface SubscriptionData {
+  current_period_end: string;
+  cancel_at_period_end: boolean;
+}
 
 interface Errors {
   currentPassword?: string;
@@ -29,53 +59,71 @@ interface Errors {
   confirmPassword?: string;
 }
 
-const SettingsContent: React.FC = () => {
+interface SettingsContentProps {
+  user: User;
+}
+
+const SettingsContent: React.FC<SettingsContentProps> = ({ user }) => {
   const router = useRouter();
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [username, setUsername] = useState<string>("");
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const supabase = createClient();
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [invoiceData, setInvoiceData] = useState<InvoiceData[] | null>(null);
+  const [subscriptionData, setSubscriptionData] =
+    useState<SubscriptionData | null>(null);
+  const [username, setUsername] = useState(user.user_metadata.username || "");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(
+    user.user_metadata.avatar_url || null
+  );
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [isPasswordDataChanged, setIsPasswordDataChanged] = useState(false);
   const [isProfileDataChanged, setIsProfileDataChanged] = useState(false);
-
-  const supabase = createClient();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchData = async () => {
       setLoading(true);
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
+      try {
+        const [userDataResult, invoiceDataResult, subscriptionDataResult] =
+          await Promise.all([
+            supabase
+              .from("user_data")
+              .select("*")
+              .eq("user_id", user.id)
+              .single(),
+            supabase.from("invoices").select("*").eq("user_id", user.id),
+            supabase
+              .from("subscriptions")
+              .select("*")
+              .eq("user_id", user.id)
+              .single(),
+          ]);
 
-      if (error || !user) {
-        toast.error("Failed to fetch user data");
-        router.push("/login");
-        return;
+        if (userDataResult.error) throw userDataResult.error;
+        if (invoiceDataResult.error) throw invoiceDataResult.error;
+        if (
+          subscriptionDataResult.error &&
+          subscriptionDataResult.error.code !== "PGRST116"
+        )
+          throw subscriptionDataResult.error;
+
+        setUserData(userDataResult.data as UserData);
+        setInvoiceData(invoiceDataResult.data as InvoiceData[]);
+        setSubscriptionData(subscriptionDataResult.data as SubscriptionData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast.error("Failed to load user data. Please try again.");
+      } finally {
+        setLoading(false);
       }
-
-      setUser(user);
-      setUsername(user.user_metadata.username || "");
-
-      if (user.user_metadata.avatar_url) {
-        const { data } = supabase.storage
-          .from("avatars")
-          .getPublicUrl(user.user_metadata.avatar_url);
-        setAvatarUrl(data?.publicUrl || null);
-      }
-
-      setLoading(false);
     };
 
-    fetchUserData();
-  }, [router, supabase]);
+    fetchData();
+  }, [user.id, supabase]);
 
   const validateInputs = (): boolean => {
     const newErrors: Errors = {};
@@ -94,11 +142,9 @@ const SettingsContent: React.FC = () => {
 
   const handleUpdatePassword = async () => {
     if (!validateInputs()) return;
-    if (!user) return;
 
     setIsLoading(true);
     try {
-      // Re-authenticate the user
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: user.email || "",
         password: currentPassword,
@@ -110,7 +156,6 @@ const SettingsContent: React.FC = () => {
         return;
       }
 
-      // Update the password
       const { error: updateError } = await supabase.auth.updateUser({
         password: newPassword,
       });
@@ -133,47 +178,20 @@ const SettingsContent: React.FC = () => {
   };
 
   const handleUpdateProfile = async () => {
-    if (!user) return;
     setIsLoading(true);
 
     try {
-      let uploadedAvatarUrl = user.user_metadata.avatar_url;
-
-      if (avatarFile) {
-        // Upload the avatar image
-        const { data, error } = await supabase.storage
-          .from("avatars")
-          .upload(`public/${user.id}/${avatarFile.name}`, avatarFile, {
-            upsert: true,
-          });
-
-        if (error) {
-          toast.error("Error uploading avatar");
-          return;
-        }
-        uploadedAvatarUrl = data?.path;
-
-        const { data: publicData } = supabase.storage
-          .from("avatars")
-          .getPublicUrl(uploadedAvatarUrl);
-        setAvatarUrl(publicData?.publicUrl || null);
-      }
-
-      // Update the user metadata
       const { data: updatedUser, error: profileError } =
         await supabase.auth.updateUser({
           data: {
             username: username || user.email,
-            avatar_url: uploadedAvatarUrl,
           },
         });
 
       if (profileError) {
         toast.error(`Failed to update profile: ${profileError.message}`);
       } else {
-        toast.success("Username updated successfully");
-        setUser(updatedUser.user);
-        setAvatarFile(null);
+        toast.success("Profile updated successfully");
         setIsProfileDataChanged(false);
       }
     } catch (error) {
@@ -183,18 +201,15 @@ const SettingsContent: React.FC = () => {
     }
   };
 
-  // Input handlers for profile and password fields
-  const handleProfileInputChange =
-    (setValue: (value: string) => void) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setValue(e.target.value);
-      setIsProfileDataChanged(true);
-    };
+  const handleProfileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsername(e.target.value);
+    setIsProfileDataChanged(true);
+  };
 
   const handlePasswordInputChange =
-    (setValue: (value: string) => void) =>
+    (setter: React.Dispatch<React.SetStateAction<string>>) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setValue(e.target.value);
+      setter(e.target.value);
       setIsPasswordDataChanged(true);
     };
 
@@ -207,41 +222,39 @@ const SettingsContent: React.FC = () => {
     );
   }
 
-  if (!user) {
-    // User is not logged in; you can redirect or display a message
-    router.push("/login");
-    return null;
-  }
-
   return (
     <div className="w-full max-w-[23rem] sm:max-w-5xl md:max-w-7xl mx-auto space-y-8 p-4">
-      {/* Profile Update Section */}
+      <header className="flex flex-col sm:flex-row justify-between items-center mb-8">
+        <div className="text-center sm:text-left mb-4 sm:mb-0">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
+            Welcome back, {user?.user_metadata?.username || user.email}
+          </h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
+            Manage your CashClips account and track your usage
+          </p>
+        </div>
+        <Avatar className="h-16 w-16">
+          <AvatarImage src={user.user_metadata?.avatar_url} />
+          <AvatarFallback>
+            {user.email?.[0].toUpperCase() || "U"}
+          </AvatarFallback>
+        </Avatar>
+      </header>
+
+      {userData && <PlanCreditUsage userData={userData} user={user} />}
+
+      {invoiceData && <InvoiceTable invoiceData={invoiceData} />}
+
       <Card>
         <CardHeader>
-          <CardTitle>User Profile</CardTitle>
+          <CardTitle>UserName Settings</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center space-x-4">
-            <div className="relative group">
-              <Avatar className="h-16 w-16">
-                <AvatarImage src={user.user_metadata?.avatar_url} />
-                <AvatarFallback>
-                  {user.email?.[0].toUpperCase() ||
-                    user.user_metadata?.username?.[0].toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold">{username || user.email}</h2>
-              <p className="text-muted-foreground">{user.email}</p>
-            </div>
-          </div>
-          <Separator />
           <div>
             <label className="block text-sm font-medium mb-2">Username</label>
             <Input
               value={username}
-              onChange={handleProfileInputChange(setUsername)}
+              onChange={handleProfileInputChange}
               placeholder="Enter your username"
             />
             <Button
@@ -260,7 +273,6 @@ const SettingsContent: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Password Update Section */}
       <Card>
         <CardHeader>
           <CardTitle>Password Settings</CardTitle>
@@ -332,7 +344,6 @@ const SettingsContent: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Password Confirmation Dialog */}
       <AlertDialog
         open={isPasswordDialogOpen}
         onOpenChange={setIsPasswordDialogOpen}

@@ -1,3 +1,5 @@
+// src/components/layout/sidebar.tsx
+
 import {
   Film,
   LayoutDashboardIcon,
@@ -34,13 +36,13 @@ export default function DashboardLayout({
   children,
   title,
   icon,
-  checkSubscription = false, // Default to false
+  checkSubscription = false,
 }: DashboardLayoutProps) {
   const [open, setOpen] = useState(false);
   const [isActiveSubscription, setIsActiveSubscription] = useState<
-    boolean | null
+    null | boolean
   >(null);
-  const [loading, setLoading] = useState(checkSubscription); // Only set loading if we check the subscription
+  const [loading, setLoading] = useState(checkSubscription);
   const router = useRouter();
   const supabase = createClient();
 
@@ -55,17 +57,13 @@ export default function DashboardLayout({
       href: "/user/create",
       icon: <PlusCircle className="h-7 w-7 flex-shrink-0" />,
     },
-    {
-      label: "Created Clips",
-      href: "/user/created",
-      icon: <Film className="h-7 w-7 flex-shrink-0" />,
-    },
-    {
-      label: "Settings",
-      href: "/user/settings",
-      icon: <Settings className="h-7 w-7 flex-shrink-0" />,
-    },
   ];
+
+  const settingsLink = {
+    label: "Settings",
+    href: "/user/settings",
+    icon: <Settings className="h-7 w-7 flex-shrink-0" />,
+  };
 
   const fetchSubscriptionStatus = async () => {
     if (!checkSubscription) return;
@@ -100,13 +98,14 @@ export default function DashboardLayout({
       <div
         className={cn(
           "flex flex-col md:flex-row w-full flex-1 mx-auto",
-          "h-full",
+          "h-full"
         )}
       >
         <Sidebar open={open} setOpen={setOpen}>
           <SidebarBody>
             <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-              <div className="flex flex-col gap-2">
+              {/* Links Section */}
+              <div className="flex flex-col gap-2 flex-1">
                 {links.map((link, idx) => (
                   <SidebarLink
                     key={idx}
@@ -115,9 +114,23 @@ export default function DashboardLayout({
                   />
                 ))}
               </div>
+
+              {/* Separator to visually separate sections */}
+              <Separator className="my-4" />
+
+              {/* Settings Link at the bottom */}
+              <div className="mt-auto">
+                <SidebarLink
+                  link={settingsLink}
+                  className={cn(
+                    router.pathname === settingsLink.href && "bg-accent"
+                  )}
+                />
+              </div>
             </div>
           </SidebarBody>
         </Sidebar>
+
         <div className="flex flex-1">
           <div className="p-2 rounded-tl-2xl border border-border bg-dashboard flex flex-col gap-2 flex-1 w-full h-full">
             <div className="p-2 flex flex-row items-center">

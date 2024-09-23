@@ -20,14 +20,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   Document,
   Font,
   PDFViewer,
@@ -70,17 +62,17 @@ import { format } from "date-fns";
 
 interface InvoiceData {
   id: string;
-  stripe_invoice_id: string;
-  user_id: string;
-  subscription_id: string;
-  status: string;
-  currency: string;
   amount_due: number;
   amount_paid: number;
-  amount_remaining: number;
   created: string;
+  status: string;
+  stripe_invoice_id: string;
+  user_id: string;
+  currency: string;
+  amount_remaining: number;
   period_start: string;
   period_end: string;
+  stripe_subscription_id?: string;
 }
 
 Font.register({
@@ -154,102 +146,6 @@ const styles = StyleSheet.create({
     fontSize: 8,
   },
 });
-
-const InvoicePDF = ({ invoice }: { invoice: InvoiceData }) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>CashClips-TEST</Text>
-      </View>
-
-      {/* Invoice Info */}
-      <View style={styles.infoBlock}>
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Invoice Number:</Text>
-          <Text style={styles.infoValue}>{invoice.stripe_invoice_id}</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Payment Date:</Text>
-          <Text style={styles.infoValue}>
-            {format(new Date(invoice.created), "MMMM d, yyyy")}
-          </Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Due Date:</Text>
-          <Text style={styles.infoValue}>
-            {format(new Date(invoice.period_end), "MMMM d, yyyy")}
-          </Text>
-        </View>
-      </View>
-
-      {/* Payment Details */}
-      <View style={styles.paymentDetails}>
-        <View style={styles.paymentDetailRow}>
-          <Text style={styles.paymentLabel}>Amount Paid:</Text>
-          <Text style={styles.paymentValue}>
-            {new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: invoice.currency,
-            }).format(invoice.amount_paid / 100)}
-          </Text>
-        </View>
-        <View style={styles.paymentDetailRow}>
-          <Text style={styles.paymentLabel}>Amount Due:</Text>
-          <Text style={styles.paymentValue}>
-            {new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: invoice.currency,
-            }).format(invoice.amount_due / 100)}
-          </Text>
-        </View>
-        <View style={styles.paymentDetailRow}>
-          <Text style={styles.paymentLabel}>Amount Remaining:</Text>
-          <Text style={styles.paymentValue}>
-            {new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: invoice.currency,
-            }).format(invoice.amount_remaining / 100)}
-          </Text>
-        </View>
-      </View>
-
-      {/* Items Table */}
-      <View style={styles.table}>
-        <View style={styles.tableHeader}>
-          <Text style={styles.tableCell}>Description</Text>
-          <Text style={styles.tableCellAmount}>Amount</Text>
-        </View>
-        <View style={styles.tableRow}>
-          <Text style={styles.tableCell}>Agency</Text>
-          <Text style={styles.tableCellAmount}>
-            {new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: invoice.currency,
-            }).format(invoice.amount_due / 100)}
-          </Text>
-        </View>
-      </View>
-
-      {/* Total */}
-      <View style={styles.totalRow}>
-        <Text style={styles.totalLabel}>Total Paid:</Text>
-        <Text style={styles.totalValue}>
-          {new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: invoice.currency,
-          }).format(invoice.amount_paid / 100)}
-        </Text>
-      </View>
-
-      {/* Footer */}
-      <Text style={styles.footer}>
-        Thank you for your business! If you have any questions, please contact
-        support@cashclips.com
-      </Text>
-    </Page>
-  </Document>
-);
 
 function InvoiceActionCell({ invoice }: { invoice: InvoiceData }) {
   const [loading, setLoading] = useState(false);

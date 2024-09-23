@@ -10,11 +10,13 @@ import {
   FileVideo,
   HardDrive,
   Loader,
+  PlusCircle,
 } from "lucide-react";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -30,6 +32,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { DataTableFacetedFilter } from "@/components/ui/faceted-filter";
+import Link from "next/link";
 import VideoViewer from "./video-popup";
 import { createClient } from "@/utils/supabase/component";
 
@@ -211,22 +214,29 @@ const Pagination: React.FC<{
   totalItems,
 }) => {
   return (
-    <div className="flex items-center justify-between px-2 py-4">
-      <div className="flex-1 text-sm text-muted-foreground">
-        Showing {Math.min((currentPage - 1) * pageSize + 1, totalItems)} to{" "}
-        {Math.min(currentPage * pageSize, totalItems)} of {totalItems} items
-      </div>
-      <div className="flex items-center space-x-6 lg:space-x-8">
+    <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 w-full">
+      {/* Showing item range and total */}
+      <div className="flex flex-col md:flex-row items-center justify-start space-y-2 md:space-y-0 md:space-x-4 w-full md:w-auto text-center text-sm text-muted-foreground">
+        <span>
+          Showing{" "}
+          <strong>
+            {Math.min((currentPage - 1) * pageSize + 1, totalItems)}
+          </strong>{" "}
+          to <strong>{Math.min(currentPage * pageSize, totalItems)}</strong> of{" "}
+          <strong>{totalItems}</strong> items
+        </span>
+
+        {/* Rows per page */}
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium">Rows per page</p>
           <Select
             value={`${pageSize}`}
             onValueChange={(value) => onPageSizeChange(Number(value))}
           >
-            <SelectTrigger className="h-8 w-[70px]">
+            <SelectTrigger className="h-8 w-[80px]">
               <SelectValue placeholder={pageSize} />
             </SelectTrigger>
-            <SelectContent side="top">
+            <SelectContent>
               {[10, 20, 30, 40, 50].map((size) => (
                 <SelectItem key={size} value={`${size}`}>
                   {size}
@@ -235,47 +245,51 @@ const Pagination: React.FC<{
             </SelectContent>
           </Select>
         </div>
-        <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="flex items-center space-x-2 justify-center">
+        <Button
+          variant="outline"
+          className="h-8 w-8 p-0"
+          onClick={() => onPageChange(1)}
+          disabled={currentPage === 1}
+        >
+          <span className="sr-only">First page</span>
+          <ChevronsLeft className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          className="h-8 w-8 p-0"
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          <span className="sr-only">Previous page</span>
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+
+        <span className="text-sm font-medium">
           Page {currentPage} of {totalPages}
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            className="hidden h-8 w-8 p-0 lg:flex"
-            onClick={() => onPageChange(1)}
-            disabled={currentPage === 1}
-          >
-            <span className="sr-only">Go to first page</span>
-            <ChevronsLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            className="h-8 w-8 p-0"
-            onClick={() => onPageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            <span className="sr-only">Go to previous page</span>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            className="h-8 w-8 p-0"
-            onClick={() => onPageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          >
-            <span className="sr-only">Go to next page</span>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            className="hidden h-8 w-8 p-0 lg:flex"
-            onClick={() => onPageChange(totalPages)}
-            disabled={currentPage === totalPages}
-          >
-            <span className="sr-only">Go to last page</span>
-            <ChevronsRight className="h-4 w-4" />
-          </Button>
-        </div>
+        </span>
+
+        <Button
+          variant="outline"
+          className="h-8 w-8 p-0"
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          <span className="sr-only">Next page</span>
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          className="h-8 w-8 p-0"
+          onClick={() => onPageChange(totalPages)}
+          disabled={currentPage === totalPages}
+        >
+          <span className="sr-only">Last page</span>
+          <ChevronsRight className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );
@@ -356,100 +370,94 @@ const Creations: React.FC<CreationsProps> = ({
     setCurrentPage(1);
   };
 
-  if (isLoading) {
-    return (
-      <div className="absolute inset-0 flex items-center justify-center">
-        <Loader className="h-12 w-12 animate-spin" />
-        <p className="text-xl font-bold ml-4">Fetching Creations...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <AlertCircle className="h-8 w-8 text-red-500 mr-2" />
-        <p className="text-red-500">{error}</p>
-      </div>
-    );
-  }
-
   const totalPages = Math.ceil(totalItems / pageSize);
 
   return (
-    <div className="w-full max-w-[23rem] sm:max-w-5xl md:max-w-7xl mx-auto space-y-8 p-2 md:p-4">
-      <h1 className="text-2xl font-bold mb-6">{title}</h1>
+    <Card className="w-full  mx-auto space-y-8">
+      <CardHeader className="space-y-3">
+        <CardTitle>Clip History</CardTitle>
+        <CardDescription>
+          View your clipping activity over a selected time period
+        </CardDescription>
+        {userSpecific && (
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <DataTableFacetedFilter
+              title="Filter by Status"
+              options={[
+                { value: "succeeded", label: "Succeeded" },
+                { value: "planned", label: "Processing" },
+                { value: "waiting", label: "Waiting" },
+                { value: "transcribing", label: "Transcribing" },
+                { value: "rendering", label: "Rendering" },
+              ]}
+              selectedValues={filterStatus}
+              onChange={handleFilterChange}
+            />
 
-      {userSpecific && (
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <DataTableFacetedFilter
-            title="Filter by Status"
-            options={[
-              { value: "succeeded", label: "Succeeded" },
-              { value: "planned", label: "Processing" },
-              { value: "waiting", label: "Waiting" },
-              { value: "transcribing", label: "Transcribing" },
-              { value: "rendering", label: "Rendering" },
-            ]}
-            selectedValues={filterStatus}
-            onChange={handleFilterChange}
-          />
-
-          <DataTableFacetedFilter
-            title="Sort By"
-            options={[
-              { value: "created_at", label: "Date Created" },
-              { value: "duration", label: "Duration" },
-              { value: "file_size", label: "File Size" },
-            ]}
-            selectedValues={[sortBy]}
-            onChange={handleSortChange}
-          />
-        </div>
-      )}
-
-      <AnimatePresence>
-        {clips.length === 0 ? (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="text-center text-gray-500"
-          >
-            No clips found matching your criteria.
-          </motion.p>
-        ) : (
-          <LayoutGroup>
-            <motion.div
-              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
-              layout
-            >
-              {clips.map((clip) => (
-                <motion.div
-                  key={clip.id}
-                  layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <VideoCard clip={clip} userSpecific={userSpecific} />
-                </motion.div>
-              ))}
-            </motion.div>
-          </LayoutGroup>
+            <DataTableFacetedFilter
+              title="Sort By"
+              options={[
+                { value: "created_at", label: "Date Created" },
+                { value: "duration", label: "Duration" },
+                { value: "file_size", label: "File Size" },
+              ]}
+              selectedValues={[sortBy]}
+              onChange={handleSortChange}
+            />
+          </div>
         )}
-      </AnimatePresence>
+      </CardHeader>
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-        pageSize={pageSize}
-        onPageSizeChange={handlePageSizeChange}
-        totalItems={totalItems}
-      />
-    </div>
+      <CardContent>
+        <AnimatePresence>
+          {clips.length === 0 ? (
+            <div className="h-[300px] w-full flex flex-col gap-4 justify-center items-center">
+              <p>No data available</p>
+              <Link href="/user/create" passHref>
+                <Button
+                  variant="ringHover"
+                  className="w-full group justify-start"
+                >
+                  <PlusCircle className="mr-2 size-4 group-hover:-translate-x-1 transition-all duration-300" />
+                  Generate some clips
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <LayoutGroup>
+              <motion.div
+                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+                layout
+              >
+                {clips.map((clip) => (
+                  <motion.div
+                    key={clip.id}
+                    layout
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <VideoCard clip={clip} userSpecific={userSpecific} />
+                  </motion.div>
+                ))}
+              </motion.div>
+            </LayoutGroup>
+          )}
+        </AnimatePresence>
+      </CardContent>
+
+      <CardFooter className="flex justify-center">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          pageSize={pageSize}
+          onPageSizeChange={handlePageSizeChange}
+          totalItems={totalItems}
+        />
+      </CardFooter>
+    </Card>
   );
 };
 
