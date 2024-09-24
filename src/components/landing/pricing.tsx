@@ -129,7 +129,7 @@ export const pricingConfig = {
   defaultInterval: "month" as "month" | "year",
 };
 
-const toHumanPrice = (price: number, decimals: number = 2) => {
+export const toHumanPrice = (price: number, decimals: number = 2) => {
   return Number(price / 100).toFixed(decimals);
 };
 

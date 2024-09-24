@@ -1,5 +1,3 @@
-// src/components/user/dash/clip-history.tsx
-
 import {
   Area,
   AreaChart,
@@ -37,6 +35,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { PlusCircle } from "lucide-react";
 
+// Import the ChartContainer
+
 interface ClipData {
   id: number;
   render_id: string;
@@ -58,118 +58,117 @@ const chartTypes = {
   area: "Area Chart",
 };
 
-const chartConfig = {
-  bar: {
-    label: "Bar Chart",
-    color: "hsl(var(--chart-1))",
-  },
-  line: {
-    label: "Line Chart",
-    color: "hsl(var(--chart-2))",
-  },
-  area: {
-    label: "Area Chart",
-    color: "hsl(var(--chart-3))",
-  },
-};
-
 const ClipHistory: React.FC<ClipHistoryProps> = ({ clipData }) => {
   const [timeRange, setTimeRange] = useState<string>("7");
-  const [chartType, setChartType] = useState<string>("bar");
+  const [chartType, setChartType] = useState<string>("area");
 
   const getDateRange = (days: number) => {
-    if (!Number.isFinite(days) || days <= 0) {
-      return [];
-    }
     const today = new Date();
-    const dateRange = [...Array(days)].map((_, i) => {
-      const d = new Date(today);
-      d.setDate(today.getDate() - i);
-      return d.toISOString().split("T")[0];
-    });
-    return dateRange.reverse();
+    return [...Array(days)]
+      .map((_, i) => {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        return d.toISOString().split("T")[0];
+      })
+      .reverse();
   };
 
-  const formatClipData = (data: ClipData[], range: string) => {
-    let dateRange: string[] = [];
+  const formatClipData = useMemo(() => {
+    if (!clipData) return [];
 
-    if (!data || data.length === 0) {
-      dateRange = getDateRange(7); // Default to last 7 days
-      return dateRange.map((date) => ({ date, clips: 0 }));
-    }
+    const days =
+      timeRange === "all"
+        ? Math.ceil(
+            (new Date().getTime() -
+              new Date(
+                Math.min(
+                  ...clipData.map((clip) => new Date(clip.created_at).getTime())
+                )
+              ).getTime()) /
+              (1000 * 3600 * 24)
+          )
+        : parseInt(timeRange, 10);
 
-    if (range === "all") {
-      const timestamps = data.map((clip) =>
-        new Date(clip.created_at).getTime(),
-      );
-      const minTimestamp = Math.min(...timestamps);
+    const dateRange = getDateRange(days);
 
-      if (!Number.isFinite(minTimestamp)) {
-        dateRange = getDateRange(7); // Default to last 7 days
-      } else {
-        const minDate = new Date(minTimestamp);
-        const daysDifference = Math.ceil(
-          (new Date().getTime() - minDate.getTime()) / (1000 * 3600 * 24),
-        );
-        dateRange = getDateRange(daysDifference);
-      }
-    } else {
-      const days = parseInt(range, 10);
-      if (!Number.isFinite(days) || days <= 0) {
-        dateRange = getDateRange(7); // Default to last 7 days
-      } else {
-        dateRange = getDateRange(days);
-      }
-    }
-
-    const countsByDate = data.reduce(
-      (acc, clip) => {
-        const date = new Date(clip.created_at).toISOString().split("T")[0];
-        acc[date] = (acc[date] || 0) + 1;
-        return acc;
-      },
-      {} as Record<string, number>,
-    );
+    const countsByDate = clipData.reduce((acc, clip) => {
+      const date = new Date(clip.created_at).toISOString().split("T")[0];
+      acc[date] = (acc[date] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
 
     return dateRange.map((date) => ({
       date,
       clips: countsByDate[date] || 0,
     }));
-  };
-
-  const filteredClipData = useMemo(() => {
-    return formatClipData(clipData || [], timeRange);
   }, [clipData, timeRange]);
 
-  const renderChart = (): React.ReactElement | null => {
-    if (!filteredClipData || filteredClipData.length === 0) return null;
+  const chartConfig = {
+    clips: {
+      label: "Clips",
+      color: "hsl(var(--chart-1))",
+    },
+  };
+
+  const renderChart = (): React.ReactElement => {
+    const commonProps = {
+      data: formatClipData,
+      margin: { top: 5, right: 10, left: 10, bottom: 5 },
+    };
 
     switch (chartType) {
+      case "area":
+        return (
+          <AreaChart {...commonProps}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <ChartTooltip content={<ChartTooltipContent />} />
+            <Area
+              type="monotone"
+              dataKey="clips"
+              stroke="hsl(var(--chart-1))"
+              fill="hsl(var(--chart-1))"
+            />
+          </AreaChart>
+        );
       case "bar":
         return (
-          <BarChart data={filteredClipData}>
-            {/* ... existing code ... */}
+          <BarChart {...commonProps}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <ChartTooltip content={<ChartTooltipContent />} />
+            <Bar dataKey="clips" fill="hsl(var(--chart-1))" />
           </BarChart>
         );
       case "line":
         return (
-          <LineChart data={filteredClipData}>
-            {/* ... existing code ... */}
+          <LineChart {...commonProps}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <ChartTooltip content={<ChartTooltipContent />} />
+            <Line
+              type="monotone"
+              dataKey="clips"
+              stroke="hsl(var(--chart-1))"
+            />
           </LineChart>
         );
-      case "area":
-        return (
-          <AreaChart data={filteredClipData}>
-            {/* ... existing code ... */}
-          </AreaChart>
-        );
       default:
-        return null;
+        return (
+          <BarChart {...commonProps}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <ChartTooltip content={<ChartTooltipContent />} />
+          </BarChart>
+        );
     }
   };
 
-  const chart = renderChart();
-  const hasData = filteredClipData.some((data) => data.clips > 0);
+  const hasData = formatClipData.some((data) => data.clips > 0);
 
   return (
     <Card>
@@ -179,7 +178,6 @@ const ClipHistory: React.FC<ClipHistoryProps> = ({ clipData }) => {
           View your clipping activity over a selected time period
         </CardDescription>
         <div className="mt-4 flex space-x-4">
-          {/* Time Range Selector */}
           <Select value={timeRange} onValueChange={setTimeRange}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select Time Range" />
@@ -192,7 +190,6 @@ const ClipHistory: React.FC<ClipHistoryProps> = ({ clipData }) => {
             </SelectContent>
           </Select>
 
-          {/* Chart Type Selector */}
           <Select value={chartType} onValueChange={setChartType}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select Chart Type" />
@@ -209,12 +206,14 @@ const ClipHistory: React.FC<ClipHistoryProps> = ({ clipData }) => {
       </CardHeader>
 
       <CardContent>
-        {hasData && chart ? (
-          <ChartContainer className="h-[300px] w-full" config={chartConfig}>
+        {hasData ? (
+          <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              {chart}
+              <ChartContainer config={chartConfig}>
+                {renderChart()}
+              </ChartContainer>
             </ResponsiveContainer>
-          </ChartContainer>
+          </div>
         ) : (
           <div className="h-[300px] w-full flex flex-col gap-4 justify-center items-center">
             <p>No data available</p>

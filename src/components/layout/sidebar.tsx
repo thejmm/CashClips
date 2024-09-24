@@ -98,7 +98,7 @@ export default function DashboardLayout({
       <div
         className={cn(
           "flex flex-col md:flex-row w-full flex-1 mx-auto",
-          "h-full",
+          "h-full"
         )}
       >
         <Sidebar open={open} setOpen={setOpen}>
@@ -115,15 +115,13 @@ export default function DashboardLayout({
                 ))}
               </div>
 
-              {/* Separator to visually separate sections */}
-              <Separator className="my-4" />
-
-              {/* Settings Link at the bottom */}
-              <div className="mt-auto">
+              <div className="mt-auto pt-4">
+                <Separator className="mb-4" />
                 <SidebarLink
                   link={settingsLink}
                   className={cn(
                     router.pathname === settingsLink.href && "bg-accent",
+                    "sticky bottom-0 left-0 right-0"
                   )}
                 />
               </div>

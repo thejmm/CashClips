@@ -1,3 +1,4 @@
+// src/components/user/components/creations-layout.tsx
 import {
   AlertCircle,
   CheckCircle,
@@ -86,30 +87,9 @@ const VideoCard: React.FC<{ clip: Clip; userSpecific: boolean }> = ({
 
   const formatNumber = (
     value: number | null | undefined,
-    decimals: number = 2,
+    decimals: number = 2
   ) => {
     return value != null ? value.toFixed(decimals) : "N/A";
-  };
-
-  const handleDownload = async (url: string) => {
-    try {
-      const response = await fetch(url);
-      if (!response.ok)
-        throw new Error(`Failed to fetch the file. Status: ${response.status}`);
-
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      const fileName = url.split("/").pop() || "download";
-      anchor.href = blobUrl;
-      anchor.download = fileName;
-      document.body.appendChild(anchor);
-      anchor.click();
-      window.URL.revokeObjectURL(blobUrl);
-      document.body.removeChild(anchor);
-    } catch (error) {
-      console.error("Failed to download file:", error);
-    }
   };
 
   const renderStatus = () => {
@@ -130,6 +110,12 @@ const VideoCard: React.FC<{ clip: Clip; userSpecific: boolean }> = ({
             {clip.status.charAt(0).toUpperCase() + clip.status.slice(1)}
           </span>
         );
+      case "failed":
+        return (
+          <span className="text-red-500 flex items-center">
+            <AlertCircle className="mr-1 h-4 w-4" /> Failed
+          </span>
+        );
       default:
         return null;
     }
@@ -142,11 +128,6 @@ const VideoCard: React.FC<{ clip: Clip; userSpecific: boolean }> = ({
           <CardTitle className="text-sm font-semibold truncate">
             Clip {clip.render_id.slice(0, 8)}
           </CardTitle>
-          {clip.status === "succeeded" && clip.response?.url && (
-            <Button size="sm" onClick={() => handleDownload(clip.response.url)}>
-              <Download className="h-4 w-4" />
-            </Button>
-          )}
         </CardHeader>
         <CardContent className="flex-grow p-2">
           {userSpecific && (

@@ -1,6 +1,5 @@
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -8,9 +7,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { AnimatePresence, motion } from "framer-motion";
 import { Check, Loader } from "lucide-react";
 import React, { useEffect, useState } from "react";
+
+import { motion } from "framer-motion";
 
 interface StepperProps {
   steps: string[];
@@ -20,8 +20,8 @@ interface StepperProps {
   loadingStep: number;
   loadingMessage: string;
   isFinished: boolean;
-  isError: boolean; // Prop to handle error state
-  progress?: number; // New optional prop for progress percentage
+  isError: boolean | null;
+  progress?: number;
 }
 
 const Stepper: React.FC<StepperProps> = ({
@@ -33,17 +33,23 @@ const Stepper: React.FC<StepperProps> = ({
   loadingMessage,
   isFinished,
   isError,
-  progress = 0, // Default to 0 if not provided
+  progress = 0,
 }) => {
   const [alertOpen, setAlertOpen] = useState(false);
 
   useEffect(() => {
     if (isLoading) {
-      setAlertOpen(true); // Open dialog when loading starts
+      setAlertOpen(true);
     } else if (!isError && !isLoading) {
-      setAlertOpen(false); // Close dialog on success
+      setAlertOpen(false);
     }
   }, [isLoading, isError]);
+
+  const handleStepClick = (stepNumber: number) => {
+    if (stepNumber <= currentStep) {
+      onStepClick(stepNumber);
+    }
+  };
 
   return (
     <div className="w-full p-2 px-2 md:px-6">
@@ -53,6 +59,7 @@ const Stepper: React.FC<StepperProps> = ({
           const isCompleted = isFinished || currentStep > stepNumber;
           const isCurrent = !isFinished && currentStep === stepNumber;
           const isLoadingThis = isLoading && loadingStep === stepNumber;
+          const isClickable = stepNumber <= currentStep;
           return (
             <React.Fragment key={index}>
               <div className="relative flex flex-col items-center">
@@ -61,12 +68,12 @@ const Stepper: React.FC<StepperProps> = ({
                     isCompleted
                       ? "border-green-500 bg-green-500 text-white"
                       : isCurrent
-                        ? "border-blue-600 bg-blue-600 text-white"
-                        : "border-gray-300 bg-white text-gray-500"
-                  }`}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => onStepClick(stepNumber)}
+                      ? "border-blue-600 bg-blue-600 text-white"
+                      : "border-gray-300 bg-white text-gray-500"
+                  } ${!isClickable ? "cursor-not-allowed opacity-50" : ""}`}
+                  whileHover={isClickable ? { scale: 1.1 } : {}}
+                  whileTap={isClickable ? { scale: 0.95 } : {}}
+                  onClick={() => handleStepClick(stepNumber)}
                 >
                   {isCompleted ? (
                     <Check className="w-4 h-4 md:w-6 md:h-6" />

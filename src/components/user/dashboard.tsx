@@ -1,12 +1,10 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // src/components/user/dashboard.tsx
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import React, { useCallback, useEffect, useState } from "react";
 
 import ClipHistory from "./dash/clip-history";
 import Creations from "./components/creations-layout";
 import { Loader } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
 import { User as SupabaseAuthUser } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/component";
 

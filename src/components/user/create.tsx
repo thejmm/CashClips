@@ -1,8 +1,14 @@
-// src/components/user/create.tsx
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+} from "@/components/ui/alert-dialog";
 import { AnimatePresence, motion } from "framer-motion";
 import { DefaultSource, defaultSources } from "@/utils/creatomate/templates";
 import React, { useEffect, useRef, useState } from "react";
 
+import { CashClipsPricing } from "../landing/pricing";
 import Clips from "./create/clips";
 import { CloudinaryVideo } from "@/types/cloudinary";
 import Finish from "./create/finish";
@@ -11,10 +17,16 @@ import Stepper from "./components/stepper";
 import Streamer from "./create/streamer";
 import Template from "./create/template";
 import { User } from "@supabase/supabase-js";
+import { createClient } from "@/utils/supabase/component";
 import { videoCreator } from "@/store/creatomate";
 
 interface CreateProps {
   user: User;
+}
+
+interface UserCreditInfo {
+  used_credits: number;
+  total_credits: number;
 }
 
 const Create: React.FC<CreateProps> = ({ user }) => {
@@ -22,7 +34,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
   const [selectedStreamer, setSelectedStreamer] = useState<string | null>(null);
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<CloudinaryVideo | null>(
-    null,
+    null
   );
   const [availableVideos, setAvailableVideos] = useState<CloudinaryVideo[]>([]);
   const [selectedTemplate, setSelectedTemplate] =
@@ -31,15 +43,36 @@ const Create: React.FC<CreateProps> = ({ user }) => {
   const [isCaptionsGenerated, setIsCaptionsGenerated] = useState(false);
   const [renderResult, setRenderResult] = useState<any>(null);
   const [isVideoViewerOpen, setIsVideoViewerOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [userCreditInfo, setUserCreditInfo] = useState<UserCreditInfo | null>(
+    null
+  );
 
   const previewContainerRef = useRef<HTMLDivElement>(null);
+  const supabase = createClient();
 
   useEffect(() => {
     if (user) {
       videoCreator.setUserId(user.id);
+      fetchUserCreditInfo();
     }
-    console.log("Create component mounted. User ID set:", user?.id);
   }, [user]);
+
+  const fetchUserCreditInfo = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("user_data")
+        .select("used_credits, total_credits")
+        .eq("user_id", user.id)
+        .single();
+
+      if (error) throw error;
+      setUserCreditInfo(data as UserCreditInfo);
+    } catch (error) {
+      console.error("Error fetching user credit info:", error);
+      setError("Failed to load user credit information.");
+    }
+  };
 
   const handleCreateAnother = () => {
     setCurrentStep(1);
@@ -50,17 +83,28 @@ const Create: React.FC<CreateProps> = ({ user }) => {
     setSelectedTemplate(null);
     setIsCaptionsGenerated(false);
     setRenderResult(null);
+    setError(null);
+    fetchUserCreditInfo(); // Refresh credit info
+  };
+
+  const handleStepChange = (step: number) => {
+    if (step <= currentStep) {
+      setCurrentStep(step);
+    }
   };
 
   const handleExport = async () => {
     setIsRendering(true);
+    setError(null);
     try {
       const jobId = await videoCreator.finishVideo();
       const result = await videoCreator.checkRenderStatus(jobId);
       setRenderResult(result);
-      setCurrentStep(5); // Move to the finish step after rendering
+      setCurrentStep(5);
+      fetchUserCreditInfo(); // Refresh credit info after successful render
     } catch (error) {
       console.error("Export error:", error);
+      setError((error as Error).message || "An unknown error occurred");
     } finally {
       setIsRendering(false);
     }
@@ -68,15 +112,49 @@ const Create: React.FC<CreateProps> = ({ user }) => {
 
   const handleVideoSelect = (video: CloudinaryVideo) => {
     setSelectedVideo(video);
-    setCurrentStep(3); // Move to the template selection step
+    setCurrentStep(3);
   };
 
   const handleTemplateSelect = (template: DefaultSource) => {
     setSelectedTemplate(template);
-    setCurrentStep(4); // Move to the render step
+    setCurrentStep(4);
   };
 
   const renderStep = () => {
+    if (
+      userCreditInfo &&
+      userCreditInfo.used_credits >= userCreditInfo.total_credits
+    ) {
+      return (
+        <div className="text-center space-y-4">
+          <h2 className="text-3xl font-bold text-gradient-to-r from-purple-600 to-blue-500">
+            Wow! You are on a roll! 🚀
+          </h2>
+          <p className="text-xl">
+            You have used{" "}
+            <span className="font-bold text-blue-500">
+              {userCreditInfo.used_credits}
+            </span>{" "}
+            out of{" "}
+            <span className="font-bold text-blue-500">
+              {userCreditInfo.total_credits}
+            </span>{" "}
+            credits this month.
+          </p>
+          <p className="text-lg">
+            Looks like you are loving Cash Clips as much as we do! 😊
+          </p>
+          <p className="text-lg">
+            Ready to take your content creation to the next level?
+          </p>
+          <p className="text-sm text-gray-600 mt-4">
+            Your credits will refresh when your billing cycle resets.
+          </p>
+          <CashClipsPricing />
+        </div>
+      );
+    }
+
     switch (currentStep) {
       case 1:
         return (
@@ -84,7 +162,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
             selectedStreamer={selectedStreamer}
             handleStreamerSelect={(streamer) => {
               setSelectedStreamer(streamer);
-              setCurrentStep(2); // Move to the clip selection step
+              setCurrentStep(2);
             }}
           />
         );
@@ -94,7 +172,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
             selectedStreamer={selectedStreamer}
             selectedFolderId={selectedFolderId}
             handleFolderChange={setSelectedFolderId}
-            handleVideoSelect={handleVideoSelect} // Updated to call the new function
+            handleVideoSelect={handleVideoSelect}
             selectedVideo={selectedVideo}
             setAvailableVideos={setAvailableVideos}
           />
@@ -103,7 +181,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
         return (
           <Template
             selectedTemplate={selectedTemplate}
-            handleTemplateSelect={handleTemplateSelect} // Updated to call the new function
+            handleTemplateSelect={handleTemplateSelect}
             defaultSources={defaultSources}
           />
         );
@@ -160,14 +238,27 @@ const Create: React.FC<CreateProps> = ({ user }) => {
           "Finished",
         ]}
         currentStep={currentStep}
-        onStepClick={setCurrentStep}
+        onStepClick={handleStepChange}
         isLoading={isRendering}
         loadingStep={isRendering ? 4 : 0}
         loadingMessage={isRendering ? "Rendering..." : ""}
         isFinished={currentStep === 5}
-        isError={false}
+        isError={
+          !!error ||
+          (userCreditInfo &&
+            userCreditInfo.used_credits >= userCreditInfo.total_credits)
+        }
       />
       <AnimatePresence mode="wait">{renderStep()}</AnimatePresence>
+
+      <AlertDialog open={!!error}>
+        <AlertDialogContent>
+          <AlertDialogDescription>{error}</AlertDialogDescription>
+          <AlertDialogAction onClick={() => setError(null)}>
+            OK
+          </AlertDialogAction>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
