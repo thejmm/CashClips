@@ -34,7 +34,7 @@ type Streamer = keyof typeof folderMapping;
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   const { streamer } = req.query;
 

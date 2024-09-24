@@ -12,7 +12,7 @@ cloudinary.config({
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   const { folderId } = req.query;
 
@@ -34,11 +34,8 @@ export default async function handler(
       public_id: video.public_id,
       folder: video.folder,
       url: video.url,
-      secure_url: video.secure_url,
-      thumbnail_url: cloudinary.url(video.public_id, {
-        resource_type: "video",
-        transformation: { width: 300, crop: "thumb" },
-      }),
+      secure_url: video.url,
+      thumbnail_url: video.url,
       duration: video.duration,
       format: video.format,
       width: video.width,
