@@ -71,7 +71,7 @@ const Render: React.FC<RenderProps> = ({
         const videoUrl = selectedVideo.url;
         await videoCreator.updateTemplateWithSelectedVideo(
           selectedVideo,
-          availableVideos
+          availableVideos,
         );
 
         videoCreator.preview!.onTimeChange = (time: number) =>
@@ -100,16 +100,15 @@ const Render: React.FC<RenderProps> = ({
 
     setIsGeneratingCaptions(true);
     try {
-      // Captions generation logic
-      // Assuming you have a service for captions generation
       const captions = await videoCreator.fetchCaptions(
-        selectedVideo.url, "captions"
+        selectedVideo.url,
+        "captions",
       );
       const randomFontStyle = getRandomFontStyle();
       await videoCreator.queueCaptionsUpdate(
         "video1",
         captions,
-        randomFontStyle
+        randomFontStyle,
       );
       await videoCreator.applyQueuedUpdates();
       setIsCaptionsGenerated(true);
@@ -204,7 +203,8 @@ const Render: React.FC<RenderProps> = ({
                 !isInitialized ||
                 !selectedVideo ||
                 isGeneratingCaptions ||
-                isCaptionsGenerated
+                isCaptionsGenerated ||
+                !!error
               }
             >
               <FileTextIcon className="mr-2 w-4 h-4" />
@@ -212,11 +212,12 @@ const Render: React.FC<RenderProps> = ({
                 ? "Generating Captions..."
                 : "Generate Captions"}
             </Button>
-
             <Button
               onClick={handleExport}
               className="mt-4"
-              disabled={!isInitialized || isRendering || !isCaptionsGenerated}
+              disabled={
+                !isInitialized || isRendering || !isCaptionsGenerated || !!error
+              }
             >
               <DownloadIcon className="mr-2 w-4 h-4" />
               {isRendering ? "Rendering..." : "Export Video"}

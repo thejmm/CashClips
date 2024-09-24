@@ -18,7 +18,10 @@ const Streamer: React.FC<StreamerProps> = ({
   ];
 
   useEffect(() => {
-    console.log("Streamer component mounted. Selected streamer:", selectedStreamer);
+    console.log(
+      "Streamer component mounted. Selected streamer:",
+      selectedStreamer,
+    );
   }, [selectedStreamer]);
 
   return (

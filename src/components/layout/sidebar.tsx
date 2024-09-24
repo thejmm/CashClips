@@ -98,7 +98,7 @@ export default function DashboardLayout({
       <div
         className={cn(
           "flex flex-col md:flex-row w-full flex-1 mx-auto",
-          "h-full"
+          "h-full",
         )}
       >
         <Sidebar open={open} setOpen={setOpen}>
@@ -123,7 +123,7 @@ export default function DashboardLayout({
                 <SidebarLink
                   link={settingsLink}
                   className={cn(
-                    router.pathname === settingsLink.href && "bg-accent"
+                    router.pathname === settingsLink.href && "bg-accent",
                   )}
                 />
               </div>

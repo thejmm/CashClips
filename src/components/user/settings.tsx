@@ -72,7 +72,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ user }) => {
     useState<SubscriptionData | null>(null);
   const [username, setUsername] = useState(user.user_metadata.username || "");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(
-    user.user_metadata.avatar_url || null
+    user.user_metadata.avatar_url || null,
   );
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -241,9 +241,9 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ user }) => {
       </header>
 
       <PlanCreditUsage userData={userData} user={user} />
-      
+
       <InvoiceTable invoiceData={invoiceData} />
-      
+
       <Card>
         <CardHeader>
           <CardTitle>UserName Settings</CardTitle>

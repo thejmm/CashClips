@@ -113,10 +113,15 @@ const Clips: React.FC<ClipsProps> = ({
                   onClick={() => handleVideoSelect(video)}
                 >
                   <div className="relative w-full h-40 mb-2 overflow-hidden rounded">
-                    <img
-                      src={video.thumbnail_url}
-                      alt={video.public_id}
+                    <video
                       className="w-full h-full object-cover"
+                      src={video.url} // Use the MP4 URL
+                      controls={false} // Disable controls
+                      autoPlay={false} // Prevent autoplay
+                      loop={false} // Prevent looping
+                      muted // Mute the video (no sound)
+                      playsInline // Ensure it plays inline on mobile
+                      style={{ pointerEvents: "none" }} // Disable interaction
                     />
                     <span className="absolute bottom-1 left-1 text-white bg-black bg-opacity-50 text-xs px-1 rounded">
                       {video.duration.toFixed(2)}s

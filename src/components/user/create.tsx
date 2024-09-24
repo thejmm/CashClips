@@ -22,7 +22,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
   const [selectedStreamer, setSelectedStreamer] = useState<string | null>(null);
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<CloudinaryVideo | null>(
-    null
+    null,
   );
   const [availableVideos, setAvailableVideos] = useState<CloudinaryVideo[]>([]);
   const [selectedTemplate, setSelectedTemplate] =

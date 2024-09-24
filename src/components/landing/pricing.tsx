@@ -320,7 +320,7 @@ export function CashClipsPricing({
   showBenefitsSection?: boolean;
 }) {
   const [interval, setInterval] = useState<"month" | "year">(
-    pricingConfig.defaultInterval
+    pricingConfig.defaultInterval,
   );
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.2 });

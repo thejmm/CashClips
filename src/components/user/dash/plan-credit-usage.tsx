@@ -41,7 +41,7 @@ const PlanCreditUsage: React.FC<PlanCreditUsageProps> = ({
       : 0;
 
   const currentPlan = pricingConfig.plans.find(
-    (plan) => plan.name === userData?.plan_name
+    (plan) => plan.name === userData?.plan_name,
   );
 
   const getStatusColor = (status: string | null | undefined) => {
@@ -90,7 +90,7 @@ const PlanCreditUsage: React.FC<PlanCreditUsageProps> = ({
           </div>
           <div
             className={`text-sm mb-4 ${getStatusColor(
-              userData?.subscription_status
+              userData?.subscription_status,
             )}`}
           >
             Status: {userData?.subscription_status || "Inactive"}

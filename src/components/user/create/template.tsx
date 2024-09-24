@@ -17,7 +17,10 @@ const Template: React.FC<TemplateProps> = ({
 }) => {
   useEffect(() => {
     console.log("Template component mounted");
-    console.log("Available templates:", defaultSources.map(t => t.name));
+    console.log(
+      "Available templates:",
+      defaultSources.map((t) => t.name),
+    );
     console.log("Selected template:", selectedTemplate?.name);
   }, [selectedTemplate, defaultSources]);
 
