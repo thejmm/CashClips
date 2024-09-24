@@ -26,12 +26,6 @@ const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string,
 );
 
-declare global {
-  interface Window {
-    promotekit_referral?: string;
-  }
-}
-
 const billingQuestions = [
   {
     question: "What is your refund policy?",
@@ -93,15 +87,22 @@ export default function CheckoutPage() {
     if (!plan) return;
 
     try {
-      const { data } = await axios.post("/api/stripe/create-checkout-session", {
-        price_id: price_id,
-        plan_name: plan.name,
-        interval: interval,
-        promotekit_referral:
-          typeof window !== "undefined"
-            ? window.promotekit_referral
-            : undefined,
+      const response = await fetch("/api/stripe/create-checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          price_id: price_id,
+          plan_name: plan.name,
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to create checkout session");
+      }
+
+      const data = await response.json();
       setClientSecret(data.clientSecret);
     } catch (error) {
       console.error("Error fetching client secret:", error);
@@ -109,7 +110,7 @@ export default function CheckoutPage() {
         "An error occurred while preparing the checkout. Please try again.",
       );
     }
-  }, [price_id, plan, interval]);
+  }, [price_id, plan]);
 
   useEffect(() => {
     if (price_id && plan) {

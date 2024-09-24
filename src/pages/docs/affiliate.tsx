@@ -368,14 +368,14 @@ const AffiliatePage: React.FC = () => {
             target="_blank"
             rel="noreferrer"
           >
-                <Button
-                  variant="ringHover"
-                  size="lg"
-                  className="group transition-all duration-300"
-                >
-                  Join the CashClips Affiliate Program
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-all duration-300" />
-                </Button>
+            <Button
+              variant="ringHover"
+              size="lg"
+              className="group transition-all duration-300"
+            >
+              Join the CashClips Affiliate Program
+              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-all duration-300" />
+            </Button>
           </a>
         </motion.section>
       </motion.div>
