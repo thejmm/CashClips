@@ -25,7 +25,7 @@ import { createClient } from "@/utils/supabase/component";
 export const pricingConfig = {
   plans: [
     {
-      id: "prod_Starter",
+      id: "prod_QsAwqGUvll7to7",
       name: "Starter",
       description:
         "For new clippers starting their journey. Get essential tools to clip and share your favorite moments.",
@@ -33,8 +33,8 @@ export const pricingConfig = {
       yearlyPrice: 14029, // 10% off
       buttonText: "Go Starter",
       features: [
-        "Generate 10 clips per month",
-        "720p/30fps export quality",
+        "Generate 15 clips per month", // 15 clips per month
+        "720p/30fps export quality", // 720p/30fps
         "Max 30s video length",
         "Basic auto-captioning",
       ],
@@ -42,64 +42,88 @@ export const pricingConfig = {
         month: "price_1Q0QacGXekY7Ey1HF9xNx8pF",
         year: "price_1Q0QacGXekY7Ey1HkFuCuQUo",
       },
+      // Cost per clip to us: 8.29 credits per clip (720p/30fps for 30s)
+      // Total credits used: 15 clips * 8.29 credits = 124.35 credits/month
+      // Cost to us: 124.35 credits * $0.0099 = $1.23/month
+      // Revenue: $12.99/month
+      // Profit: $12.99 - $1.23 = $11.76/month
+      // Yearly profit with 10% discount: $140.29 - (12 * $1.23) = $125.65/year
     },
     {
-      id: "prod_Pro",
+      id: "prod_QuBBHuwTXizC4Z",
       name: "Pro",
       description:
         "Ideal for dedicated clippers and growing channels. Enhance your content with more clips.",
-      monthlyPrice: 4999, // $49.99
-      yearlyPrice: 53989, // 10% off
+      monthlyPrice: 6999, // $69.99
+      yearlyPrice: 75589, // 10% off
       buttonText: "Go Pro",
       features: [
-        "Generate 20 clips per month",
-        "720p/30fps export quality",
+        "Generate 50 clips per month", // 50 clips per month
+        "1080p/30fps export quality", // 1080p/30fps
         "Max 60s video length",
         "Advanced auto-captioning",
       ],
       stripePriceId: {
-        month: "price_1Q0Qb0GXekY7Ey1HWzDfXZHh",
-        year: "price_1Q0QbKGXekY7Ey1HYViEmROX",
+        month: "price_1Q2MozGXekY7Ey1Hmlxlymo1",
+        year: "price_1Q2MpEGXekY7Ey1Hmddlf2mC",
       },
+      // Cost per clip to us: 37.32 credits per clip (1080p/30fps for 60s)
+      // Total credits used: 50 clips * 37.32 credits = 1,866 credits/month
+      // Cost to us: 1,866 credits * $0.0099 = $18.47/month
+      // Revenue: $69.99/month
+      // Profit: $69.99 - $18.47 = $51.52/month
+      // Yearly profit with 10% discount: $755.89 - (12 * $18.47) = $534.28/year
     },
     {
-      id: "prod_Ultimate",
+      id: "prod_QuBBBQZF76RFMu",
       name: "Ultimate",
       description:
         "For professional clippers and popular streamers. Maximize your content output with high-quality clips.",
-      monthlyPrice: 9999, // $99.99
-      yearlyPrice: 107989, // 10% off
+      monthlyPrice: 14999, // $149.99
+      yearlyPrice: 161989, // 10% off
       buttonText: "Go Ultimate",
       isPro: true,
       features: [
-        "Generate 30 clips per month",
-        "1080p/30fps export quality",
+        "Generate 100 clips per month", // 100 clips per month
+        "1080p/60fps export quality", // 1080p/60fps
         "Max 60s video length",
         "Premium auto-captioning",
       ],
       stripePriceId: {
-        month: "price_1Q0Qc4GXekY7Ey1HG9OF9JSS",
-        year: "price_1Q0Qc4GXekY7Ey1HtbeB8r40",
+        month: "price_1Q2MpbGXekY7Ey1HQjaqseUy",
+        year: "price_1Q2MpmGXekY7Ey1HnnJoOqOS",
       },
+      // Cost per clip to us: 74.65 credits per clip (1080p/60fps for 60s)
+      // Total credits used: 100 clips * 74.65 credits = 7,465 credits/month
+      // Cost to us: 7,465 credits * $0.0099 = $73.91/month
+      // Revenue: $149.99/month
+      // Profit: $149.99 - $73.91 = $76.08/month
+      // Yearly profit with 10% discount: $1,619.89 - (12 * $73.91) = $734.83/year
     },
     {
-      id: "prod_Agency",
+      id: "prod_QuBC5R7bvRKKAx",
       name: "Agency",
       description:
         "Perfect for clip agencies and large creator teams. Get powerful tools to manage multiple channels efficiently.",
-      monthlyPrice: 19999, // $199.99
-      yearlyPrice: 215989, // 10% off
+      monthlyPrice: 49999, // $499.99
+      yearlyPrice: 539989, // 10% off
       buttonText: "Go Agency",
       features: [
-        "Generate 60 clips per month",
-        "1080p/60fps export quality",
+        "Generate 200 clips per month", // 200 clips per month
+        "1080p/60fps export quality", // 1080p/60fps
         "Max 60s video length",
         "Premium auto-captioning",
       ],
       stripePriceId: {
-        month: "price_1Q0QcNGXekY7Ey1HYpeVvxmS",
-        year: "price_1Q0QckGXekY7Ey1HCnoR8GUr",
+        month: "price_1Q2Mq2GXekY7Ey1HD1m6009W",
+        year: "price_1Q2MqGGXekY7Ey1HeYd7iICb",
       },
+      // Cost per clip to us: 74.65 credits per clip (1080p/60fps for 60s)
+      // Total credits used: 200 clips * 74.65 credits = 14,930 credits/month
+      // Cost to us: 14,930 credits * $0.0099 = $147.81/month
+      // Revenue: $499.99/month
+      // Profit: $499.99 - $147.81 = $352.18/month
+      // Yearly profit with 10% discount: $5,399.89 - (12 * $147.81) = $3,624.13/year
     },
   ],
   defaultInterval: "month" as "month" | "year",
@@ -248,7 +272,7 @@ export function CashClipsPricing({
   showBenefitsSection?: boolean;
 }) {
   const [interval, setInterval] = useState<"month" | "year">(
-    pricingConfig.defaultInterval,
+    pricingConfig.defaultInterval
   );
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.2 });

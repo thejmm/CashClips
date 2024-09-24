@@ -116,7 +116,6 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ user }) => {
         setSubscriptionData(subscriptionDataResult.data as SubscriptionData);
       } catch (error) {
         console.error("Error fetching data:", error);
-        toast.error("Failed to load user data. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -241,10 +240,10 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ user }) => {
         </Avatar>
       </header>
 
-      {userData && <PlanCreditUsage userData={userData} user={user} />}
-
-      {invoiceData && <InvoiceTable invoiceData={invoiceData} />}
-
+      <PlanCreditUsage userData={userData} user={user} />
+      
+      <InvoiceTable invoiceData={invoiceData} />
+      
       <Card>
         <CardHeader>
           <CardTitle>UserName Settings</CardTitle>
