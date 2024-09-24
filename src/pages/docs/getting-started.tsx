@@ -63,9 +63,13 @@ const steps = [
       "Create your CashClips account and choose your favorite content creators to follow.",
   },
   {
+    title: "Choose Streamer",
+    description: "Browse our extensive library of streamers to choose from.",
+  },
+  {
     title: "Choose Content",
     description:
-      "Browse our extensive library or use our AI to find trending clips from top streamers.",
+      "Browse our extensive library to find trending clips from top streamers.",
   },
   {
     title: "Select Template",
@@ -73,19 +77,18 @@ const steps = [
       "Pick from our collection of templates designed for maximum engagement on each platform.",
   },
   {
-    title: "Customize",
+    title: "View & Edit",
     description:
-      "Add your personal touch with our AI-assisted editing tools, including smart captions and effects.",
+      "View and choose wether to add your captions based on your preferences.",
   },
   {
     title: "Generate",
     description:
-      "Let our AI work its magic to create a viral-worthy clip in seconds.",
+      "Let us process the hard work and use our magic to create a viral-worthy clip in minutes.",
   },
   {
-    title: "Publish & Track",
-    description:
-      "Share your clip across multiple platforms and track its performance with our analytics dashboard.",
+    title: "Download & Publish",
+    description: "Download and share your clip across multiple platforms",
   },
 ];
 
@@ -108,13 +111,11 @@ const GettingStartedPage: React.FC = () => {
         className="space-y-12"
       >
         <motion.section variants={fadeInUp}>
-          <h1 className="text-4xl font-bold mb-4">
-            Getting Started with CashClips
-          </h1>
+          <h1 className="text-4xl font-bold mb-4">Getting Started</h1>
           <p className="text-xl mb-8">
-            Welcome to CashClips! This guide will help you create your first
-            viral-worthy video clip in minutes, featuring content from top
-            creators like xQc, MrBeast, and Kai Cenat.
+            This guide will help you create your first viral-worthy video clip
+            in minutes, featuring content from top creators like xQc, MrBeast,
+            and Kai Cenat.
           </p>
         </motion.section>
 
@@ -175,8 +176,12 @@ const GettingStartedPage: React.FC = () => {
             clips from top creators like Adin Ross, Pokimane, and Ludwig!
           </p>
           <Link href="/pricing">
-            <Button size="lg">
-              Start Clipping Now <ArrowRight className="ml-2 h-4 w-4" />
+            <Button
+              variant="ringHover"
+              className="group transition-all duration-300"
+            >
+              Start Clipping Now
+              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-all duration-300" />
             </Button>
           </Link>
         </motion.section>

@@ -1,102 +1,57 @@
 // src/pages/docs/affiliate.tsx
-
+import { useEffect, useRef, useState } from "react";
+import { useMotionValue, useSpring } from "framer-motion";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import DocsLayout from "@/components/docs/docs-layout";
+import { Slider } from "@/components/ui/slider";
 import {
-  BarChart,
-  CheckCircle,
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
   DollarSign,
-  Globe,
-  Link as LinkIcon,
   TrendingUp,
   Users,
-  Zap,
+  CheckCircle,
+  BarChartIcon,
+  ArrowRight,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { Button } from "@/components/ui/button";
-import DocsLayout from "@/components/docs/docs-layout";
-import Link from "next/link";
-import React from "react";
-import { motion } from "framer-motion";
+// CurrencyTicker component for formatted currency display
+function CurrencyTicker({
+  value,
+  className,
+}: {
+  value: number;
+  className?: string;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const motionValue = useMotionValue(0);
+  const springValue = useSpring(motionValue, {
+    damping: 60,
+    stiffness: 100,
+  });
 
-const benefits = [
-  {
-    title: "Industry-Leading 5% Commission",
-    description:
-      "Earn a generous 5% on all referrals, including recurring subscriptions. Our rates beat the competition!",
-    icon: DollarSign,
-  },
-  {
-    title: "Lifetime Recurring Income",
-    description:
-      "Earn from subscription renewals for the entire lifetime of the customer. Your earnings grow over time!",
-    icon: BarChart,
-  },
-  {
-    title: "30-Day Cookie Window",
-    description:
-      "Our 30-day attribution window ensures you get credit for your hard work, even if users don't sign up immediately.",
-    icon: LinkIcon,
-  },
-  {
-    title: "Real-Time Analytics Dashboard",
-    description:
-      "Track your earnings, clicks, and conversions in real-time with our advanced affiliate dashboard.",
-    icon: CheckCircle,
-  },
-  {
-    title: "Access to Exclusive Content",
-    description:
-      "Get early access to new features and exclusive content from top streamers like xQc, MrBeast, and Kai Cenat to share with your audience.",
-    icon: Users,
-  },
-  {
-    title: "Multi-Tier Commissions",
-    description:
-      "Earn additional commissions by referring other affiliates. Build your own network and increase your earnings!",
-    icon: Zap,
-  },
-  {
-    title: "Global Payments",
-    description:
-      "We support multiple payout methods including PayPal, Direct Deposit, and Cryptocurrency for global affiliates.",
-    icon: Globe,
-  },
-  {
-    title: "Trending Content Alerts",
-    description:
-      "Receive notifications about viral clips and trending streamers to stay ahead of the curve in your promotions.",
-    icon: TrendingUp,
-  },
-];
+  useEffect(() => {
+    motionValue.set(value);
+  }, [motionValue, value]);
 
-const steps = [
-  {
-    title: "Sign Up",
-    description:
-      "Create your free CashClips affiliate account in under 2 minutes.",
-  },
-  {
-    title: "Get Your Links",
-    description:
-      "Generate custom affiliate links and promo codes for your audience.",
-  },
-  {
-    title: "Promote CashClips",
-    description:
-      "Share your unique links across your social media, website, or YouTube channel.",
-  },
-  {
-    title: "Track Performance",
-    description:
-      "Monitor your earnings and optimize your strategies using our real-time dashboard.",
-  },
-  {
-    title: "Earn Commissions",
-    description:
-      "Get paid monthly for all the subscriptions and renewals you bring in.",
-  },
-];
+  useEffect(() => {
+    springValue.on("change", (latest) => {
+      if (ref.current) {
+        ref.current.textContent = `$${Number(latest).toFixed(2)}`;
+      }
+    });
+  }, [springValue]);
 
+  return <span className={className} ref={ref} />;
+}
+
+// Define animation variants
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 },
@@ -106,7 +61,50 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.1 } },
 };
 
+const commissionRate = 0.05;
+const payoutDelay = 30;
+const payoutThreshold = 25;
+
+const pricingConfig = {
+  plans: [
+    {
+      id: "starter",
+      name: "Starter",
+      monthlyPrice: 12.99,
+      yearlyPrice: 155.88,
+    },
+    {
+      id: "pro",
+      name: "Pro",
+      monthlyPrice: 69.99,
+      yearlyPrice: 839.88,
+    },
+    {
+      id: "ultimate",
+      name: "Ultimate",
+      monthlyPrice: 149.99,
+      yearlyPrice: 1799.88,
+    },
+    {
+      id: "agency",
+      name: "Agency",
+      monthlyPrice: 499.99,
+      yearlyPrice: 5999.88,
+    },
+  ],
+};
+
 const AffiliatePage: React.FC = () => {
+  const [referralCount, setReferralCount] = useState<number>(10);
+
+  const handleSliderChange = (value: number[]) => {
+    setReferralCount(value[0]);
+  };
+
+  const calculateCommission = (price: number) => {
+    return price * commissionRate * referralCount;
+  };
+
   return (
     <DocsLayout>
       <motion.div
@@ -115,125 +113,270 @@ const AffiliatePage: React.FC = () => {
         variants={stagger}
         className="space-y-12"
       >
-        <motion.section variants={fadeInUp} className="text-center">
+        {/* Header Section */}
+        <motion.section variants={fadeInUp}>
           <h1 className="text-4xl font-bold mb-4">
             CashClips Affiliate Program
           </h1>
           <p className="text-xl mb-8">
-            Join the CashClips Affiliate Program and start earning substantial
-            income by promoting the future of content creation. Tap into the
-            power of viral clips from top streamers like xQc, MrBeast, Kai
-            Cenat, and Adin Ross!
+            Join our affiliate program and earn a one-time 5% commission for
+            every user you refer who subscribes to one of our plans.
           </p>
-          <Button variant="ringHover" asChild>
-            <a
-              href="https://cashclips.promotekit.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Join Now and Start Earning
-            </a>
-          </Button>
         </motion.section>
 
+        {/* Bento Grid Layout */}
         <motion.section variants={fadeInUp}>
-          <h2 className="text-2xl font-semibold mb-6">How It Works</h2>
-          <motion.div variants={stagger} className="grid gap-6 md:grid-cols-3">
-            {steps.map((step, index) => (
-              <motion.div key={index} variants={fadeInUp}>
-                <Card>
+          <div className="flex flex-col items-center mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-screen-lg">
+              <motion.div variants={fadeInUp} className="col-span-1">
+                <Card className="flex flex-col items-center text-center shadow-lg rounded-lg">
                   <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center mr-3">
-                        {index + 1}
-                      </span>
-                      {step.title}
+                    <CardTitle className="flex items-center justify-center text-xl">
+                      <DollarSign className="mr-2  text-primary" /> Earn
+                      Commissions
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p>{step.description}</p>
+                    Earn 5% commission on every user you refer when they
+                    subscribe to any CashClips plan.
                   </CardContent>
                 </Card>
               </motion.div>
-            ))}
-          </motion.div>
-        </motion.section>
 
-        <motion.section variants={fadeInUp}>
-          <h2 className="text-2xl font-semibold mb-6">Unmatched Benefits</h2>
-          <motion.div
-            variants={stagger}
-            className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-          >
-            {benefits.map((benefit, index) => (
-              <motion.div key={index} variants={fadeInUp}>
-                <Card key={benefit.title} className="h-full">
+              <motion.div variants={fadeInUp} className="col-span-1">
+                <Card className="flex flex-col items-center text-center shadow-lg rounded-lg">
                   <CardHeader>
-                    <benefit.icon className="w-8 h-8 mb-2 text-primary" />
-                    <CardTitle>{benefit.title}</CardTitle>
+                    <CardTitle className="flex items-center justify-center text-xl">
+                      <TrendingUp className="mr-2  text-primary" /> One-Time
+                      Payment
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p>{benefit.description}</p>
+                    Earn a one-time 5% commission for each new customer you
+                    bring to CashClips. The more users you refer, the more you
+                    earn.
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div
+                variants={fadeInUp}
+                className="col-span-1 md:col-span-2"
+              >
+                <Card className="flex flex-col items-center text-center shadow-lg rounded-lg">
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-center text-lg">
+                      <Users className="mr-2  text-primary" /> No Caps or Limits
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    There are no limits to how much you can earn. The more you
+                    refer, the more you make.
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div variants={fadeInUp} className="col-span-1">
+                <Card className="flex flex-col items-center text-center shadow-lg rounded-lg">
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-center text-lg">
+                      <CheckCircle className="mr-2  text-primary" /> Easy
+                      Payouts
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    Get paid automatically once you hit the payout threshold
+                    with no hassle!
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div variants={fadeInUp} className="col-span-1">
+                <Card className="flex flex-col items-center text-center shadow-lg rounded-lg">
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-center text-lg">
+                      <BarChartIcon className="mr-2 text-primary" /> Real-Time
+                      Analytics
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    Track your earnings, clicks, and conversions in real-time
+                    with our affiliate dashboard.
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+
+            <div className="mt-8">
+              <a
+                href="https://cashclips.promotekit.com"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Button
+                  variant="ringHover"
+                  size="lg"
+                  className="group transition-all duration-300"
+                >
+                  Join the CashClips Affiliate Program
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-all duration-300" />
+                </Button>
+              </a>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* How it works */}
+        <motion.section variants={fadeInUp}>
+          <h2 className="text-3xl font-semibold my-4">How It Works</h2>
+          <ol className="list-decimal list-inside space-y-4 mb-8">
+            <motion.li variants={fadeInUp}>
+              Sign up for our affiliate program using the same email address as
+              your CashClips account.
+            </motion.li>
+            <motion.li variants={fadeInUp}>
+              Receive your unique affiliate link to share with your audience.
+            </motion.li>
+            <motion.li variants={fadeInUp}>
+              Promote CashClips using your affiliate link on your website,
+              social media, or other channels.
+            </motion.li>
+            <motion.li variants={fadeInUp}>
+              When someone signs up using your link, they are tagged as your
+              referral.
+            </motion.li>
+            <motion.li variants={fadeInUp}>
+              Earn 5% commission for every new user you refer when they
+              subscribe.
+            </motion.li>
+            <motion.li variants={fadeInUp}>
+              Commissions are paid monthly after a {payoutDelay}-day delay to
+              ensure customer retention and reduce fraud.
+            </motion.li>
+          </ol>
+        </motion.section>
+
+        {/* Slider and CurrencyTicker */}
+        <motion.section>
+          <h2 className="text-3xl font-semibold mb-4">
+            How Many Users Will You Refer?
+          </h2>
+          <p className="mb-4">
+            Use the slider below to see how much you could earn based on the
+            number of users you refer and what plan they choose.
+          </p>
+          <div className="flex items-center gap-4">
+            <Slider
+              value={[referralCount]}
+              min={1}
+              max={100}
+              step={1}
+              onValueChange={handleSliderChange}
+              className="w-full"
+            />
+            <span className="text-xl font-semibold">{referralCount} users</span>
+          </div>
+        </motion.section>
+
+        {/* Commission Structure Section */}
+        <motion.section>
+          <h2 className="text-3xl font-semibold mb-4">
+            Your Estimated Earnings Based on Plan Commission
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {pricingConfig.plans.map((plan) => (
+              <motion.div key={plan.id}>
+                <Card className="flex flex-col items-center text-center shadow-lg rounded-lg">
+                  <CardHeader>
+                    <CardTitle className="text-xl">{plan.name} Plan</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col items-center">
+                    <p className="w-full flex items-center gap-2 whitespace-nowrap">
+                      <span className="text-xs font-semibold">Monthly:</span>{" "}
+                      <CurrencyTicker
+                        value={calculateCommission(plan.monthlyPrice)}
+                        className="text-primary text-2xl"
+                      />{" "}
+                      USD
+                    </p>
+                    <p className="w-full flex items-center gap-2 whitespace-nowrap">
+                      <span className="text-xs font-semibold">Yearly:</span>{" "}
+                      <CurrencyTicker
+                        value={calculateCommission(plan.yearlyPrice)}
+                        className="text-primary text-2xl"
+                      />{" "}
+                      USD
+                    </p>
                   </CardContent>
                 </Card>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
         </motion.section>
 
-        <motion.section
-          variants={fadeInUp}
-          className="bg-accent p-8 rounded-lg"
-        >
-          <h2 className="text-2xl font-semibold mb-4">
-            Why Become a CashClips Affiliate?
+        {/* FAQ Section */}
+        <motion.section variants={fadeInUp}>
+          <h2 className="text-3xl font-semibold my-8">
+            Frequently Asked Questions
           </h2>
-          <p className="text-lg mb-6">
-            By recommending CashClips, you are not just earning money – you are
-            empowering fellow creators with a tool that boosts engagement and
-            streamlines content creation. Our platform features content from top
-            streamers like xQc, MrBeast, Kai Cenat, and Adin Ross, giving your
-            audience access to the best clips and editing tools in the industry.
-          </p>
-          <p className="text-lg mb-6">
-            As an affiliate, you will be at the forefront of content creation
-            technology, offering your audience a tool that can significantly
-            boost their online presence and engagement.
-          </p>
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+              <AccordionTrigger>
+                How do I join the affiliate program?
+              </AccordionTrigger>
+              <AccordionContent>
+                To join our affiliate program, log in to your CashClips account,
+                navigate to the Affiliate Dashboard, and click on Join Affiliate
+                Program. Once approved, you will receive your unique affiliate
+                link.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-2">
+              <AccordionTrigger>When and how do I get paid?</AccordionTrigger>
+              <AccordionContent>
+                Commissions are paid out monthly, but only after your referrals
+                have been active for at least {payoutDelay} days. You need to
+                accumulate at least ${payoutThreshold} in commissions before a
+                payout is initiated. Payments are typically processed within the
+                first week of each month for the previous months approved
+                commissions.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-3">
+              <AccordionTrigger>
+                Are there any restrictions on how I can promote CashClips?
+              </AccordionTrigger>
+              <AccordionContent>
+                While we encourage creativity in your promotional efforts, we
+                have some guidelines to ensure fair promotion. These include no
+                spamming, no misrepresentation of the product, and no bidding on
+                CashClips-related keywords in paid ads. Please refer to our full
+                Affiliate Terms and Conditions for more details.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </motion.section>
 
-        <motion.section variants={fadeInUp} className="text-center">
-          <h2 className="text-2xl font-semibold mb-4">
-            Ready to Start Earning?
-          </h2>
-          <p className="text-lg mb-6">
-            Join the CashClips Affiliate Program today and start turning your
-            influence into a steady stream of income. With our industry-leading
-            commission rates, cutting-edge platform, and content from top
-            streamers, the earning potential is limitless!
+        <motion.section variants={fadeInUp} className="mt-12 text-center">
+          <h2 className="text-3xl font-bold mb-4">Ready to Start Earning?</h2>
+          <p className="text-xl mb-6">
+            Join our affiliate program today and start turning your influence
+            into income!
           </p>
-          <Button variant="ringHover" asChild>
-            <a
-              href="https://cashclips.promotekit.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Join Now and Start Earning
-            </a>
-          </Button>
-        </motion.section>
-
-        <motion.section variants={fadeInUp} className="text-center">
-          <p className="text-sm text-muted-foreground">
-            <Link href="/terms-of-service-affiliate" passHref>
-              <Button variant="linkHover2" className="text-sm px-0">
-                Terms and conditions{" "}
-              </Button>
-            </Link>{" "}
-            apply. Commission rates subject to change. Always comply with
-            platform guidelines when promoting CashClips. Earning potential
-            varies based on individual effort and audience engagement.
-          </p>
+          <a
+            href="https://cashclips.promotekit.com"
+            target="_blank"
+            rel="noreferrer"
+          >
+                <Button
+                  variant="ringHover"
+                  size="lg"
+                  className="group transition-all duration-300"
+                >
+                  Join the CashClips Affiliate Program
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-all duration-300" />
+                </Button>
+          </a>
         </motion.section>
       </motion.div>
     </DocsLayout>

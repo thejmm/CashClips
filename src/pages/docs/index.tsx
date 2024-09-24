@@ -80,7 +80,7 @@ const DocsHome: React.FC = () => {
         className="space-y-12"
       >
         <motion.h1 variants={fadeInUp} className="text-4xl font-bold mb-6">
-          CashClips Documentation
+          Documentation
         </motion.h1>
         <motion.div variants={fadeInUp} className="space-y-6">
           <p className="text-xl">
@@ -110,7 +110,7 @@ const DocsHome: React.FC = () => {
                       className="group transition-all duration-300"
                     >
                       Explore{" "}
-                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-2 transition-all duration-300" />
+                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-all duration-300" />
                     </Button>
                   </Link>
                 </CardContent>

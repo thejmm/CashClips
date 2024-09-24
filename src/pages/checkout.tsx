@@ -20,6 +20,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { pricingConfig } from "@/components/landing/pricing";
 import { toast } from "sonner";
 import { useRouter } from "next/router";
+import Script from "next/script";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string,
@@ -120,13 +121,11 @@ export default function CheckoutPage() {
 
   return (
     <>
-      <Head>
-        <script
-          async
-          src="https://cdn.promotekit.com/promotekit.js"
-          data-promotekit="a1ede120-2bf6-4afa-9c88-f9bf10ebbd46"
-        />
-      </Head>
+      <Script
+        src="https://cdn.promotekit.com/promotekit.js"
+        data-promotekit="a1ede120-2bf6-4afa-9c88-f9bf10ebbd46"
+        strategy="afterInteractive"
+      />
       <div className="min-h-screen">
         <div className="container mx-auto max-w-7xl py-16">
           <div className="max-w-6xl mx-auto md:grid md:grid-cols-2 gap-12">
