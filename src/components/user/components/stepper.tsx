@@ -68,8 +68,8 @@ const Stepper: React.FC<StepperProps> = ({
                     isCompleted
                       ? "border-green-500 bg-green-500 text-white"
                       : isCurrent
-                      ? "border-blue-600 bg-blue-600 text-white"
-                      : "border-gray-300 bg-white text-gray-500"
+                        ? "border-blue-600 bg-blue-600 text-white"
+                        : "border-gray-300 bg-white text-gray-500"
                   } ${!isClickable ? "cursor-not-allowed opacity-50" : ""}`}
                   whileHover={isClickable ? { scale: 1.1 } : {}}
                   whileTap={isClickable ? { scale: 0.95 } : {}}

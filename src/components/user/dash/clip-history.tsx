@@ -82,20 +82,25 @@ const ClipHistory: React.FC<ClipHistoryProps> = ({ clipData }) => {
             (new Date().getTime() -
               new Date(
                 Math.min(
-                  ...clipData.map((clip) => new Date(clip.created_at).getTime())
-                )
+                  ...clipData.map((clip) =>
+                    new Date(clip.created_at).getTime(),
+                  ),
+                ),
               ).getTime()) /
-              (1000 * 3600 * 24)
+              (1000 * 3600 * 24),
           )
         : parseInt(timeRange, 10);
 
     const dateRange = getDateRange(days);
 
-    const countsByDate = clipData.reduce((acc, clip) => {
-      const date = new Date(clip.created_at).toISOString().split("T")[0];
-      acc[date] = (acc[date] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const countsByDate = clipData.reduce(
+      (acc, clip) => {
+        const date = new Date(clip.created_at).toISOString().split("T")[0];
+        acc[date] = (acc[date] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
     return dateRange.map((date) => ({
       date,

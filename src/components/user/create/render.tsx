@@ -100,12 +100,12 @@ const Render: React.FC<RenderProps> = ({
     try {
       const captions = await videoCreator.fetchCaptions(
         selectedVideo.url,
-        "captions"
+        "captions",
       );
       await videoCreator.queueCaptionsUpdate(
         "video1",
         captions,
-        selectedFont.styles as FontStyle
+        selectedFont.styles as FontStyle,
       );
       await videoCreator.applyQueuedUpdates();
       setIsCaptionsGenerated(true);

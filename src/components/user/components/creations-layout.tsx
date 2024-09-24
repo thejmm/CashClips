@@ -87,7 +87,7 @@ const VideoCard: React.FC<{ clip: Clip; userSpecific: boolean }> = ({
 
   const formatNumber = (
     value: number | null | undefined,
-    decimals: number = 2
+    decimals: number = 2,
   ) => {
     return value != null ? value.toFixed(decimals) : "N/A";
   };
