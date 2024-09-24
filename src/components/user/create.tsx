@@ -1,50 +1,81 @@
+// src/components/user/create.tsx
 import { AnimatePresence, motion } from "framer-motion";
 import { DefaultSource, defaultSources } from "@/utils/creatomate/templates";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import Clips from "./create/clips";
+import { CloudinaryVideo } from "@/types/cloudinary";
 import Finish from "./create/finish";
 import Render from "./create/render";
 import Stepper from "./components/stepper";
 import Streamer from "./create/streamer";
 import Template from "./create/template";
 import { User } from "@supabase/supabase-js";
-import { VimeoVideo } from "@/types/vimeo"; // Import VimeoVideo from the correct file
-import { useRouter } from "next/router";
+import { videoCreator } from "@/store/creatomate";
 
 interface CreateProps {
   user: User;
 }
 
-const Create: React.FC<CreateProps> = () => {
-  const router = useRouter();
-  const { step } = router.query;
+const Create: React.FC<CreateProps> = ({ user }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedStreamer, setSelectedStreamer] = useState<string | null>(null);
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
-  const [selectedVideo, setSelectedVideo] = useState<VimeoVideo | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<CloudinaryVideo | null>(
+    null
+  );
+  const [availableVideos, setAvailableVideos] = useState<CloudinaryVideo[]>([]);
   const [selectedTemplate, setSelectedTemplate] =
     useState<DefaultSource | null>(null);
+  const [isRendering, setIsRendering] = useState(false);
+  const [isCaptionsGenerated, setIsCaptionsGenerated] = useState(false);
+  const [renderResult, setRenderResult] = useState<any>(null);
+  const [isVideoViewerOpen, setIsVideoViewerOpen] = useState(false);
 
-  // Create a ref for the preview container
   const previewContainerRef = useRef<HTMLDivElement>(null);
 
-  // Set the current step from the URL, or default to 1
   useEffect(() => {
-    const stepNumber = step ? Number(step) : 1;
-    setCurrentStep(stepNumber);
-  }, [step]);
+    if (user) {
+      videoCreator.setUserId(user.id);
+    }
+    console.log("Create component mounted. User ID set:", user?.id);
+  }, [user]);
 
-  // Reset the process for creating another video
   const handleCreateAnother = () => {
     setCurrentStep(1);
-    setSelectedTemplate(null);
-    setSelectedVideo(null);
     setSelectedStreamer(null);
     setSelectedFolderId(null);
+    setSelectedVideo(null);
+    setAvailableVideos([]);
+    setSelectedTemplate(null);
+    setIsCaptionsGenerated(false);
+    setRenderResult(null);
   };
 
-  // Render the appropriate step based on the current state
+  const handleExport = async () => {
+    setIsRendering(true);
+    try {
+      const jobId = await videoCreator.finishVideo();
+      const result = await videoCreator.checkRenderStatus(jobId);
+      setRenderResult(result);
+      setCurrentStep(5); // Move to the finish step after rendering
+    } catch (error) {
+      console.error("Export error:", error);
+    } finally {
+      setIsRendering(false);
+    }
+  };
+
+  const handleVideoSelect = (video: CloudinaryVideo) => {
+    setSelectedVideo(video);
+    setCurrentStep(3); // Move to the template selection step
+  };
+
+  const handleTemplateSelect = (template: DefaultSource) => {
+    setSelectedTemplate(template);
+    setCurrentStep(4); // Move to the render step
+  };
+
   const renderStep = () => {
     switch (currentStep) {
       case 1:
@@ -53,7 +84,7 @@ const Create: React.FC<CreateProps> = () => {
             selectedStreamer={selectedStreamer}
             handleStreamerSelect={(streamer) => {
               setSelectedStreamer(streamer);
-              setCurrentStep(2);
+              setCurrentStep(2); // Move to the clip selection step
             }}
           />
         );
@@ -63,51 +94,39 @@ const Create: React.FC<CreateProps> = () => {
             selectedStreamer={selectedStreamer}
             selectedFolderId={selectedFolderId}
             handleFolderChange={setSelectedFolderId}
-            handleVideoSelect={(video) => {
-              setSelectedVideo(video);
-              setCurrentStep(3);
-            }}
+            handleVideoSelect={handleVideoSelect} // Updated to call the new function
             selectedVideo={selectedVideo}
+            setAvailableVideos={setAvailableVideos}
           />
         );
       case 3:
         return (
           <Template
             selectedTemplate={selectedTemplate}
-            handleTemplateSelect={(template) => {
-              setSelectedTemplate(template);
-              setCurrentStep(4);
-            }}
+            handleTemplateSelect={handleTemplateSelect} // Updated to call the new function
             defaultSources={defaultSources}
           />
         );
       case 4:
         return (
           <Render
-            isPreviewInitialized={false}
-            currentTime={0}
-            duration={selectedVideo ? selectedVideo.duration : 100}
-            formatTime={(time: number) => {
-              const minutes = Math.floor(time / 60);
-              const seconds = Math.floor(time % 60);
-              return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-            }}
-            handleExport={() => {}}
-            isRendering={false}
-            isCaptionsGenerated={true}
             previewContainerRef={previewContainerRef}
+            handleExport={handleExport}
+            isRendering={isRendering}
+            isCaptionsGenerated={isCaptionsGenerated}
+            setIsCaptionsGenerated={setIsCaptionsGenerated}
             selectedVideo={selectedVideo}
             selectedTemplate={selectedTemplate}
+            availableVideos={availableVideos}
           />
         );
       case 5:
         return (
           <Finish
-            renderResult={null}
-            handleDownload={() => {}}
+            renderResult={renderResult}
             handleCreateAnother={handleCreateAnother}
-            isVideoViewerOpen={false}
-            setIsVideoViewerOpen={() => {}}
+            isVideoViewerOpen={isVideoViewerOpen}
+            setIsVideoViewerOpen={setIsVideoViewerOpen}
           />
         );
       default:
@@ -142,13 +161,13 @@ const Create: React.FC<CreateProps> = () => {
         ]}
         currentStep={currentStep}
         onStepClick={setCurrentStep}
-        isLoading={false}
-        loadingStep={0}
-        loadingMessage="Loading..."
-        isFinished={false}
+        isLoading={isRendering}
+        loadingStep={isRendering ? 4 : 0}
+        loadingMessage={isRendering ? "Rendering..." : ""}
+        isFinished={currentStep === 5}
         isError={false}
       />
-      <AnimatePresence>{renderStep()}</AnimatePresence>
+      <AnimatePresence mode="wait">{renderStep()}</AnimatePresence>
     </div>
   );
 };

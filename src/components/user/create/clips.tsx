@@ -1,3 +1,5 @@
+// src/components/user/create/clips.tsx
+import React, { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -5,18 +7,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEffect, useState } from "react";
 
+import { CloudinaryVideo } from "@/types/cloudinary"; // Updated type
 import { Loader } from "lucide-react";
-import { VimeoVideo } from "@/types/vimeo"; // Import correct VimeoVideo type
 import { motion } from "framer-motion";
 
 interface ClipsProps {
   selectedStreamer: string | null;
   selectedFolderId: string | null;
   handleFolderChange: (folderId: string) => void;
-  handleVideoSelect: (video: VimeoVideo) => void;
-  selectedVideo: VimeoVideo | null;
+  handleVideoSelect: (video: CloudinaryVideo) => void; // Updated type
+  selectedVideo: CloudinaryVideo | null;
+  setAvailableVideos: (videos: CloudinaryVideo[]) => void; // Updated type
 }
 
 const Clips: React.FC<ClipsProps> = ({
@@ -25,57 +27,48 @@ const Clips: React.FC<ClipsProps> = ({
   handleFolderChange,
   handleVideoSelect,
   selectedVideo,
+  setAvailableVideos,
 }) => {
   const [folders, setFolders] = useState<{ id: string; name: string }[]>([]);
-  const [videos, setVideos] = useState<VimeoVideo[]>([]);
+  const [videos, setVideos] = useState<CloudinaryVideo[]>([]);
   const [loadingFolders, setLoadingFolders] = useState(false);
   const [loadingVideos, setLoadingVideos] = useState(false);
 
-  // Fetch folders (categories) when a streamer is selected
   useEffect(() => {
     if (selectedStreamer) {
       setLoadingFolders(true);
-      fetch(`/api/vimeo/streamers?streamer=${selectedStreamer}`)
+      fetch(`/api/cloudinary/streamers?streamer=${selectedStreamer}`)
         .then((res) => res.json())
-        .then((data) =>
-          setFolders(
-            Object.keys(data.categories).map((key) => ({
-              id: data.categories[key],
-              name: key,
-            }))
-          )
-        )
+        .then((data) => {
+          const folderData = Object.keys(data.categories).map((key) => ({
+            id: data.categories[key],
+            name: key,
+          }));
+          setFolders(folderData);
+        })
         .finally(() => setLoadingFolders(false));
     }
   }, [selectedStreamer]);
 
-  // Fetch videos when a folder is selected
   const handleSelectFolder = (folderId: string) => {
     handleFolderChange(folderId);
     setLoadingVideos(true);
-    fetch(`/api/vimeo/videos?folderId=${folderId}`)
+    fetch(`/api/cloudinary/videos?folderId=${folderId}`)
       .then((res) => res.json())
-      .then((data) => setVideos(data.videos))
+      .then((data) => {
+        setVideos(data.videos);
+        setAvailableVideos(data.videos);
+      })
       .finally(() => setLoadingVideos(false));
   };
 
-  // Get the best quality thumbnail
-  const getBetterQualityThumbnail = (sizes: any[]) => {
-    return sizes.reduce(
-      (best, current) => (current.width > best.width ? current : best),
-      sizes[0]
-    );
-  };
-
-  // Format duration (e.g., 2:15)
-  const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-  };
-
   return (
-    <motion.div className="space-y-4">
+    <motion.div
+      className="space-y-4"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+    >
       {loadingFolders ? (
         <div className="flex justify-center items-center">
           <Loader className="h-8 w-8 animate-spin" />
@@ -109,36 +102,28 @@ const Clips: React.FC<ClipsProps> = ({
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {videos.map((video) => (
                 <motion.div
-                  key={video.uri}
+                  key={video.public_id}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className={`border p-2 rounded cursor-pointer transition-colors duration-200 ${
-                    selectedVideo?.uri === video.uri
+                    selectedVideo?.public_id === video.public_id
                       ? "border-blue-500 border-2"
                       : "hover:border-blue-500"
                   }`}
                   onClick={() => handleVideoSelect(video)}
                 >
                   <div className="relative w-full h-40 mb-2 overflow-hidden rounded">
-                    {video.pictures.sizes.length > 0 ? (
-                      <img
-                        src={
-                          getBetterQualityThumbnail(video.pictures.sizes).link
-                        }
-                        alt={video.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                        <span className="text-gray-500">No thumbnail</span>
-                      </div>
-                    )}
-                    <div className="absolute bottom-0 right-0 bg-black bg-opacity-60 text-white px-2 py-1 text-sm rounded-tl">
-                      {formatDuration(video.duration)}
-                    </div>
+                    <img
+                      src={video.thumbnail_url}
+                      alt={video.public_id}
+                      className="w-full h-full object-cover"
+                    />
+                    <span className="absolute bottom-1 left-1 text-white bg-black bg-opacity-50 text-xs px-1 rounded">
+                      {video.duration.toFixed(2)}s
+                    </span>
                   </div>
                   <p className="text-center font-medium truncate">
-                    {video.name}
+                    {video.public_id}
                   </p>
                 </motion.div>
               ))}

@@ -1,4 +1,6 @@
 // src/components/user/create/streamer.tsx
+import React, { useEffect } from "react";
+
 import { motion } from "framer-motion";
 
 interface StreamerProps {
@@ -11,9 +13,13 @@ const Streamer: React.FC<StreamerProps> = ({
   handleStreamerSelect,
 }) => {
   const streamers = [
-    { name: "Jack Doherty", image: "/streamers/jack-doherty.png" },
+    { name: "JackDoherty", image: "/streamers/jack-doherty.png" },
     { name: "iShowSpeed", image: "/streamers/ishowspeed.png" },
   ];
+
+  useEffect(() => {
+    console.log("Streamer component mounted. Selected streamer:", selectedStreamer);
+  }, [selectedStreamer]);
 
   return (
     <motion.div
@@ -32,7 +38,10 @@ const Streamer: React.FC<StreamerProps> = ({
               ? "border-blue-500 border-2"
               : "hover:border-blue-500"
           }`}
-          onClick={() => handleStreamerSelect(streamer.name)}
+          onClick={() => {
+            console.log("Streamer clicked:", streamer.name);
+            handleStreamerSelect(streamer.name);
+          }}
         >
           <div className="w-full mx-auto justify-center h-36 md:h-56 mb-2 overflow-hidden rounded">
             <img

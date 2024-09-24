@@ -1,3 +1,4 @@
+//  src\components\user\create\finish.tsx
 import React, { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,6 @@ import { motion } from "framer-motion";
 
 interface FinishProps {
   renderResult: any;
-  handleDownload: (url: string) => void;
   handleCreateAnother: () => void;
   isVideoViewerOpen: boolean;
   setIsVideoViewerOpen: (open: boolean) => void;
@@ -16,7 +16,6 @@ interface FinishProps {
 
 const Finish: React.FC<FinishProps> = ({
   renderResult,
-  handleDownload,
   handleCreateAnother,
   isVideoViewerOpen,
   setIsVideoViewerOpen,
@@ -58,7 +57,7 @@ const Finish: React.FC<FinishProps> = ({
   };
 
   const triggerSideCannons = () => {
-    const end = Date.now() + 3 * 1000; // 3 seconds
+    const end = Date.now() + 3 * 1000;
     const colors = ["#a786ff", "#fd8bbc", "#eca184", "#f8deb1"];
 
     const frame = () => {
@@ -85,6 +84,10 @@ const Finish: React.FC<FinishProps> = ({
     };
 
     frame();
+  };
+
+  const handleDownload = (url: string) => {
+    window.open(url, "_blank");
   };
 
   return (

@@ -1,7 +1,6 @@
 // src/components/user/create/render.tsx
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -17,44 +16,41 @@ import {
   SkipBackIcon,
   SkipForwardIcon,
 } from "lucide-react";
-import { getVideoUrl, videoCreator } from "@/store/creatomate";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { CloudinaryVideo } from "@/types/cloudinary"; // Updated import
 import { DefaultSource } from "@/utils/creatomate/template-types";
-import { VimeoVideo } from "@/types/vimeo";
+import { getRandomFontStyle } from "@/utils/creatomate/fonts";
 import { motion } from "framer-motion";
+import { videoCreator } from "@/store/creatomate";
 
 interface RenderProps {
-  isPreviewInitialized: boolean;
   previewContainerRef: React.RefObject<HTMLDivElement>;
-  currentTime: number;
-  duration: number;
-  formatTime: (time: number) => string;
   handleExport: () => void;
   isRendering: boolean;
   isCaptionsGenerated: boolean;
-  selectedVideo: VimeoVideo | null;
+  setIsCaptionsGenerated: (value: boolean) => void;
+  selectedVideo: CloudinaryVideo | null;
   selectedTemplate: DefaultSource | null;
+  availableVideos: CloudinaryVideo[];
 }
 
 const Render: React.FC<RenderProps> = ({
-  isPreviewInitialized,
   previewContainerRef,
-  currentTime,
-  duration,
-  formatTime,
   handleExport,
   isRendering,
   isCaptionsGenerated,
+  setIsCaptionsGenerated,
   selectedVideo,
   selectedTemplate,
+  availableVideos,
 }) => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isGeneratingCaptions, setIsGeneratingCaptions] = useState(false);
-  const [showCaptionDialog, setShowCaptionDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false); // Track dialog state separately
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
 
   useEffect(() => {
     const initializePreview = async () => {
@@ -63,50 +59,71 @@ const Render: React.FC<RenderProps> = ({
         isInitialized ||
         !selectedVideo ||
         !selectedTemplate
-      )
+      ) {
         return;
+      }
 
       try {
-        // Initialize video player
         await videoCreator.initializeVideoPlayer(previewContainerRef.current);
-        setIsInitialized(true);
-
-        // Apply selected template and video to the preview
-        const videoUrl = getVideoUrl(selectedVideo);
         await videoCreator.setSelectedSource(selectedTemplate);
+
+        // Directly use selectedVideo's url for the preview
+        const videoUrl = selectedVideo.url;
         await videoCreator.updateTemplateWithSelectedVideo(
-          { ...selectedVideo, uri: videoUrl },
-          [] // Add additional videos as needed
+          selectedVideo,
+          availableVideos
         );
-        await videoCreator.applyQueuedUpdates();
+
+        videoCreator.preview!.onTimeChange = (time: number) =>
+          setCurrentTime(time);
+        videoCreator.preview!.onStateChange = (state) => {
+          setDuration(state.duration);
+        };
+
+        setIsInitialized(true);
       } catch (err) {
-        console.error("Error initializing video preview:", err);
-        setError("Failed to initialize editor.");
-        setIsInitialized(false); // Ensure buttons remain disabled if there's an error
-        setIsErrorDialogOpen(true); // Open error dialog
+        setError("Failed to initialize editor: " + (err as Error).message);
       }
     };
 
     initializePreview();
-  }, [selectedVideo, selectedTemplate, previewContainerRef, isInitialized]);
+  }, [
+    selectedVideo,
+    selectedTemplate,
+    previewContainerRef,
+    isInitialized,
+    availableVideos,
+  ]);
 
   const handleGenerateCaptions = async () => {
     if (!selectedVideo) return;
 
     setIsGeneratingCaptions(true);
-    setShowCaptionDialog(true);
-
     try {
-      const videoUrl = getVideoUrl(selectedVideo);
-      await videoCreator.fetchCaptions(videoUrl, "element-id");
-      setShowCaptionDialog(false);
-      setIsGeneratingCaptions(false);
+      // Captions generation logic
+      // Assuming you have a service for captions generation
+      const captions = await videoCreator.fetchCaptions(
+        selectedVideo.url, "captions"
+      );
+      const randomFontStyle = getRandomFontStyle();
+      await videoCreator.queueCaptionsUpdate(
+        "video1",
+        captions,
+        randomFontStyle
+      );
+      await videoCreator.applyQueuedUpdates();
+      setIsCaptionsGenerated(true);
     } catch (err) {
-      setError("Failed to generate captions");
+      setError("Failed to generate captions: " + (err as Error).message);
+    } finally {
       setIsGeneratingCaptions(false);
-      setShowCaptionDialog(false);
-      setIsErrorDialogOpen(true); // Open error dialog
     }
+  };
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -116,7 +133,6 @@ const Render: React.FC<RenderProps> = ({
       exit={{ opacity: 0, y: -20 }}
       className="flex flex-col h-full"
     >
-      {/* Video Preview */}
       <div className="flex-grow relative border rounded-t-xl">
         {!isInitialized && !error && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/20 rounded-t-xl">
@@ -124,7 +140,6 @@ const Render: React.FC<RenderProps> = ({
             <p className="text-xl font-bold ml-4">Initializing editor...</p>
           </div>
         )}
-
         {error && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/20 rounded-t-xl">
             <p className="text-xl font-bold text-red-600">
@@ -132,7 +147,6 @@ const Render: React.FC<RenderProps> = ({
             </p>
           </div>
         )}
-
         <div
           ref={previewContainerRef}
           className="relative w-full h-full border rounded-t-xl"
@@ -140,7 +154,6 @@ const Render: React.FC<RenderProps> = ({
         />
       </div>
 
-      {/* Video Control Bar */}
       <div className="bg-card p-4 rounded-b-lg">
         <div className="flex justify-between items-center">
           <div className="flex space-x-2 items-center">
@@ -156,11 +169,11 @@ const Render: React.FC<RenderProps> = ({
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() =>
+                onClick={() => {
                   videoCreator.isPlaying
                     ? videoCreator.preview?.pause()
-                    : videoCreator.preview?.play()
-                }
+                    : videoCreator.preview?.play();
+                }}
                 disabled={!isInitialized || !!error}
               >
                 {videoCreator.isPlaying ? (
@@ -184,7 +197,6 @@ const Render: React.FC<RenderProps> = ({
           </div>
 
           <div className="flex space-x-2">
-            {/* Caption Generation Button */}
             <Button
               onClick={handleGenerateCaptions}
               className="mt-4"
@@ -192,7 +204,7 @@ const Render: React.FC<RenderProps> = ({
                 !isInitialized ||
                 !selectedVideo ||
                 isGeneratingCaptions ||
-                !!error
+                isCaptionsGenerated
               }
             >
               <FileTextIcon className="mr-2 w-4 h-4" />
@@ -201,13 +213,10 @@ const Render: React.FC<RenderProps> = ({
                 : "Generate Captions"}
             </Button>
 
-            {/* Export Button */}
             <Button
               onClick={handleExport}
               className="mt-4"
-              disabled={
-                !isInitialized || isRendering || !isCaptionsGenerated || !!error
-              }
+              disabled={!isInitialized || isRendering || !isCaptionsGenerated}
             >
               <DownloadIcon className="mr-2 w-4 h-4" />
               {isRendering ? "Rendering..." : "Export Video"}
@@ -216,42 +225,14 @@ const Render: React.FC<RenderProps> = ({
         </div>
       </div>
 
-      {/* Error Handling Alert Dialog */}
-      {error && (
-        <>
-          <AlertDialog
-            open={isErrorDialogOpen}
-            onOpenChange={setIsErrorDialogOpen}
-          >
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Error</AlertDialogTitle>
-              </AlertDialogHeader>
-              <AlertDialogDescription>
-                {error} {/* Display the actual error message */}
-              </AlertDialogDescription>
-              <AlertDialogFooter>
-                <AlertDialogAction onClick={() => setIsErrorDialogOpen(false)}>
-                  Close
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </>
-      )}
-
-      {/* Caption Fetching Dialog */}
-      <AlertDialog open={showCaptionDialog} onOpenChange={setShowCaptionDialog}>
+      <AlertDialog open={!!error}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Fetching Captions</AlertDialogTitle>
+            <AlertDialogTitle>Error</AlertDialogTitle>
           </AlertDialogHeader>
-          <AlertDialogDescription>
-            Please wait while we generate captions for your video...
-          </AlertDialogDescription>
-          <Loader className="h-8 w-8 animate-spin mx-auto mt-4" />
+          <AlertDialogDescription>{error}</AlertDialogDescription>
           <AlertDialogFooter>
-            <AlertDialogAction disabled>Please Wait...</AlertDialogAction>
+            <Button onClick={() => setError(null)}>Close</Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -72,10 +72,6 @@ const CashClipsDashboard: React.FC<{ user: SupabaseAuthUser }> = ({ user }) => {
     );
   }
 
-  const usagePercentage = subscriptionData
-    ? (subscriptionData.used_credits / subscriptionData.total_credits) * 100
-    : 0;
-
   return (
     <div className="container mx-auto px-2 py-8 sm:px-6 lg:px-8">
       <div className="max-w-[22rem] md:max-w-full md:w-full mx-auto space-y-8">

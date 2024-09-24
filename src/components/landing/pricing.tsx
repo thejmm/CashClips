@@ -161,6 +161,73 @@ const PlanCard: React.FC<{
   const yearlyDiscount = originalYearlyPrice - plan.yearlyPrice;
 
   const isCurrentPlan = currentPlan === plan.name;
+  const isUpgrade =
+    currentPlan &&
+    pricingConfig.plans.indexOf(plan) >
+      pricingConfig.plans.findIndex((p) => p.name === currentPlan);
+  const isDowngrade =
+    currentPlan &&
+    pricingConfig.plans.indexOf(plan) <
+      pricingConfig.plans.findIndex((p) => p.name === currentPlan);
+
+  const handlePortalAction = async () => {
+    const response = await fetch("/api/stripe/create-portal-session", {
+      method: "POST",
+    });
+    const data = await response.json();
+    if (data.url) {
+      window.location.href = data.url;
+    }
+  };
+
+  const renderButton = () => {
+    if (!isLoggedIn) {
+      return (
+        <Link href="/login" passHref>
+          <Button
+            variant="ringHover"
+            className="w-full group transition-all duration-300"
+          >
+            {plan.buttonText}
+            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Button>
+        </Link>
+      );
+    }
+
+    if (isCurrentPlan) {
+      return (
+        <Button variant="outline" className="w-full" disabled>
+          Current Plan
+        </Button>
+      );
+    }
+
+    if (currentPlan) {
+      return (
+        <Button
+          variant="ringHover"
+          className="w-full group transition-all duration-300"
+          onClick={handlePortalAction}
+        >
+          {isUpgrade ? "Upgrade" : "Downgrade"}
+          <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+        </Button>
+      );
+    }
+
+    return (
+      <Link href={`/checkout?price_id=${priceId}`} passHref>
+        <Button
+          variant="ringHover"
+          className="w-full group transition-all duration-300"
+        >
+          {plan.buttonText}
+          <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+        </Button>
+      </Link>
+    );
+  };
 
   return (
     <motion.div
@@ -239,26 +306,7 @@ const PlanCard: React.FC<{
             </div>
           )}
         </CardContent>
-        <div className="p-6 pt-0 mt-auto">
-          {isCurrentPlan ? (
-            <Button variant="outline" className="w-full" disabled>
-              Current Plan
-            </Button>
-          ) : (
-            <Link
-              href={isLoggedIn ? `/checkout?price_id=${priceId}` : "/login"}
-              passHref
-            >
-              <Button
-                variant="ringHover"
-                className="w-full group transition-all duration-300"
-              >
-                {plan.buttonText}
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Button>
-            </Link>
-          )}
-        </div>
+        <div className="p-6 pt-0 mt-auto">{renderButton()}</div>
       </Card>
     </motion.div>
   );

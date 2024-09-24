@@ -1,4 +1,6 @@
 // src/components/user/create/template.tsx
+import React, { useEffect } from "react";
+
 import { DefaultSource } from "@/utils/creatomate/templates";
 import { motion } from "framer-motion";
 
@@ -13,6 +15,12 @@ const Template: React.FC<TemplateProps> = ({
   handleTemplateSelect,
   defaultSources,
 }) => {
+  useEffect(() => {
+    console.log("Template component mounted");
+    console.log("Available templates:", defaultSources.map(t => t.name));
+    console.log("Selected template:", selectedTemplate?.name);
+  }, [selectedTemplate, defaultSources]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -30,7 +38,10 @@ const Template: React.FC<TemplateProps> = ({
               ? "border-blue-500 border-2"
               : "hover:border-blue-500"
           }`}
-          onClick={() => handleTemplateSelect(template)}
+          onClick={() => {
+            console.log("Template selected:", template.name);
+            handleTemplateSelect(template);
+          }}
         >
           <img
             src={template.coverImage}
