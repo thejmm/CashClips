@@ -2,18 +2,10 @@
 import { Preview, PreviewState } from "@creatomate/preview";
 import { makeAutoObservable, runInAction } from "mobx";
 
+import { CloudinaryVideo } from "@/types/cloudinary"; // Updated import
 import { DefaultSource } from "@/utils/creatomate/templates";
 import { FontStyle } from "@/utils/creatomate/font-types";
-import { VimeoVideo } from "@/types/vimeo";
 import { v4 as uuid } from "uuid";
-
-export function getVideoUrl(video: VimeoVideo): string {
-  const largestSize = video.pictures.sizes.reduce((prev, current) =>
-    prev.width > current.width ? prev : current,
-  );
-  const videoId = video.uri.split("/").pop();
-  return largestSize.link.replace(/\/[^\/]+$/, `/${videoId}.mp4`);
-}
 
 class VideoCreatorStore {
   preview?: Preview = undefined;
@@ -44,7 +36,7 @@ class VideoCreatorStore {
     const preview = new Preview(
       htmlElement,
       "interactive",
-      process.env.NEXT_PUBLIC_CREATOMATE_PUBLIC_TOKEN!,
+      process.env.NEXT_PUBLIC_CREATOMATE_PUBLIC_TOKEN!
     );
 
     this.preview = preview;
@@ -106,7 +98,7 @@ class VideoCreatorStore {
 
     const source = this.preview.getSource();
     const elementToUpdate = source.elements.find(
-      (el: any) => el.id === elementId,
+      (el: any) => el.id === elementId
     );
     if (elementToUpdate) {
       elementToUpdate.source = newSource;
@@ -115,77 +107,69 @@ class VideoCreatorStore {
   }
 
   async updateTemplateWithSelectedVideo(
-    selectedVideo: VimeoVideo,
-    availableVideos: VimeoVideo[],
+    selectedVideo: CloudinaryVideo, // Updated type
+    availableVideos: CloudinaryVideo[] // Updated type
   ): Promise<void> {
     if (!this.preview || !this.selectedSource) return;
 
     const source = this.preview.getSource();
-    const selectedVideoUrl = getVideoUrl(selectedVideo);
+    const selectedVideoUrl = selectedVideo.url; // Use the URL directly
     const selectedVideoDuration = selectedVideo.duration;
 
     console.log("Updating template with selected video:", selectedVideoUrl);
-    console.log("Selected video duration:", selectedVideoDuration);
 
-    const updateVideoElement = (el: any) => {
-      el.source = selectedVideoUrl;
-      el.duration = selectedVideoDuration;
-    };
+    const videoElements = source.elements.filter(
+      (el: any) => el.type === "video"
+    );
 
-    if (this.isBlurTemplate() || this.isPictureInPictureTemplate()) {
-      console.log("Applying blur or picture-in-picture template");
-      source.elements.forEach((el: any) => {
-        if (el.type === "video") {
-          updateVideoElement(el);
+    switch (this.selectedSource.type) {
+      case "portrait-split":
+        await this.updateVideoElement(videoElements[0], selectedVideo);
+        break;
+      case "landscape-split":
+        await this.updateVideoElement(videoElements[0], selectedVideo);
+        break;
+      case "blur-vertical":
+      case "blur-horizontal":
+      case "picture-in-picture":
+        // Update all video elements for these templates
+        for (const element of videoElements) {
+          await this.updateVideoElement(element, selectedVideo);
         }
-      });
-    } else if (this.isSplitTemplate()) {
-      console.log("Applying split template");
-      const videoElements = source.elements.filter(
-        (el: any) => el.type === "video",
-      );
-      const randomIndex = Math.floor(Math.random() * videoElements.length);
-
-      videoElements.forEach((el: any, index: number) => {
-        if (index === randomIndex) {
-          updateVideoElement(el);
-        } else {
-          const randomVideo =
-            availableVideos[Math.floor(Math.random() * availableVideos.length)];
-          el.source = randomVideo;
-          el.duration = selectedVideoDuration;
+        break;
+      case "square":
+        await this.updateVideoElement(videoElements[0], selectedVideo);
+        break;
+      default:
+        console.warn("Unknown template type:", this.selectedSource.type);
+        for (const element of videoElements) {
+          await this.updateVideoElement(element, selectedVideo);
         }
-      });
-    } else {
-      console.log("Applying default template");
-      const videoElement = source.elements.find(
-        (el: any) => el.type === "video",
-      );
-      if (videoElement) {
-        updateVideoElement(videoElement);
-      }
     }
 
-    // Update the overall composition duration to match the selected video
     source.duration = selectedVideoDuration;
 
     console.log(
       "Source elements after update:",
-      JSON.stringify(source.elements, null, 2),
+      JSON.stringify(source.elements, null, 2)
     );
 
     await this.preview.setSource(source, true);
 
-    // Update the total duration in the store
     runInAction(() => {
       this.totalDuration = selectedVideoDuration;
     });
   }
 
+  private async updateVideoElement(element: any, video: CloudinaryVideo) {
+    element.source = video.url;
+    element.duration = video.duration;
+  }
+
   async addCaptionsAsElements(
     elementId: string,
     captions: any,
-    fontStyle: FontStyle,
+    fontStyle: FontStyle
   ): Promise<void> {
     if (!this.preview || !captions) return;
 
@@ -216,7 +200,7 @@ class VideoCreatorStore {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url }),
-      },
+      }
     );
 
     if (!response.ok) {
@@ -233,15 +217,44 @@ class VideoCreatorStore {
   }
 
   isBlurTemplate(): boolean {
-    return this.selectedSource?.type === "blur";
+    return (
+      this.selectedSource?.type === "blur-vertical" ||
+      this.selectedSource?.type === "blur-horizontal"
+    );
   }
 
   isSplitTemplate(): boolean {
-    return this.selectedSource?.type === "split";
+    return (
+      this.selectedSource?.type === "portrait-split" ||
+      this.selectedSource?.type === "landscape-split"
+    );
   }
 
   isPictureInPictureTemplate(): boolean {
     return this.selectedSource?.type === "picture-in-picture";
+  }
+
+  isSquareTemplate(): boolean {
+    return this.selectedSource?.type === "square";
+  }
+
+  getTemplateOrientation(): "portrait" | "landscape" | "square" | "unknown" {
+    if (!this.selectedSource) return "unknown";
+
+    switch (this.selectedSource.type) {
+      case "portrait-split":
+      case "blur-vertical":
+        return "portrait";
+      case "landscape-split":
+      case "blur-horizontal":
+        return "landscape";
+      case "square":
+        return "square";
+      case "picture-in-picture":
+        return "unknown";
+      default:
+        return "unknown";
+    }
   }
 
   async skipForward(hold: boolean = false): Promise<void> {
@@ -261,7 +274,7 @@ class VideoCreatorStore {
   async finishVideo(
     modifications: any = {},
     outputFormat: string = "mp4",
-    frameRate: number = 30,
+    frameRate: number = 30
   ): Promise<string> {
     if (!this.preview || !this.userId) {
       throw new Error("Preview is not initialized or user ID is not set");
@@ -283,7 +296,7 @@ class VideoCreatorStore {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify([renderJob]),
-      },
+      }
     );
 
     if (!response.ok) {
@@ -304,7 +317,7 @@ class VideoCreatorStore {
         try {
           const response = await fetch(
             `https://thejmm--render-cash-clips-fastapi-app.modal.run/api/creatomate/fetch-render-status?id=${jobId}`,
-            { method: "GET", headers: { "Content-Type": "application/json" } },
+            { method: "GET", headers: { "Content-Type": "application/json" } }
           );
 
           if (!response.ok) {
@@ -327,12 +340,12 @@ class VideoCreatorStore {
             clearInterval(pollInterval);
             reject(
               new Error(
-                `Job ${jobId} failed: ${jobStatus.error || "Unknown error"}`,
-              ),
+                `Job ${jobId} failed: ${jobStatus.error || "Unknown error"}`
+              )
             );
           } else if (
             !["rendering", "planned", "waiting", "transcribing"].includes(
-              jobStatus.status,
+              jobStatus.status
             )
           ) {
             clearInterval(pollInterval);

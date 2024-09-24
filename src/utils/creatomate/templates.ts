@@ -1,3 +1,4 @@
+// src/utils/creatomate/templates.ts
 import { DefaultSource } from "./template-types";
 import { v4 as uuidv4 } from "uuid";
 
@@ -36,7 +37,7 @@ export const defaultSources: DefaultSource[] = [
     name: "Portrait Split Screen",
     coverImage: "/templates/split-screen-portrait.png",
     layout: "portrait",
-    type: "split",
+    type: "portrait-split",
     data: {
       output_format: "mp4",
       width: 1080,
@@ -55,7 +56,7 @@ export const defaultSources: DefaultSource[] = [
     name: "Landscape Split Screen",
     coverImage: "/templates/split-screen-landscape.png",
     layout: "landscape",
-    type: "split",
+    type: "landscape-split",
     data: {
       output_format: "mp4",
       width: 1920,
@@ -75,7 +76,7 @@ export const defaultSources: DefaultSource[] = [
     name: "Portrait Blur Sides",
     coverImage: "/templates/blur-portrait.png",
     layout: "portrait",
-    type: "blur",
+    type: "blur-vertical",
     data: {
       output_format: "mp4",
       width: 1080,
@@ -109,7 +110,7 @@ export const defaultSources: DefaultSource[] = [
     name: "Landscape Blur Sides",
     coverImage: "/templates/blur-landscape.png",
     layout: "landscape",
-    type: "blur",
+    type: "blur-horizontal",
     data: {
       output_format: "mp4",
       width: 1920,
@@ -173,7 +174,7 @@ export const defaultSources: DefaultSource[] = [
     name: "Perfect Square",
     coverImage: "/templates/square.png",
     layout: "square",
-    type: "custom",
+    type: "square",
     data: {
       output_format: "mp4",
       width: 1080,
@@ -189,26 +190,6 @@ export const defaultSources: DefaultSource[] = [
           fit: "cover",
         },
       ],
-    },
-  },
-  {
-    name: "Triple Vertical Split",
-    coverImage: "/templates/triple-split-vertical.png",
-    layout: "portrait",
-    type: "custom",
-    data: {
-      output_format: "mp4",
-      width: 1080,
-      height: 1920,
-      elements: getRandomVideos(3).map((url, index) => ({
-        id: uuidv4(),
-        duration: 10,
-        source: url,
-        type: "video",
-        y: `${16.67 + index * 33.33}%`,
-        height: "33.33%",
-        width: "100%",
-      })),
     },
   },
 ];

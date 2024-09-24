@@ -186,7 +186,7 @@ export interface DefaultSource {
   name: string;
   coverImage: string;
   layout: "portrait" | "landscape" | "square" | "custom";
-  type: "split" | "blur" | "custom" | "picture-in-picture";
+  type: 'portrait-split' | 'landscape-split' | 'blur-vertical' | 'blur-horizontal' | 'picture-in-picture' | 'square';
   data: {
     output_format: "jpg" | "png" | "gif" | "mp4";
     width: number;
