@@ -13,57 +13,6 @@ export function HowItWorksSection() {
 
   const data = [
     {
-      title: "Pick a Template",
-      content: (
-        <div>
-          <div className="flex items-center mb-4">
-            <Layout className="w-8 h-8 mr-4 text-primary" />
-            <p className="text-neutral-800 dark:text-neutral-200 text-sm font-normal">
-              Choose a template that fits your style and content.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <img
-              src="https://via.placeholder.com/500x500.png?text=Template+Gallery"
-              alt="Template selection"
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
-            />
-            <img
-              src="https://via.placeholder.com/500x500.png?text=Template+Customization"
-              alt="Template customization"
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
-            />
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Choose Game Type",
-      content: (
-        <div>
-          <div className="flex items-center mb-4">
-            <FaGamepad className="w-8 h-8 mr-4 text-primary" />
-            <p className="text-neutral-800 dark:text-neutral-200 text-sm font-normal">
-              Select the type of game and customize additional settings like
-              split templates.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <img
-              src="https://via.placeholder.com/500x500.png?text=Game+Type"
-              alt="Game Type"
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
-            />
-            <img
-              src="https://via.placeholder.com/500x500.png?text=Split+Template+Options"
-              alt="Split Template"
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
-            />
-          </div>
-        </div>
-      ),
-    },
-    {
       title: "Select Your Streamer",
       content: (
         <div>
@@ -75,16 +24,91 @@ export function HowItWorksSection() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <img
-              src="https://via.placeholder.com/500x500.png?text=Streamer+Selection"
-              alt="Streamer selection"
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
+              src="/streamers/jack-doherty.png"
+              alt="Mass clips view"
+              className="rounded-lg object-contain h-20 md:h-48 lg:h-64 w-full"
             />
             <img
-              src="https://via.placeholder.com/500x500.png?text=Mass+Clips+View"
-              alt="Mass clips view"
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
+              src="/streamers/ishowspeed.png"
+              alt="Streamer selection"
+              className="rounded-lg object-contain h-20 md:h-48 lg:h-64 w-full"
             />
           </div>
+        </div>
+      ),
+    },
+    {
+      title: "Select Your Clip",
+      content: (
+        <div>
+          <div className="flex items-center mb-4">
+            <FaStream className="w-8 h-8 mr-4 text-primary" />
+            <p className="text-neutral-800 dark:text-neutral-200 text-sm font-normal">
+              Pick the clip from your favorite streamer from our mass library.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <video
+              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
+              autoPlay
+              muted
+              loop
+              controls={false}
+            >
+              <source src="/assets/clips1.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            <video
+              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
+              autoPlay
+              muted
+              loop
+              controls={false}
+            >
+              <source src="/assets/clips2.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Pick a Template",
+      content: (
+        <div>
+          <div className="flex items-center mb-4">
+            <Layout className="w-8 h-8 mr-4 text-primary" />
+            <p className="text-neutral-800 dark:text-neutral-200 text-sm font-normal">
+              Choose a template that fits your style and content.
+            </p>
+          </div>
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <img
+                src="/templates/blur-landscape.png"
+                alt="Template selection"
+                className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
+              />
+              <img
+                src="/templates/blur-portrait.png"
+                alt="Template customization"
+                className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <img
+                src="/templates/split-screen-portrait.png"
+                alt="Template selection"
+                className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
+              />
+              <img
+                src="/templates/split-screen-landscape.png"
+                alt="Template customization"
+                className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4"></div>
         </div>
       ),
     },
@@ -100,14 +124,14 @@ export function HowItWorksSection() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <img
-              src="https://via.placeholder.com/500x500.png?text=Auto+Captioning"
+              src="/assets/captions1.png"
               alt="Auto captioning"
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
+              className="rounded-lg object-contain h-20 md:h-44 lg:h-60 w-full"
             />
             <img
-              src="https://via.placeholder.com/500x500.png?text=Manual+Captioning"
+              src="/assets/captions2.png"
               alt="Manual captioning"
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
+              className="rounded-lg object-contain h-20 md:h-44 lg:h-60 w-full"
             />
           </div>
         </div>
@@ -123,17 +147,38 @@ export function HowItWorksSection() {
               Create your clip, download, and share it across platforms.
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <img
-              src="https://via.placeholder.com/500x500.png?text=Clip+Generation"
-              alt="Clip generation"
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
-            />
-            <img
-              src="https://via.placeholder.com/500x500.png?text=Sharing+Options"
-              alt="Sharing options"
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
-            />
+          <div className="flex items-center gap-4">
+            <video
+              className="rounded-lg object-contain h-32 md:h-56 xl:h-[22rem] w-auto"
+              autoPlay
+              muted
+              loop
+              controls={false}
+            >
+              <source src="/assets/share2.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            <video
+              className="rounded-lg object-contain h-36 md:h-64 xl:h-96 w-auto"
+              autoPlay
+              muted
+              loop
+              controls={false}
+            >
+              <source src="/assets/share1.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+
+            <video
+              className="rounded-lg object-contain h-32 md:h-56 xl:h-[22rem] w-auto"
+              autoPlay
+              muted
+              loop
+              controls={false}
+            >
+              <source src="/assets/share3.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
           </div>
         </div>
       ),
@@ -158,7 +203,7 @@ export function HowItWorksSection() {
   return (
     <section
       id="how-it-works"
-      className="rounded-3xl bg-accent py-12"
+      className="rounded-3xl bg-secondary py-12"
       ref={sectionRef}
     >
       <div className="max-w-7xl mx-auto py-20 px-4 md:px-8 lg:px-10">

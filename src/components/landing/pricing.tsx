@@ -28,13 +28,13 @@ export const pricingConfig = {
       id: "prod_QsAwqGUvll7to7",
       name: "Starter",
       description:
-        "For new clippers starting their journey. Get essential tools to clip and share your favorite moments.",
+        "For new clippers starting their journey. Get essential tools to clip and make cash.",
       monthlyPrice: 1299, // $12.99
       yearlyPrice: 14029, // 10% off
       buttonText: "Go Starter",
       features: [
-        "Generate 15 clips per month", // 15 clips per month
-        "720p/30fps export quality", // 720p/30fps
+        "Generate 15 clips per month",
+        "Max 30fps export quality",
         "Max 30s video length",
         "Basic auto-captioning",
       ],
@@ -42,24 +42,38 @@ export const pricingConfig = {
         month: "price_1Q0QacGXekY7Ey1HF9xNx8pF",
         year: "price_1Q0QacGXekY7Ey1HkFuCuQUo",
       },
-      // Cost per clip to us: 8.29 credits per clip (720p/30fps for 30s)
-      // Total credits used: 15 clips * 8.29 credits = 124.35 credits/month
-      // Cost to us: 124.35 credits * $0.0099 = $1.23/month
-      // Revenue: $12.99/month
-      // Profit: $12.99 - $1.23 = $11.76/month
-      // Yearly profit with 10% discount: $140.29 - (12 * $1.23) = $125.65/year
+    },
+    {
+      id: "prod_NEW_CLIPPER_PLAN",
+      name: "Clipper",
+      description:
+        "Perfect for clippers who need high-quality clips and more flexibility to cover daily posting limits.",
+      monthlyPrice: 2999, // $29.99
+      yearlyPrice: 32988, // 10% off
+      isPopular: true,
+      buttonText: "Go Clipper",
+      features: [
+        "Generate 30 clips per month",
+        "Max 30fps export quality",
+        "Max 60s video length",
+        "Advanced auto-captioning",
+      ],
+      stripePriceId: {
+        month: "price_1NEW123GXekY7Ey1H",
+        year: "price_1NEW456GXekY7Ey1H",
+      },
     },
     {
       id: "prod_QuBBHuwTXizC4Z",
-      name: "Pro",
+      name: "Streamer",
       description:
-        "Ideal for dedicated clippers and growing channels. Enhance your content with more clips.",
+        "Ideal for streamers who need high-quality clips and more flexibility to cover 2x daily posting limits.",
       monthlyPrice: 6999, // $69.99
       yearlyPrice: 75589, // 10% off
-      buttonText: "Go Pro",
+      buttonText: "Go Streamer",
       features: [
-        "Generate 50 clips per month", // 50 clips per month
-        "1080p/30fps export quality", // 1080p/30fps
+        "Generate 60 clips per month",
+        "Max 30fps export quality",
         "Max 60s video length",
         "Advanced auto-captioning",
       ],
@@ -67,25 +81,19 @@ export const pricingConfig = {
         month: "price_1Q2MozGXekY7Ey1Hmlxlymo1",
         year: "price_1Q2MpEGXekY7Ey1Hmddlf2mC",
       },
-      // Cost per clip to us: 37.32 credits per clip (1080p/30fps for 60s)
-      // Total credits used: 50 clips * 37.32 credits = 1,866 credits/month
-      // Cost to us: 1,866 credits * $0.0099 = $18.47/month
-      // Revenue: $69.99/month
-      // Profit: $69.99 - $18.47 = $51.52/month
-      // Yearly profit with 10% discount: $755.89 - (12 * $18.47) = $534.28/year
     },
     {
       id: "prod_QuBBBQZF76RFMu",
       name: "Ultimate",
       description:
         "For professional clippers and popular streamers. Maximize your content output with high-quality clips.",
-      monthlyPrice: 14999, // $149.99
-      yearlyPrice: 161989, // 10% off
+      monthlyPrice: 15999, // $159.99
+      yearlyPrice: 172789, // 10% off
       buttonText: "Go Ultimate",
       isPro: true,
       features: [
-        "Generate 100 clips per month", // 100 clips per month
-        "1080p/60fps export quality", // 1080p/60fps
+        "Generate 100 clips per month",
+        "Max 60fps export quality",
         "Max 60s video length",
         "Premium auto-captioning",
       ],
@@ -93,24 +101,18 @@ export const pricingConfig = {
         month: "price_1Q2MpbGXekY7Ey1HQjaqseUy",
         year: "price_1Q2MpmGXekY7Ey1HnnJoOqOS",
       },
-      // Cost per clip to us: 74.65 credits per clip (1080p/60fps for 60s)
-      // Total credits used: 100 clips * 74.65 credits = 7,465 credits/month
-      // Cost to us: 7,465 credits * $0.0099 = $73.91/month
-      // Revenue: $149.99/month
-      // Profit: $149.99 - $73.91 = $76.08/month
-      // Yearly profit with 10% discount: $1,619.89 - (12 * $73.91) = $734.83/year
     },
     {
       id: "prod_QuBC5R7bvRKKAx",
       name: "Agency",
       description:
         "Perfect for clip agencies and large creator teams. Get powerful tools to manage multiple channels efficiently.",
-      monthlyPrice: 49999, // $499.99
-      yearlyPrice: 539989, // 10% off
+      monthlyPrice: 31998, // $319.98 (2x Ultimate)
+      yearlyPrice: 345578, // 10% off of 2x Ultimate
       buttonText: "Go Agency",
       features: [
-        "Generate 200 clips per month", // 200 clips per month
-        "1080p/60fps export quality", // 1080p/60fps
+        "Generate 200 clips per month",
+        "Max 60fps export quality",
         "Max 60s video length",
         "Premium auto-captioning",
       ],
@@ -118,12 +120,6 @@ export const pricingConfig = {
         month: "price_1Q2Mq2GXekY7Ey1HD1m6009W",
         year: "price_1Q2MqGGXekY7Ey1HeYd7iICb",
       },
-      // Cost per clip to us: 74.65 credits per clip (1080p/60fps for 60s)
-      // Total credits used: 200 clips * 74.65 credits = 14,930 credits/month
-      // Cost to us: 14,930 credits * $0.0099 = $147.81/month
-      // Revenue: $499.99/month
-      // Profit: $499.99 - $147.81 = $352.18/month
-      // Yearly profit with 10% discount: $5,399.89 - (12 * $147.81) = $3,624.13/year
     },
   ],
   defaultInterval: "month" as "month" | "year",
@@ -153,7 +149,16 @@ const PlanCard: React.FC<{
   isInView: boolean;
   currentPlan: string | null;
   isLoggedIn: boolean;
-}> = ({ plan, interval, index, isInView, currentPlan, isLoggedIn }) => {
+  isHorizontal?: boolean;
+}> = ({
+  plan,
+  interval,
+  index,
+  isInView,
+  currentPlan,
+  isLoggedIn,
+  isHorizontal = false,
+}) => {
   const currentPrice =
     interval === "year" ? plan.yearlyPrice : plan.monthlyPrice;
   const priceId = plan.stripePriceId[interval];
@@ -231,83 +236,100 @@ const PlanCard: React.FC<{
 
   return (
     <motion.div
-      className={`flex flex-col ${
-        plan.isPro ? "border-2 border-primary rounded-xl" : ""
-      }`}
+      className={`relative flex ${
+        isHorizontal ? "flex-col lg:flex-row" : "justify-between flex-col"
+      } ${
+        plan.isPro || plan.isPopular
+          ? "border-2 border-primary"
+          : "border border-border"
+      } rounded-xl overflow-hidden h-full`}
       variants={cardVariants}
       initial="hidden"
       animate={isInView ? "visible" : "hidden"}
       custom={index}
     >
-      <Card className="h-full">
-        <CardHeader className="relative">
-          {plan.isPro && (
-            <p className="absolute top-0 right-0 bg-primary rounded-bl-lg rounded-tr-lg px-2 py-1 text-secondary font-semibold">
-              Most Popular
-            </p>
-          )}
-          <CardTitle className="text-xl">{plan.name}</CardTitle>
-          <CardDescription>{plan.description}</CardDescription>
-        </CardHeader>
-        <CardContent className="flex-grow">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`${plan.id}-${interval}-${currentPrice}`}
-              className="mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.4, ease: [0.21, 0.47, 0.32, 0.98] }}
-            >
-              {interval === "year" ? (
-                <>
-                  <div className="text-muted-foreground mb-1">
-                    <span className="text-2xl line-through">
-                      ${toHumanPrice(originalYearlyPrice, 2)}
-                    </span>
-                    <span className="text-sm font-normal">/year</span>
-                  </div>
-                  <div className="text-4xl font-bold">
-                    ${toHumanPrice(currentPrice, 2)}
-                    <span className="text-sm font-normal text-muted-foreground">
-                      /year
-                    </span>
-                  </div>
-                  <motion.p
-                    className="text-sm text-green-500 font-semibold mt-1"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.2 }}
-                  >
-                    Save ${toHumanPrice(yearlyDiscount, 2)} per year!
-                  </motion.p>
-                </>
-              ) : (
+      {plan.isPopular && (
+        <p className="absolute top-0 right-0 bg-primary rounded-bl-lg rounded-tr-lg px-2 py-1 text-secondary font-semibold text-xs">
+          Trending
+        </p>
+      )}
+      {plan.isPro && (
+        <p className="absolute top-0 right-0 bg-primary rounded-bl-lg rounded-tr-lg px-2 py-1 text-secondary font-semibold text-xs">
+          Best Value
+        </p>
+      )}
+      <div
+        className={`flex flex-col ${isHorizontal ? "lg:w-2/3" : "w-full"} p-6`}
+      >
+        <div className="relative mb-4">
+          <h3 className="text-2xl font-bold">{plan.name}</h3>
+          <p className="text-muted-foreground mt-1">{plan.description}</p>
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`${plan.id}-${interval}-${currentPrice}`}
+            className="mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4, ease: [0.21, 0.47, 0.32, 0.98] }}
+          >
+            {interval === "year" ? (
+              <>
+                <div className="text-muted-foreground mb-1">
+                  <span className="text-2xl line-through">
+                    ${toHumanPrice(originalYearlyPrice, 2)}
+                  </span>
+                  <span className="text-sm font-normal">/year</span>
+                </div>
                 <div className="text-4xl font-bold">
                   ${toHumanPrice(currentPrice, 2)}
                   <span className="text-sm font-normal text-muted-foreground">
-                    /month
+                    /year
                   </span>
                 </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
-          {plan.features && plan.features.length > 0 && (
-            <div>
-              <p className="mb-2 text-sm text-muted-foreground">Features:</p>
-              <ul className="space-y-2">
-                {plan.features.map((feature, i) => (
-                  <li key={i} className="flex items-center">
-                    <CheckIcon className="mr-2 h-5 w-5 text-primary" />
-                    <span className="text-sm">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </CardContent>
-        <div className="p-6 pt-0 mt-auto">{renderButton()}</div>
-      </Card>
+                <motion.p
+                  className="text-sm text-green-500 font-semibold mt-1"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.2 }}
+                >
+                  Save ${toHumanPrice(yearlyDiscount, 2)} per year!
+                </motion.p>
+              </>
+            ) : (
+              <div className="text-4xl font-bold">
+                ${toHumanPrice(currentPrice, 2)}
+                <span className="text-sm font-normal text-muted-foreground">
+                  /month
+                </span>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      <div
+        className={`flex flex-col justify-between ${
+          isHorizontal ? "lg:w-1/2" : "w-full"
+        } p-6 bg-muted/50`}
+      >
+        {plan.features && plan.features.length > 0 && (
+          <div className="mb-6">
+            <p className="font-semibold mb-2">Features:</p>
+            <ul className="space-y-2">
+              {plan.features.map((feature, i) => (
+                <li key={i} className="flex items-center">
+                  <CheckIcon className="mr-2 h-4 w-4 text-primary flex-shrink-0" />
+                  <span className="text-sm">{feature}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <div className="mt-auto">{renderButton()}</div>
+      </div>
     </motion.div>
   );
 };
@@ -438,9 +460,9 @@ export function CashClipsPricing({
           />
           <span className={interval === "year" ? "font-bold" : ""}>Yearly</span>
         </motion.div>
-        {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {pricingConfig.plans.map((plan, index) => (
+        {/* Bento Pricing Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-8">
+          {pricingConfig.plans.slice(0, 3).map((plan, index) => (
             <PlanCard
               key={plan.id}
               plan={plan}
@@ -449,6 +471,20 @@ export function CashClipsPricing({
               isInView={isInView}
               currentPlan={currentPlan}
               isLoggedIn={!!user}
+            />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+          {pricingConfig.plans.slice(3, 5).map((plan, index) => (
+            <PlanCard
+              key={plan.id}
+              plan={plan}
+              interval={interval}
+              index={index + 3}
+              isInView={isInView}
+              currentPlan={currentPlan}
+              isLoggedIn={!!user}
+              isHorizontal={true}
             />
           ))}
         </div>
@@ -516,53 +552,58 @@ export function CashClipsPricing({
           initial={{ opacity: 0, y: 50 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
           transition={{ duration: 0.6, delay: 0.9 }}
+          className="mt-8"
         >
-          <Card className="my-12 flex items-center justify-between overflow-hidden">
-            <CardContent className="p-6 md:p-8">
-              <CardTitle className="mb-2 text-2xl">Enterprise</CardTitle>
-              <CardDescription className="mb-6">
-                Tailored solutions for large organizations and custom
-                requirements.
-              </CardDescription>
-              <Link href="/contact" passHref>
-                <Button
-                  variant="ringHover"
-                  className="w-full group transition-all duration-300"
-                >
-                  Contact Us
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </Link>
-            </CardContent>
+          <Card className="overflow-hidden">
+            <div className="flex flex-col lg:flex-row">
+              <CardContent className="p-6 md:p-8 lg:w-1/3">
+                <CardTitle className="mb-2 text-2xl">Enterprise</CardTitle>
+                <CardDescription className="mb-6">
+                  Tailored solutions for large organizations and custom
+                  requirements.
+                </CardDescription>
+                <Link href="/contact" passHref>
+                  <Button
+                    variant="ringHover"
+                    className="w-full group transition-all duration-300"
+                  >
+                    Contact Us
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Button>
+                </Link>
+              </CardContent>
 
-            <motion.div
-              className="before:content-[''] relative isolate hidden h-[240px] w-full before:absolute before:left-32 before:top-0 before:z-[-1] before:h-full before:w-full before:skew-x-[-45deg] before:border-l before:border-muted before:bg-primary md:block lg:w-2/3"
-              initial={{ x: 100, opacity: 0 }}
-              animate={isInView ? { x: 0, opacity: 1 } : { x: 100, opacity: 0 }}
-              transition={{ duration: 0.6, delay: 1.2 }}
-            >
-              <div className="ml-12 flex h-full w-full flex-col items-center justify-center gap-y-0.5">
-                <motion.h1
-                  className="text-4xl font-bold"
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={
-                    isInView ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }
-                  }
-                  transition={{ duration: 0.4, delay: 1.5 }}
-                >
-                  Need more?
-                </motion.h1>
-                <motion.p
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={
-                    isInView ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }
-                  }
-                  transition={{ duration: 0.4, delay: 1.7 }}
-                >
-                  Contact us for more information about a custom plan.
-                </motion.p>
-              </div>
-            </motion.div>
+              <motion.div
+                className="relative isolate lg:w-2/3 bg-primary p-6 md:p-8 flex items-center justify-center"
+                initial={{ x: 100, opacity: 0 }}
+                animate={
+                  isInView ? { x: 0, opacity: 1 } : { x: 100, opacity: 0 }
+                }
+                transition={{ duration: 0.6, delay: 1.2 }}
+              >
+                <div className="text-center text-primary-foreground">
+                  <motion.h1
+                    className="text-4xl font-bold mb-2"
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={
+                      isInView ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }
+                    }
+                    transition={{ duration: 0.4, delay: 1.5 }}
+                  >
+                    Need more?
+                  </motion.h1>
+                  <motion.p
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={
+                      isInView ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }
+                    }
+                    transition={{ duration: 0.4, delay: 1.7 }}
+                  >
+                    Contact us for more information about a custom plan.
+                  </motion.p>
+                </div>
+              </motion.div>
+            </div>
           </Card>
         </motion.div>
       </div>

@@ -175,8 +175,8 @@ export function CallToAction() {
 
   return (
     <section id="cta">
-      <div className="py-14">
-        <div className="container flex w-full flex-col items-center justify-center p-4">
+      <div className="pb-14">
+        <div className="flex w-full flex-col items-center justify-center p-4">
           <div className="relative flex w-full max-w-7xl flex-col items-center justify-center overflow-hidden rounded-[2rem] border">
             <Marquee
               reverse
