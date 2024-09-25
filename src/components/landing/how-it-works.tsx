@@ -54,6 +54,7 @@ export function HowItWorksSection() {
               muted
               loop
               controls={false}
+              playsInline
             >
               <source src="/assets/clips1.mp4" type="video/mp4" />
               Your browser does not support the video tag.
@@ -64,6 +65,7 @@ export function HowItWorksSection() {
               muted
               loop
               controls={false}
+              playsInline
             >
               <source src="/assets/clips2.mp4" type="video/mp4" />
               Your browser does not support the video tag.
@@ -154,6 +156,7 @@ export function HowItWorksSection() {
               muted
               loop
               controls={false}
+              playsInline
             >
               <source src="/assets/share2.mp4" type="video/mp4" />
               Your browser does not support the video tag.
@@ -164,6 +167,7 @@ export function HowItWorksSection() {
               muted
               loop
               controls={false}
+              playsInline
             >
               <source src="/assets/share1.mp4" type="video/mp4" />
               Your browser does not support the video tag.
@@ -175,6 +179,7 @@ export function HowItWorksSection() {
               muted
               loop
               controls={false}
+              playsInline
             >
               <source src="/assets/share3.mp4" type="video/mp4" />
               Your browser does not support the video tag.
