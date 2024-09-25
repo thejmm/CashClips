@@ -52,6 +52,7 @@
     "creatomate": "^1.2.0",
     "date-fns": "^3.6.0",
     "discord.js": "^14.15.3",
+    "firebase": "^10.13.2",
     "framer-motion": "^11.3.28",
     "googleapis": "^143.0.0",
     "jotai": "^2.9.3",
