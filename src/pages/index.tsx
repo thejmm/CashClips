@@ -18,7 +18,6 @@ const LandingPage: React.FC = () => {
       />
       <div className="min-h-screen bg-background">
         <HeroSection />
-        <FeaturesSection />
         <HowItWorksSection />
         <SocialProofTestimonials />
         <CashClipsPricing />
