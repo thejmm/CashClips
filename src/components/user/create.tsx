@@ -85,6 +85,29 @@ const Create: React.FC<CreateProps> = ({ user }) => {
     }
   }, [step, router]);
 
+  useEffect(() => {
+    if (!step || !steps.includes(step as string)) {
+      router.push({ query: { step: steps[0] } });
+    }
+
+    const stepIndex = steps.indexOf(step as string);
+
+    if (stepIndex >= 1 && !selectedStreamer) {
+      router.push({ query: { step: steps[0] } });
+      return;
+    }
+
+    if (stepIndex >= 2 && !selectedVideo) {
+      router.push({ query: { step: steps[1] } });
+      return;
+    }
+
+    if (stepIndex >= 3 && !selectedTemplate) {
+      router.push({ query: { step: steps[2] } });
+      return;
+    }
+  }, [step, selectedStreamer, selectedVideo, selectedTemplate, router]);
+
   const fetchUserCreditInfo = async () => {
     try {
       const { data, error } = await supabase
@@ -185,7 +208,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
           <Streamer
             selectedStreamer={selectedStreamer}
             handleStreamerSelect={(streamer) => {
-              setSelectedStreamer(streamer);
+              setSelectedStreamer(streamer.folder as any);
               router.push({ query: { step: steps[1] } });
             }}
           />

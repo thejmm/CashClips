@@ -80,7 +80,7 @@ export function HeroSection() {
               major platforms. CashClips makes it easy to boost your online
               presence and grow your audience.
             </motion.p>
-            <Link href="/login" passHref>
+            <Link href="/user/create" passHref>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

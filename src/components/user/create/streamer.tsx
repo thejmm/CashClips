@@ -3,9 +3,15 @@ import React, { useEffect } from "react";
 
 import { motion } from "framer-motion";
 
-interface StreamerProps {
+export interface Streamer {
+  name: string;
+  folder: string;
+  image: string;
+}
+
+export interface StreamerProps {
   selectedStreamer: string | null;
-  handleStreamerSelect: (streamer: string) => void;
+  handleStreamerSelect: (streamer: Streamer) => void;
 }
 
 const Streamer: React.FC<StreamerProps> = ({
@@ -97,13 +103,13 @@ const Streamer: React.FC<StreamerProps> = ({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           className={`cursor-pointer rounded border p-4 transition-colors duration-200 ${
-            selectedStreamer === streamer.name
+            selectedStreamer === streamer.folder // Compare using folder name
               ? "border-2 border-primary"
               : "hover:border-primary"
           }`}
           onClick={() => {
             console.log("Streamer clicked:", streamer.name);
-            handleStreamerSelect(streamer.name);
+            handleStreamerSelect(streamer); // Pass the entire streamer object
           }}
         >
           <div className="mx-auto mb-2 h-36 w-full justify-center overflow-hidden rounded md:h-56">

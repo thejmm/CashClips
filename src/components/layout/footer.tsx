@@ -1,4 +1,3 @@
-import { ChevronRightIcon } from "@radix-ui/react-icons";
 import {
   RiDiscordFill,
   RiInstagramFill,
@@ -7,6 +6,7 @@ import {
 } from "react-icons/ri";
 
 import { Button } from "@/components/ui/button";
+import { ChevronRightIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
 import { ThemeToggle } from "../ui/theme-toggle";
 
@@ -60,10 +60,10 @@ const footerNavs = [
         href: "https://cashclips.featurebase.app/",
         name: "Community",
       },
-      {
-        href: "https://cashclips.promotekit.com",
-        name: "Affiliates",
-      },
+      // {
+      //   href: "https://cashclips.promotekit.com",
+      //   name: "Affiliates",
+      // },
     ],
   },
 ];
@@ -115,7 +115,7 @@ export function Footer() {
                 <p className="mt-2">
                   We&apos;re happy to help you get started with CashClips.
                 </p>
-                <Link href="/login" passHref className="w-full">
+                <Link href="/user/create" passHref className="w-full">
                   <Button
                     variant="ringHover"
                     className="group my-4 w-full rounded-full"
