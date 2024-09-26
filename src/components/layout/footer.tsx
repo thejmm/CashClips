@@ -75,7 +75,7 @@ const footerSocials = [
     icon: <RiTwitterXFill className="size-5" />,
   },
   {
-    href: "#",
+    href: "https://www.instagram.com/cashclips.io/",
     name: "Instagram",
     icon: <RiInstagramFill className="size-5" />,
   },
