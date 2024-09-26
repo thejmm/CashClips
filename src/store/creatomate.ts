@@ -96,7 +96,11 @@ class VideoCreatorStore {
     return new Promise<void>((resolve, reject) => {
       preview.onReady = async () => {
         try {
+          console.log("Preview is ready");
           await preview.setZoom("centered");
+          if (this.selectedSource) {
+            await preview.setSource(this.selectedSource.data);
+          }
           resolve();
         } catch (error) {
           reject(error);
