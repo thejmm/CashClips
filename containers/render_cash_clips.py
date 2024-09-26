@@ -21,8 +21,8 @@ logging.basicConfig(
 
 # Set your Creatomate and Supabase API keys
 CREATOMATE_API_KEY = os.getenv("CREATOMATE_API_KEY", "7999f3011bf24299af9752042eb4ac944e0f6de93ea9dfc4659316f0dcb4ab110d83558d02eb41f4f2df0a942cbcf8a8")
-SUPABASE_URL = os.getenv("SUPABASE_URL", "https://ksgwrphxqszpnfjwlzcp.supabase.co")
-SUPABASE_KEY = os.getenv("SUPABASE_ANON_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtzZ3dycGh4cXN6cG5mandsemNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjUxMjY5NTAsImV4cCI6MjA0MDcwMjk1MH0.P_3EDm5GiQm17H2FpBxUhLt49S6h-mDIkFJG-3hliIE")
+SUPABASE_URL = os.getenv("SUPABASE_URL", "https://nkjyzbsqwqmpadmdegjj.supabase.co")
+SUPABASE_KEY = os.getenv("SUPABASE_ANON_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ranl6YnNxd3FtcGFkbWRlZ2pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjczNjAzMjAsImV4cCI6MjA0MjkzNjMyMH0.Hg7e_tb3cMr0cO4XSmEtGvGNGCmBiUklkpcv8KPAqgw")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
