@@ -220,14 +220,14 @@ const ClipHistory: React.FC<ClipHistoryProps> = ({ clipData }) => {
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="h-[300px] w-full flex flex-col gap-4 justify-center items-center">
+          <div className="flex h-[300px] w-full flex-col items-center justify-center gap-4">
             <p>No data available</p>
             <Link href="/user/create" passHref>
               <Button
                 variant="ringHover"
-                className="w-full group justify-start"
+                className="group w-full justify-start"
               >
-                <PlusCircle className="mr-2 size-4 group-hover:-translate-x-1 transition-all duration-300" />
+                <PlusCircle className="mr-2 size-4 transition-all duration-300 group-hover:-translate-x-1" />
                 Generate some clips
               </Button>
             </Link>

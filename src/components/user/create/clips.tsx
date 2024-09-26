@@ -97,7 +97,7 @@ const Clips: React.FC<ClipsProps> = ({
       exit={{ opacity: 0, y: -20 }}
     >
       {loadingCategories ? (
-        <div className="flex justify-center items-center">
+        <div className="flex items-center justify-center">
           <Loader className="h-8 w-8 animate-spin" />
           <span className="ml-2">Loading categories...</span>
         </div>
@@ -122,29 +122,29 @@ const Clips: React.FC<ClipsProps> = ({
       {selectedCategory && (
         <div className="mt-4">
           {loadingVideos ? (
-            <div className="flex justify-center items-center">
+            <div className="flex items-center justify-center">
               <Loader className="h-6 w-6 animate-spin" />
               <span className="ml-2">Loading videos...</span>
             </div>
           ) : videos.length === 0 ? (
             <p className="text-center">No videos found in this category.</p>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
               {videos.map((video) => (
                 <motion.div
                   key={video.public_id}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`border p-2 rounded cursor-pointer transition-colors duration-200 ${
+                  className={`cursor-pointer rounded border p-2 transition-colors duration-200 ${
                     selectedVideo?.public_id === video.public_id
-                      ? "border-blue-500 border-2"
+                      ? "border-2 border-blue-500"
                       : "hover:border-blue-500"
                   }`}
                   onClick={() => handleVideoSelect(video)}
                 >
-                  <div className="relative w-full h-40 mb-2 overflow-hidden rounded">
+                  <div className="relative mb-2 h-40 w-full overflow-hidden rounded">
                     <video
-                      className="w-full h-full object-cover"
+                      className="h-full w-full object-cover"
                       src={video.url}
                       controls={false}
                       autoPlay={false}
@@ -153,11 +153,11 @@ const Clips: React.FC<ClipsProps> = ({
                       playsInline
                       style={{ pointerEvents: "none" }}
                     />
-                    <span className="absolute bottom-1 left-1 text-white bg-black bg-opacity-50 text-xs px-1 rounded">
+                    <span className="absolute bottom-1 left-1 rounded bg-black bg-opacity-50 px-1 text-xs text-white">
                       {video.duration.toFixed(2)}s
                     </span>
                   </div>
-                  <p className="text-center font-medium truncate">{video.id}</p>
+                  <p className="truncate text-center font-medium">{video.id}</p>
                 </motion.div>
               ))}
             </div>

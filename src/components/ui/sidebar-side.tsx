@@ -90,7 +90,7 @@ export const DesktopSidebar = ({
     <>
       <motion.div
         className={cn(
-          "h-full px-3 hidden  md:flex md:flex-col w-[180px] flex-shrink-0",
+          "hidden h-full w-[180px] flex-shrink-0 px-3 md:flex md:flex-col",
           className,
         )}
         animate={{
@@ -121,7 +121,7 @@ export const SidebarLink = ({
     <Link
       href={link.href}
       className={cn(
-        "flex items-center rounded-full p-1 my-2 justify-start gap-2 group/sidebar",
+        "group/sidebar my-2 flex items-center justify-start gap-2 rounded-full p-1",
         className,
       )}
       onClick={(e) => {
@@ -131,14 +131,14 @@ export const SidebarLink = ({
       }}
       {...props}
     >
-      <p className="w-7 h-7">{link.icon}</p>
+      <p className="h-7 w-7">{link.icon}</p>
 
       <motion.span
         animate={{
           display: animate ? (open ? "inline-block" : "none") : "inline-block",
           opacity: animate ? (open ? 1 : 0) : 1,
         }}
-        className=" text-lg group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
+        className="!m-0 inline-block whitespace-pre !p-0 text-lg transition duration-150 group-hover/sidebar:translate-x-1"
       >
         {link.label}
       </motion.span>

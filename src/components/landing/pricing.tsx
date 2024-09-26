@@ -34,9 +34,9 @@ export const pricingConfig = {
       buttonText: "Go Starter",
       features: [
         "Generate 15 clips per month",
-        "Max 30fps export quality",
-        "Max 30s video length",
-        "Basic auto-captioning",
+        "30fps export quality",
+        "30s video length",
+        "Auto-captioning",
       ],
       stripePriceId: {
         month: "price_1Q0QacGXekY7Ey1HF9xNx8pF",
@@ -54,9 +54,9 @@ export const pricingConfig = {
       buttonText: "Go Clipper",
       features: [
         "Generate 30 clips per month",
-        "Max 30fps export quality",
-        "Max 60s video length",
-        "Advanced auto-captioning",
+        "30fps export quality",
+        "60s video length",
+        "Auto-captioning",
       ],
       stripePriceId: {
         month: "price_1NEW123GXekY7Ey1H",
@@ -73,9 +73,9 @@ export const pricingConfig = {
       buttonText: "Go Streamer",
       features: [
         "Generate 60 clips per month",
-        "Max 30fps export quality",
-        "Max 60s video length",
-        "Advanced auto-captioning",
+        "30fps export quality",
+        "60s video length",
+        "Auto-captioning",
       ],
       stripePriceId: {
         month: "price_1Q2MozGXekY7Ey1Hmlxlymo1",
@@ -93,9 +93,9 @@ export const pricingConfig = {
       isPro: true,
       features: [
         "Generate 100 clips per month",
-        "Max 60fps export quality",
-        "Max 60s video length",
-        "Premium auto-captioning",
+        "60fps export quality",
+        "60s video length",
+        "Auto-captioning",
       ],
       stripePriceId: {
         month: "price_1Q2MpbGXekY7Ey1HQjaqseUy",
@@ -112,9 +112,9 @@ export const pricingConfig = {
       buttonText: "Go Agency",
       features: [
         "Generate 200 clips per month",
-        "Max 60fps export quality",
-        "Max 60s video length",
-        "Premium auto-captioning",
+        "60fps export quality",
+        "60s video length",
+        "Auto-captioning",
       ],
       stripePriceId: {
         month: "price_1Q2Mq2GXekY7Ey1HD1m6009W",
@@ -191,7 +191,7 @@ const PlanCard: React.FC<{
         <Link href="/login" passHref>
           <Button
             variant="ringHover"
-            className="w-full group transition-all duration-300"
+            className="group w-full transition-all duration-300"
           >
             {plan.buttonText}
             <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -212,7 +212,7 @@ const PlanCard: React.FC<{
       return (
         <Button
           variant="ringHover"
-          className="w-full group transition-all duration-300"
+          className="group w-full transition-all duration-300"
           onClick={handlePortalAction}
         >
           {isUpgrade ? "Upgrade" : "Downgrade"}
@@ -225,7 +225,7 @@ const PlanCard: React.FC<{
       <Link href={`/checkout?price_id=${priceId}`} passHref>
         <Button
           variant="ringHover"
-          className="w-full group transition-all duration-300"
+          className="group w-full transition-all duration-300"
         >
           {plan.buttonText}
           <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -237,24 +237,24 @@ const PlanCard: React.FC<{
   return (
     <motion.div
       className={`relative flex ${
-        isHorizontal ? "flex-col lg:flex-row" : "justify-between flex-col"
+        isHorizontal ? "flex-col lg:flex-row" : "flex-col justify-between"
       } ${
         plan.isPro || plan.isPopular
           ? "border-2 border-primary"
           : "border border-border"
-      } rounded-xl overflow-hidden h-full`}
+      } h-full overflow-hidden rounded-xl`}
       variants={cardVariants}
       initial="hidden"
       animate={isInView ? "visible" : "hidden"}
       custom={index}
     >
       {plan.isPopular && (
-        <p className="absolute top-0 right-0 bg-primary rounded-bl-lg rounded-tr-lg px-2 py-1 text-secondary font-semibold text-xs">
+        <p className="absolute right-0 top-0 rounded-bl-lg rounded-tr-lg bg-primary px-2 py-1 text-xs font-semibold text-secondary">
           Trending
         </p>
       )}
       {plan.isPro && (
-        <p className="absolute top-0 right-0 bg-primary rounded-bl-lg rounded-tr-lg px-2 py-1 text-secondary font-semibold text-xs">
+        <p className="absolute right-0 top-0 rounded-bl-lg rounded-tr-lg bg-primary px-2 py-1 text-xs font-semibold text-secondary">
           Best Value
         </p>
       )}
@@ -263,7 +263,7 @@ const PlanCard: React.FC<{
       >
         <div className="relative mb-4">
           <h3 className="text-2xl font-bold">{plan.name}</h3>
-          <p className="text-muted-foreground mt-1">{plan.description}</p>
+          <p className="mt-1 text-muted-foreground">{plan.description}</p>
         </div>
 
         <AnimatePresence mode="wait">
@@ -277,7 +277,7 @@ const PlanCard: React.FC<{
           >
             {interval === "year" ? (
               <>
-                <div className="text-muted-foreground mb-1">
+                <div className="mb-1 text-muted-foreground">
                   <span className="text-2xl line-through">
                     ${toHumanPrice(originalYearlyPrice, 2)}
                   </span>
@@ -290,7 +290,7 @@ const PlanCard: React.FC<{
                   </span>
                 </div>
                 <motion.p
-                  className="text-sm text-green-500 font-semibold mt-1"
+                  className="mt-1 text-sm font-semibold text-green-500"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.2 }}
@@ -313,15 +313,15 @@ const PlanCard: React.FC<{
       <div
         className={`flex flex-col justify-between ${
           isHorizontal ? "lg:w-1/2" : "w-full"
-        } p-6 bg-muted/50`}
+        } bg-muted/50 p-6`}
       >
         {plan.features && plan.features.length > 0 && (
           <div className="mb-6">
-            <p className="font-semibold mb-2">Features:</p>
+            <p className="mb-2 font-semibold">Features:</p>
             <ul className="space-y-2">
               {plan.features.map((feature, i) => (
                 <li key={i} className="flex items-center">
-                  <CheckIcon className="mr-2 h-4 w-4 text-primary flex-shrink-0" />
+                  <CheckIcon className="mr-2 h-4 w-4 flex-shrink-0 text-primary" />
                   <span className="text-sm">{feature}</span>
                 </li>
               ))}
@@ -375,21 +375,15 @@ export function CashClipsPricing({
     fetchUserData();
   }, []);
 
-  // Define the features for the table
-  const amountFeatures = [
-    "Clip Amounts",
-    "Clip Qualities",
-    "Clip Lengths",
-    "Caption Qualities",
-  ];
+  const amountFeatures = ["Clip Amounts", "Clip Qualities", "Clip Lengths"];
 
   const booleanFeatures = [
     "Choose Any Streamers",
     "Choose Any Template",
+    "Auto-Generate Captions",
     "Export to Any Platform",
   ];
 
-  // Function to parse plan.features into a feature map
   function getPlanFeatureMap(planFeatures: string[]): {
     [key: string]: string;
   } {
@@ -400,9 +394,9 @@ export function CashClipsPricing({
         featureMap["Clip Amounts"] = feature.replace("Generate ", "");
       } else if (feature.includes("export quality")) {
         featureMap["Clip Qualities"] = feature.replace(" export quality", "");
-      } else if (feature.startsWith("Max")) {
+      } else if (feature.includes("video length")) {
         featureMap["Clip Lengths"] = feature.replace(" video length", "");
-      } else if (feature.endsWith("auto-captioning")) {
+      } else if (feature.endsWith("Auto-captioning")) {
         featureMap["Caption Qualities"] = feature;
       }
     }
@@ -417,7 +411,7 @@ export function CashClipsPricing({
           <div className="container mx-auto max-w-3xl">
             <div className="flex justify-start">
               <motion.div
-                className="inline-block bg-primary text-primary-foreground text-xs font-bold py-2 px-3 rounded-full transform -rotate-8"
+                className="-rotate-8 inline-block transform rounded-full bg-primary px-3 py-2 text-xs font-bold text-primary-foreground"
                 initial={{ opacity: 0, y: 20, rotate: -12 }}
                 animate={
                   isInView
@@ -461,7 +455,7 @@ export function CashClipsPricing({
           <span className={interval === "year" ? "font-bold" : ""}>Yearly</span>
         </motion.div>
         {/* Bento Pricing Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-1 lg:grid-cols-3">
           {pricingConfig.plans.slice(0, 3).map((plan, index) => (
             <PlanCard
               key={plan.id}
@@ -474,7 +468,7 @@ export function CashClipsPricing({
             />
           ))}
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+        <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
           {pricingConfig.plans.slice(3, 5).map((plan, index) => (
             <PlanCard
               key={plan.id}
@@ -496,7 +490,7 @@ export function CashClipsPricing({
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
             transition={{ duration: 0.6, delay: 0.8 }}
           >
-            <div className="overflow-x-auto mt-12">
+            <div className="mt-12 overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
                   <tr>
@@ -504,7 +498,7 @@ export function CashClipsPricing({
                     {pricingConfig.plans.map((plan) => (
                       <th
                         key={plan.name}
-                        className="p-4 text-center font-medium border-b"
+                        className="border-b p-4 text-center font-medium"
                       >
                         {plan.name}
                       </th>
@@ -515,13 +509,13 @@ export function CashClipsPricing({
                   {/* Amount Features */}
                   {amountFeatures.map((feature) => (
                     <tr key={feature} className="border-b">
-                      <td className="py-4 px-4 text-left font-medium">
+                      <td className="px-4 py-4 text-left font-medium">
                         {feature}
                       </td>
                       {pricingConfig.plans.map((plan) => {
                         const featureMap = getPlanFeatureMap(plan.features);
                         return (
-                          <td key={plan.id} className="py-4 px-4 text-center">
+                          <td key={plan.id} className="px-4 py-4 text-center">
                             {featureMap[feature] || "-"}
                           </td>
                         );
@@ -531,11 +525,11 @@ export function CashClipsPricing({
                   {/* Boolean Features */}
                   {booleanFeatures.map((feature) => (
                     <tr key={feature} className="border-b">
-                      <td className="py-4 px-4 text-left font-medium">
+                      <td className="px-4 py-4 text-left font-medium">
                         {feature}
                       </td>
                       {pricingConfig.plans.map((plan) => (
-                        <td key={plan.id} className="py-4 px-4 text-center">
+                        <td key={plan.id} className="px-4 py-4 text-center">
                           <CheckIcon className="mx-auto h-5 w-5 text-green-500" />
                         </td>
                       ))}
@@ -565,7 +559,7 @@ export function CashClipsPricing({
                 <Link href="/contact" passHref>
                   <Button
                     variant="ringHover"
-                    className="w-full group transition-all duration-300"
+                    className="group w-full transition-all duration-300"
                   >
                     Contact Us
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -574,7 +568,7 @@ export function CashClipsPricing({
               </CardContent>
 
               <motion.div
-                className="relative isolate lg:w-2/3 bg-primary p-6 md:p-8 flex items-center justify-center"
+                className="relative isolate flex items-center justify-center bg-primary p-6 md:p-8 lg:w-2/3"
                 initial={{ x: 100, opacity: 0 }}
                 animate={
                   isInView ? { x: 0, opacity: 1 } : { x: 100, opacity: 0 }
@@ -583,7 +577,7 @@ export function CashClipsPricing({
               >
                 <div className="text-center text-primary-foreground">
                   <motion.h1
-                    className="text-4xl font-bold mb-2"
+                    className="mb-2 text-4xl font-bold"
                     initial={{ y: 20, opacity: 0 }}
                     animate={
                       isInView ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }
@@ -616,23 +610,23 @@ export function CashClipsPricing({
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ delay: 1.4 }}
         >
-          <h3 className="text-2xl font-bold mb-4">
+          <h3 className="mb-4 text-2xl font-bold">
             Get the most value with CashClips!
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             <div>
-              <Scissors className="mx-auto h-12 w-12 text-primary mb-4" />
-              <h3 className="font-semibold mb-2">Effortless Clipping</h3>
+              <Scissors className="mx-auto mb-4 h-12 w-12 text-primary" />
+              <h3 className="mb-2 font-semibold">Effortless Clipping</h3>
               <p>Create engaging clips with just a few clicks</p>
             </div>
             <div>
-              <Video className="mx-auto h-12 w-12 text-primary mb-4" />
-              <h3 className="font-semibold mb-2">High-Quality Exports</h3>
+              <Video className="mx-auto mb-4 h-12 w-12 text-primary" />
+              <h3 className="mb-2 font-semibold">High-Quality Exports</h3>
               <p>Export your clips in stunning quality</p>
             </div>
             <div>
-              <Zap className="mx-auto h-12 w-12 text-primary mb-4" />
-              <h3 className="font-semibold mb-2">Boost Your Content</h3>
+              <Zap className="mx-auto mb-4 h-12 w-12 text-primary" />
+              <h3 className="mb-2 font-semibold">Boost Your Content</h3>
               <p>Increase engagement and grow your audience</p>
             </div>
           </div>

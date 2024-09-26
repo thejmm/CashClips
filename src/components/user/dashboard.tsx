@@ -65,20 +65,20 @@ const CashClipsDashboard: React.FC<{ user: SupabaseAuthUser }> = ({ user }) => {
     return (
       <div className="absolute inset-0 flex items-center justify-center">
         <Loader className="h-12 w-12 animate-spin" />
-        <p className="text-xl font-bold ml-4">Loading Dashboard...</p>
+        <p className="ml-4 text-xl font-bold">Loading Dashboard...</p>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto px-2 py-8 sm:px-6 lg:px-8">
-      <div className="max-w-[22rem] md:max-w-full md:w-full mx-auto space-y-8">
-        <header className="flex flex-col sm:flex-row justify-between items-center mb-8">
-          <div className="text-center sm:text-left mb-4 sm:mb-0">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
+      <div className="mx-auto max-w-[22rem] space-y-8 md:w-full md:max-w-full">
+        <header className="mb-8 flex flex-col items-center justify-between sm:flex-row">
+          <div className="mb-4 text-center sm:mb-0 sm:text-left">
+            <h1 className="mb-2 text-2xl font-bold sm:text-3xl md:text-4xl">
               Welcome back, {user?.user_metadata?.username || user.email}
             </h1>
-            <p className="text-muted-foreground text-sm sm:text-base">
+            <p className="text-sm text-muted-foreground sm:text-base">
               You have created {subscriptionData?.used_credits || 0} of{" "}
               {subscriptionData?.total_credits || 0} clips this month
             </p>

@@ -29,16 +29,16 @@ const Template: React.FC<TemplateProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+      className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
     >
       {defaultSources.map((template) => (
         <motion.div
           key={template.name}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className={`border p-4 rounded cursor-pointer transition-colors duration-200 ${
+          className={`cursor-pointer rounded border p-4 transition-colors duration-200 ${
             selectedTemplate?.name === template.name
-              ? "border-blue-500 border-2"
+              ? "border-2 border-blue-500"
               : "hover:border-blue-500"
           }`}
           onClick={() => {
@@ -49,7 +49,7 @@ const Template: React.FC<TemplateProps> = ({
           <img
             src={template.coverImage}
             alt={template.name}
-            className="w-full h-48 object-cover mb-2 rounded"
+            className="mb-2 h-48 w-full rounded object-cover"
           />
           <p className="text-center font-medium">{template.name}</p>
         </motion.div>

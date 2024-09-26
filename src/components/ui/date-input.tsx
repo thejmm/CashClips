@@ -201,7 +201,7 @@ const DateInput: React.FC<DateInputProps> = ({ value, onChange }) => {
     };
 
   return (
-    <div className="flex border rounded-lg items-center text-sm px-1">
+    <div className="flex items-center rounded-lg border px-1 text-sm">
       <input
         type="text"
         ref={monthRef}
@@ -216,10 +216,10 @@ const DateInput: React.FC<DateInputProps> = ({ value, onChange }) => {
           }
         }}
         onBlur={handleBlur("month")}
-        className="p-0 outline-none w-6 border-none text-center"
+        className="w-6 border-none p-0 text-center outline-none"
         placeholder="M"
       />
-      <span className="opacity-20 -mx-px">/</span>
+      <span className="-mx-px opacity-20">/</span>
       <input
         type="text"
         ref={dayRef}
@@ -234,10 +234,10 @@ const DateInput: React.FC<DateInputProps> = ({ value, onChange }) => {
           }
         }}
         onBlur={handleBlur("day")}
-        className="p-0 outline-none w-7 border-none text-center"
+        className="w-7 border-none p-0 text-center outline-none"
         placeholder="D"
       />
-      <span className="opacity-20 -mx-px">/</span>
+      <span className="-mx-px opacity-20">/</span>
       <input
         type="text"
         ref={yearRef}
@@ -252,7 +252,7 @@ const DateInput: React.FC<DateInputProps> = ({ value, onChange }) => {
           }
         }}
         onBlur={handleBlur("year")}
-        className="p-0 outline-none w-12 border-none text-center"
+        className="w-12 border-none p-0 text-center outline-none"
         placeholder="YYYY"
       />
     </div>

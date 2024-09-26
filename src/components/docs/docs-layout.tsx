@@ -27,7 +27,7 @@ const DocsLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <Link key={item.name} href={item.href} passHref>
             <Button
               variant="outlineRingHover"
-              className={`mb-2  w-full justify-start transition-all duration-300 ease-out group ${
+              className={`group mb-2 w-full justify-start transition-all duration-300 ease-out ${
                 router.pathname === item.href
                   ? "bg-accent ring-2 ring-primary/90 ring-offset-2"
                   : ""
@@ -43,11 +43,11 @@ const DocsLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen">
-      <aside className="w-full md:w-64 md:min-h-screen border-r">
+    <div className="flex min-h-screen flex-col md:flex-row">
+      <aside className="w-full border-r md:min-h-screen md:w-64">
         <div className="p-4 md:p-6">
-          <div className="flex justify-between items-center md:block">
-            <h2 className="text-2xl font-bold mb-6">CashClips Docs</h2>
+          <div className="flex items-center justify-between md:block">
+            <h2 className="mb-6 text-2xl font-bold">CashClips Docs</h2>
             <DropdownMenu>
               <DropdownMenuTrigger asChild className="md:hidden">
                 <Button variant="outline" size="icon">
@@ -66,8 +66,8 @@ const DocsLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           </nav>
         </div>
       </aside>
-      <main className="flex-1 p-4 md:p-8 overflow-auto">
-        <div className="max-w-4xl mx-auto">{children}</div>
+      <main className="flex-1 overflow-auto p-4 md:p-8">
+        <div className="mx-auto max-w-4xl">{children}</div>
       </main>
     </div>
   );

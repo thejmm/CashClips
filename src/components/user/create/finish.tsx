@@ -94,12 +94,12 @@ const Finish: React.FC<FinishProps> = ({
       exit={{ opacity: 0, y: -20 }}
       className="flex flex-col items-center space-y-6"
     >
-      <h2 className="text-3xl font-bold mb-4 text-center">
+      <h2 className="mb-4 text-center text-3xl font-bold">
         Video Creation Complete
       </h2>
 
-      <div className="p-6 rounded-lg mb-6 w-full max-w-3xl bg-card shadow-md">
-        <h3 className="text-xl font-semibold mb-3 text-center">
+      <div className="mb-6 w-full max-w-3xl rounded-lg bg-card p-6 shadow-md">
+        <h3 className="mb-3 text-center text-xl font-semibold">
           Render Summary
         </h3>
         {renderResult ? (
@@ -109,9 +109,9 @@ const Finish: React.FC<FinishProps> = ({
             </p>
 
             {/* Video Preview */}
-            <div className="w-full flex justify-center mb-6">
+            <div className="mb-6 flex w-full justify-center">
               <video
-                className="w-full max-w-lg h-auto rounded-lg shadow-md"
+                className="h-auto w-full max-w-lg rounded-lg shadow-md"
                 controls
                 src={renderResult.url}
               />

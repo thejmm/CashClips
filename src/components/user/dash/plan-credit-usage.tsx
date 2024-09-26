@@ -1,5 +1,3 @@
-// src/components/user/dash/plan-credit-usage.tsx
-
 import {
   Card,
   CardContent,
@@ -75,7 +73,7 @@ const PlanCreditUsage: React.FC<PlanCreditUsageProps> = ({
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2">
       <Card>
         <CardHeader>
           <CardTitle>Current Plan</CardTitle>
@@ -84,19 +82,23 @@ const PlanCreditUsage: React.FC<PlanCreditUsageProps> = ({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl sm:text-3xl font-bold mb-2">
+          <div className="mb-2 text-2xl font-bold sm:text-3xl">
             ${userData?.plan_price ? (userData.plan_price / 100).toFixed(2) : 0}
             /month
           </div>
           <div
-            className={`text-sm mb-4 ${getStatusColor(
+            className={`mb-4 text-sm ${getStatusColor(
               userData?.subscription_status,
             )}`}
           >
             Status: {userData?.subscription_status || "Inactive"}
           </div>
-          <div className="text-sm mb-4">
-            Next billing date: {userData?.next_billing_date || "N/A"}
+          <div className="mb-4 text-sm">
+            {/* Check for a valid next billing date */}
+            Next billing date:{" "}
+            {userData?.next_billing_date
+              ? new Date(userData.next_billing_date).toLocaleDateString()
+              : "N/A"}
           </div>
           {/* Only show the portal button if the subscription is active */}
           {userData?.subscription_status === "active" && (
@@ -134,23 +136,23 @@ const PlanCreditUsage: React.FC<PlanCreditUsageProps> = ({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Progress value={usagePercentage} className="w-full mb-2" />
-          <p className="text-sm text-muted-foreground mb-4">
+          <Progress value={usagePercentage} className="mb-2 w-full" />
+          <p className="mb-4 text-sm text-muted-foreground">
             {userData?.total_credits !== null &&
             userData?.total_credits !== undefined
               ? `${usagePercentage.toFixed(1)}% of your credits used`
               : "100% - No credits available"}
           </p>
           <div className="text-sm">
-            <div className="flex justify-between mb-2">
+            <div className="mb-2 flex justify-between">
               <span>Clips per month:</span>
               <span>{currentPlan?.features[0] || "N/A"}</span>
             </div>
-            <div className="flex justify-between mb-2">
+            <div className="mb-2 flex justify-between">
               <span>Export quality:</span>
               <span>{currentPlan?.features[1] || "N/A"}</span>
             </div>
-            <div className="flex justify-between mb-2">
+            <div className="mb-2 flex justify-between">
               <span>Video length:</span>
               <span>{currentPlan?.features[2] || "N/A"}</span>
             </div>

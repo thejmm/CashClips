@@ -97,15 +97,15 @@ export default function DashboardLayout({
     <>
       <div
         className={cn(
-          "flex flex-col md:flex-row w-full flex-1 mx-auto",
+          "mx-auto flex w-full flex-1 flex-col md:flex-row",
           "h-full",
         )}
       >
         <Sidebar open={open} setOpen={setOpen}>
           <SidebarBody>
-            <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+            <div className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
               {/* Links Section */}
-              <div className="flex flex-col gap-2 flex-1">
+              <div className="flex flex-1 flex-col gap-2">
                 {links.map((link, idx) => (
                   <SidebarLink
                     key={idx}
@@ -130,8 +130,8 @@ export default function DashboardLayout({
         </Sidebar>
 
         <div className="flex flex-1">
-          <div className="p-2 rounded-tl-2xl border border-border bg-dashboard flex flex-col gap-2 flex-1 w-full h-full">
-            <div className="p-2 flex flex-row items-center">
+          <div className="flex h-full w-full flex-1 flex-col gap-2 rounded-tl-2xl border border-border bg-dashboard p-2">
+            <div className="flex flex-row items-center p-2">
               {React.cloneElement(icon as React.ReactElement, {
                 className: "w-8 h-8 inline-block mr-2",
               })}
@@ -139,14 +139,14 @@ export default function DashboardLayout({
             </div>
             <Separator className="mb-2" />
 
-            <ScrollArea className="h-full md:min-h-[85vh] w-full justify-center mx-auto">
+            <ScrollArea className="mx-auto h-full w-full justify-center md:min-h-[85vh]">
               {loading ? (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Loader className="h-12 w-12 animate-spin" />
-                  <p className="text-xl font-bold ml-4">Fetching Plan...</p>
+                  <p className="ml-4 text-xl font-bold">Fetching Plan...</p>
                 </div>
               ) : checkSubscription && !isActiveSubscription ? (
-                <div className="flex flex-col text-center items-center justify-center h-full min-h-96">
+                <div className="flex h-full min-h-96 flex-col items-center justify-center text-center">
                   <p className="mb-4 text-lg font-semibold">
                     You do not have an active plan. Please upgrade your plan to
                     use this feature.

@@ -145,17 +145,17 @@ const Render: React.FC<RenderProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="flex flex-col h-full"
+      className="flex h-full flex-col"
     >
-      <div className="flex-grow relative border rounded-t-xl">
+      <div className="relative flex-grow rounded-t-xl border">
         {!isInitialized && !error && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/20 rounded-t-xl">
+          <div className="absolute inset-0 flex items-center justify-center rounded-t-xl bg-white/20">
             <Loader className="h-12 w-12 animate-spin" />
-            <p className="text-xl font-bold ml-4">Initializing editor...</p>
+            <p className="ml-4 text-xl font-bold">Initializing editor...</p>
           </div>
         )}
         {error && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/20 rounded-t-xl">
+          <div className="absolute inset-0 flex items-center justify-center rounded-t-xl bg-white/20">
             <p className="text-xl font-bold text-red-600">
               Failed to initialize editor
             </p>
@@ -163,14 +163,14 @@ const Render: React.FC<RenderProps> = ({
         )}
         <div
           ref={previewContainerRef}
-          className="relative w-full h-full border rounded-t-xl"
+          className="relative h-full w-full rounded-t-xl border"
           style={{ height: "28rem" }}
         />
       </div>
 
-      <div className="bg-card p-4 rounded-b-lg">
-        <div className="flex flex-col md:flex-row justify-between md:items-center">
-          <div className="flex space-x-2 items-center">
+      <div className="rounded-b-lg bg-card p-4">
+        <div className="flex flex-col justify-between md:flex-row md:items-center">
+          <div className="flex items-center space-x-2">
             <div className="flex space-x-2">
               <Button
                 variant="outline"
@@ -178,7 +178,7 @@ const Render: React.FC<RenderProps> = ({
                 onClick={() => videoCreator.skipBackward()}
                 disabled={!isInitialized || !!error}
               >
-                <SkipBackIcon className="w-4 h-4" />
+                <SkipBackIcon className="h-4 w-4" />
               </Button>
               <Button
                 variant="outline"
@@ -191,9 +191,9 @@ const Render: React.FC<RenderProps> = ({
                 disabled={!isInitialized || !!error}
               >
                 {videoCreator.isPlaying ? (
-                  <PauseIcon className="w-4 h-4" />
+                  <PauseIcon className="h-4 w-4" />
                 ) : (
-                  <PlayIcon className="w-4 h-4" />
+                  <PlayIcon className="h-4 w-4" />
                 )}
               </Button>
               <Button
@@ -202,7 +202,7 @@ const Render: React.FC<RenderProps> = ({
                 onClick={() => videoCreator.skipForward()}
                 disabled={!isInitialized || !!error}
               >
-                <SkipForwardIcon className="w-4 h-4" />
+                <SkipForwardIcon className="h-4 w-4" />
               </Button>
             </div>
             <span className="text-sm font-medium">
@@ -217,17 +217,17 @@ const Render: React.FC<RenderProps> = ({
                 !isInitialized || isRendering || isCaptionsGenerated || !!error
               }
               onClick={() => setShowFontDialog(true)}
-              className="text-xs md:text-md mt-4"
+              className="md:text-md mt-4 text-xs"
             >
-              <FileTextIcon className="mr-2 w-4 h-4" />
+              <FileTextIcon className="mr-2 h-4 w-4" />
               Generate Captions
             </Button>
             <Button
               onClick={handleExport}
-              className="text-xs md:text-md mt-4"
+              className="md:text-md mt-4 text-xs"
               disabled={!isInitialized || isRendering || !!error}
             >
-              <DownloadIcon className="mr-2 w-4 h-4" />
+              <DownloadIcon className="mr-2 h-4 w-4" />
               {isRendering ? "Rendering..." : "Export Video"}
             </Button>
           </div>
@@ -247,10 +247,10 @@ const Render: React.FC<RenderProps> = ({
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
-                  className="flex flex-col items-center justify-center h-96 w-full max-w-md mx-auto"
+                  className="mx-auto flex h-96 w-full max-w-md flex-col items-center justify-center"
                 >
-                  <div className="flex items-center mb-4">
-                    <Loader className="h-8 w-8 animate-spin text-blue-500 mr-3" />
+                  <div className="mb-4 flex items-center">
+                    <Loader className="mr-3 h-8 w-8 animate-spin text-blue-500" />
                     <span className="text-xl font-bold">
                       Generating Captions...
                     </span>
@@ -271,16 +271,16 @@ const Render: React.FC<RenderProps> = ({
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                 >
-                  <ScrollArea className="border rounded-lg h-96 w-full pr-2">
+                  <ScrollArea className="h-96 w-full rounded-lg border pr-2">
                     <div className="grid grid-cols-2 gap-4 p-2">
                       {fontStyles.map((font) => (
                         <motion.div
                           key={font.id}
-                          className={`border justify-center p-2 rounded cursor-pointer bg-white transition-all duration-200 ${
+                          className={`cursor-pointer justify-center rounded border bg-white p-2 transition-all duration-200 ${
                             selectedFont.id === font.id
-                              ? "border-blue-500 border-4"
+                              ? "border-4 border-blue-500"
                               : "border-gray-300"
-                          } hover:border-blue-500 border-2`}
+                          } border-2 hover:border-blue-500`}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => {
@@ -291,7 +291,7 @@ const Render: React.FC<RenderProps> = ({
                           <img
                             src={font.preview_image}
                             alt={`Font style ${font.id}`}
-                            className="w-auto justify-center mx-auto h-16 object-fit mb-2"
+                            className="object-fit mx-auto mb-2 h-16 w-auto justify-center"
                           />
                           <p className="text-center">Font {font.id}</p>
                         </motion.div>

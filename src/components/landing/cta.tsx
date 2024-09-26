@@ -208,7 +208,7 @@ export function CallToAction() {
             </Marquee>
             <div className="absolute z-10">
               <div className="mx-auto size-24 rounded-[2rem] border bg-white/10 p-3 shadow-2xl backdrop-blur-md dark:bg-black/10 lg:size-32">
-                <img src="/logo.png" className="rounded-3xl h-full w-full" />
+                <img src="/logo.png" className="h-full w-full rounded-3xl" />
               </div>
               <div className="z-10 mt-4 flex flex-col items-center text-center">
                 <h1 className="text-3xl font-bold lg:text-4xl">
@@ -220,7 +220,7 @@ export function CallToAction() {
                 <Link href="/login" passHref>
                   <Button
                     variant="outlineRingHover"
-                    className="mt-4 group rounded-full transition-all duration-300"
+                    className="group mt-4 rounded-full transition-all duration-300"
                   >
                     Get Started Today
                     <ChevronRightIcon className="ml-1 size-4 transition-all duration-300 ease-out group-hover:translate-x-1" />

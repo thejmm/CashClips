@@ -32,16 +32,16 @@ const Streamer: React.FC<StreamerProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+      className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
     >
       {streamers.map((streamer) => (
         <motion.div
           key={streamer.name}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className={`border p-4 rounded cursor-pointer transition-colors duration-200 ${
+          className={`cursor-pointer rounded border p-4 transition-colors duration-200 ${
             selectedStreamer === streamer.name
-              ? "border-blue-500 border-2"
+              ? "border-2 border-blue-500"
               : "hover:border-blue-500"
           }`}
           onClick={() => {
@@ -49,11 +49,11 @@ const Streamer: React.FC<StreamerProps> = ({
             handleStreamerSelect(streamer.name);
           }}
         >
-          <div className="w-full mx-auto justify-center h-36 md:h-56 mb-2 overflow-hidden rounded">
+          <div className="mx-auto mb-2 h-36 w-full justify-center overflow-hidden rounded md:h-56">
             <img
               src={streamer.image}
               alt={streamer.name}
-              className="w-auto h-full mx-auto justify-center object-center object-fill"
+              className="mx-auto h-full w-auto justify-center object-fill object-center"
             />
           </div>
           <p className="text-center font-medium">{streamer.name}</p>

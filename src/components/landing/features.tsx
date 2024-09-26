@@ -175,7 +175,7 @@ const FeatureIcon: React.FC<{
 }> = ({ icon: Icon, isActive, progress }) => (
   <div className="relative">
     <motion.div
-      className={`w-12 h-12 rounded-full flex items-center justify-center ${
+      className={`flex h-12 w-12 items-center justify-center rounded-full ${
         isActive ? "text-primary" : "text-gray-600"
       }`}
       animate={{ scale: isActive ? 1.2 : 1, rotate: isActive ? 360 : 0 }}
@@ -188,7 +188,7 @@ const FeatureIcon: React.FC<{
     >
       <Icon size={24} />
     </motion.div>
-    <svg className="absolute top-0 left-0 w-full h-full -rotate-90">
+    <svg className="absolute left-0 top-0 h-full w-full -rotate-90">
       <circle
         cx="24"
         cy="24"
@@ -230,11 +230,11 @@ const FeatureContent: React.FC<{
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.5 }}
-        className="absolute inset-0 flex flex-col md:flex-row justify-between p-6"
+        className="absolute inset-0 flex flex-col justify-between p-6 md:flex-row"
       >
-        <div className="md:w-1/2 pr-4">
+        <div className="pr-4 md:w-1/2">
           <motion.h3
-            className="text-xl md:text-2xl font-bold mb-2"
+            className="mb-2 text-xl font-bold md:text-2xl"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
@@ -242,7 +242,7 @@ const FeatureContent: React.FC<{
             {title}
           </motion.h3>
           <motion.p
-            className="text-sm md:text-base text-gray-600"
+            className="text-sm text-gray-600 md:text-base"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4, duration: 0.5 }}
@@ -251,13 +251,13 @@ const FeatureContent: React.FC<{
           </motion.p>
         </div>
         <motion.div
-          className="md:w-3/4 mt-4 md:mt-0 grid grid-cols-2 gap-4"
+          className="mt-4 grid grid-cols-2 gap-4 md:mt-0 md:w-3/4"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.6, duration: 0.5 }}
         >
           {images.map((image, index) => (
-            <div key={index} className="relative w-full h-full">
+            <div key={index} className="relative h-full w-full">
               <img
                 src={image.src}
                 alt={image.alt}
@@ -323,7 +323,7 @@ export const FeaturesSection: React.FC = () => {
     <section id="features" ref={containerRef} className="py-10 md:py-20">
       <div className="container mx-auto px-4">
         <motion.div
-          className="text-2xl md:text-4xl font-bold text-center mb-8 md:mb-16"
+          className="mb-8 text-center text-2xl font-bold md:mb-16 md:text-4xl"
           initial={{ opacity: 0, y: -50 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -50 }}
           transition={{ duration: 0.5 }}
@@ -338,13 +338,13 @@ export const FeaturesSection: React.FC = () => {
           </div>
         </motion.div>
         <motion.div
-          className="relative min-h-[400px] md:h-[500px] rounded-lg flex flex-col md:flex-row"
+          className="relative flex min-h-[400px] flex-col rounded-lg md:h-[500px] md:flex-row"
           variants={containerVariants}
           initial="hidden"
           animate={controls}
         >
           <motion.div
-            className="w-full md:w-1/3 flex flex-row md:flex-col justify-start md:justify-center space-x-4 md:space-x-0 space-y-0 md:space-y-8 p-4 md:p-8 overflow-x-auto md:overflow-x-visible"
+            className="flex w-full flex-row justify-start space-x-4 space-y-0 overflow-x-auto p-4 md:w-1/3 md:flex-col md:justify-center md:space-x-0 md:space-y-8 md:overflow-x-visible md:p-8"
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -352,7 +352,7 @@ export const FeaturesSection: React.FC = () => {
             {features.map((feature, index) => (
               <motion.div
                 key={index}
-                className="flex flex-col md:flex-row items-center md:space-x-4 cursor-pointer"
+                className="flex cursor-pointer flex-col items-center md:flex-row md:space-x-4"
                 onClick={() => setActiveFeature(index)}
                 variants={itemVariants}
                 whileHover={{ scale: 1.05 }}
@@ -364,7 +364,7 @@ export const FeaturesSection: React.FC = () => {
                   progress={activeFeature === index ? progress : 0}
                 />
                 <span
-                  className={`text-xs md:text-sm font-semibold transition-colors duration-300 ${
+                  className={`text-xs font-semibold transition-colors duration-300 md:text-sm ${
                     activeFeature === index ? "text-primary" : "text-gray-600"
                   }`}
                 >
@@ -374,7 +374,7 @@ export const FeaturesSection: React.FC = () => {
             ))}
           </motion.div>
           <motion.div
-            className="w-full min-h-96 md:w-2/3 p-4 md:p-12 relative border rounded-xl"
+            className="relative min-h-96 w-full rounded-xl border p-4 md:w-2/3 md:p-12"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.5 }}

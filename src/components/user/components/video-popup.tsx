@@ -99,29 +99,29 @@ const VideoViewer: React.FC<VideoViewerProps> = ({
           <motion.div
             variants={animationVariants.content}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="relative mx-4 md:mx-0 flex items-center justify-center"
+            className="relative mx-4 flex items-center justify-center md:mx-0"
             style={getPopupStyle()}
           >
             <motion.button
               variants={animationVariants.button}
               transition={{ duration: 0.2 }}
-              className="absolute -top-12 right-0 text-white text-xl bg-neutral-900/50 ring-1 backdrop-blur-md rounded-full p-2 dark:bg-neutral-100/50 dark:text-black"
+              className="absolute -top-12 right-0 rounded-full bg-neutral-900/50 p-2 text-xl text-white ring-1 backdrop-blur-md dark:bg-neutral-100/50 dark:text-black"
               onClick={onClose}
               aria-label="Close video"
             >
               <X className="size-5" />
             </motion.button>
-            <div className="w-full h-full border-2 border-white rounded-2xl overflow-hidden isolate z-[1] relative flex items-center justify-center">
+            <div className="relative isolate z-[1] flex h-full w-full items-center justify-center overflow-hidden rounded-2xl border-2 border-white">
               {!videoUrl ? (
                 <img
                   src="https://via.placeholder.com/1280x720"
-                  className="w-full h-full object-cover"
+                  className="h-full w-full object-cover"
                 />
               ) : (
                 <video
                   ref={videoRef}
                   src={videoUrl}
-                  className="max-w-full max-h-full rounded-2xl object-contain"
+                  className="max-h-full max-w-full rounded-2xl object-contain"
                   controls
                   playsInline
                   autoPlay

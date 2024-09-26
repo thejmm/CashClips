@@ -140,8 +140,8 @@ const Create: React.FC<CreateProps> = ({ user }) => {
       userCreditInfo.used_credits >= userCreditInfo.total_credits
     ) {
       return (
-        <div className="text-center space-y-4">
-          <h2 className="text-3xl font-bold text-gradient-to-r from-purple-600 to-blue-500">
+        <div className="space-y-4 text-center">
+          <h2 className="text-gradient-to-r from-purple-600 to-blue-500 text-3xl font-bold">
             Wow! You are on a roll! 🚀
           </h2>
           <p className="text-xl">
@@ -161,7 +161,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
           <p className="text-lg">
             Ready to take your content creation to the next level?
           </p>
-          <p className="text-sm text-gray-600 mt-4">
+          <p className="mt-4 text-sm text-gray-600">
             Your credits will refresh when your billing cycle resets.
           </p>
           <CashClipsPricing />
@@ -227,11 +227,11 @@ const Create: React.FC<CreateProps> = ({ user }) => {
   };
 
   return (
-    <div className="w-full max-w-[23rem] sm:max-w-5xl md:max-w-7xl mx-auto space-y-8 p-4">
+    <div className="mx-auto w-full max-w-[23rem] space-y-8 p-4 sm:max-w-5xl md:max-w-7xl">
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-lg md:text-3xl font-bold mb-4"
+        className="mb-4 text-lg font-bold md:text-3xl"
       >
         {
           [

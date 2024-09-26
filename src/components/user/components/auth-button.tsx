@@ -88,24 +88,24 @@ const AuthButton = ({ initialUser }: { initialUser: User | null }) => {
           </SheetTrigger>
           <SheetContent
             side="right"
-            className="w-full md:w-[400px] p-4 pt-8 md:p-8"
+            className="w-full p-4 pt-8 md:w-[400px] md:p-8"
           >
-            <div className="relative flex flex-col space-y-4 h-full">
-              <div className="absolute top-4 right-0">
+            <div className="relative flex h-full flex-col space-y-4">
+              <div className="absolute right-0 top-4">
                 <ThemeToggle />
               </div>
               {/* User Avatar and Info */}
               <div className="flex items-center">
                 <Avatar className="mr-2">
                   <AvatarImage
-                    className="w-10 h-10 rounded-full border border-black dark:border-white"
+                    className="h-10 w-10 rounded-full border border-black dark:border-white"
                     src={
                       user.user_metadata.picture ||
                       user.user_metadata.avatar_url
                     }
                     alt={user.user_metadata.name || "User"}
                   />
-                  <AvatarFallback className="w-10 h-10 rounded-full">
+                  <AvatarFallback className="h-10 w-10 rounded-full">
                     {user.email?.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -119,7 +119,7 @@ const AuthButton = ({ initialUser }: { initialUser: User | null }) => {
               <Link href="/user/dashboard" onClick={handleLinkClick}>
                 <Button
                   variant="outlineRingHover"
-                  className="w-full group justify-start transition-all duration-300 ease-out group"
+                  className="group w-full justify-start transition-all duration-300 ease-out"
                 >
                   <LayoutDashboardIcon className="mr-2 size-4 transition-all duration-300 ease-out group-hover:-translate-x-1" />
                   Dashboard
@@ -128,7 +128,7 @@ const AuthButton = ({ initialUser }: { initialUser: User | null }) => {
               <Link href="/user/create" onClick={handleLinkClick}>
                 <Button
                   variant="outlineRingHover"
-                  className="w-full group justify-start transition-all duration-300 ease-out group"
+                  className="group w-full justify-start transition-all duration-300 ease-out"
                 >
                   <PlusCircle className="mr-2 size-4 transition-all duration-300 ease-out group-hover:-translate-x-1" />
                   Create Clips
@@ -137,7 +137,7 @@ const AuthButton = ({ initialUser }: { initialUser: User | null }) => {
               <Link href="/user/settings" onClick={handleLinkClick}>
                 <Button
                   variant="outlineRingHover"
-                  className="absolute bottom-14 w-full justify-start transition-all duration-300 ease-out group"
+                  className="group absolute bottom-14 w-full justify-start transition-all duration-300 ease-out"
                 >
                   <Settings className="mr-2 size-4 transition-all duration-300 ease-out group-hover:-translate-x-1" />
                   Settings
@@ -148,7 +148,7 @@ const AuthButton = ({ initialUser }: { initialUser: User | null }) => {
                 <AlertDialogTrigger asChild>
                   <Button
                     variant="destructiveRingHover"
-                    className="absolute bottom-0 w-full justify-start transition-all duration-300 ease-out group"
+                    className="group absolute bottom-0 w-full justify-start transition-all duration-300 ease-out"
                   >
                     <LogOut className="mr-2 size-4 transition-all duration-300 ease-out group-hover:-translate-x-1" />
                     Log out
@@ -168,7 +168,7 @@ const AuthButton = ({ initialUser }: { initialUser: User | null }) => {
                     <AlertDialogCancel asChild>
                       <Button
                         variant="outlineRingHover"
-                        className="transition-all duration-300 group "
+                        className="group transition-all duration-300"
                       >
                         <X className="mr-1 size-4 transition-all duration-300 ease-out group-hover:-translate-x-1" />
                         Cancel
@@ -177,7 +177,7 @@ const AuthButton = ({ initialUser }: { initialUser: User | null }) => {
                     <Button
                       variant="destructiveRingHover"
                       onClick={handleSignOut}
-                      className="transition-all duration-300 group"
+                      className="group transition-all duration-300"
                     >
                       <LogOut className="mr-1 size-4 transition-all duration-300 ease-out group-hover:-translate-x-1" />
                       Log out

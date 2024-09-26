@@ -11,7 +11,7 @@ const PopoverOverlay = ({ isOpen }: { isOpen: boolean }) => (
   <div
     className={cn(
       "fixed inset-0 z-10 bg-black/70 transition-opacity duration-300",
-      isOpen ? "opacity-100" : "opacity-0 pointer-events-none",
+      isOpen ? "opacity-100" : "pointer-events-none opacity-0",
     )}
   />
 );

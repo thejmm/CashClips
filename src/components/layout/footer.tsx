@@ -91,21 +91,6 @@ const footerSocials = [
   },
   {
     href: "#",
-    name: "LinkedIn",
-    icon: <LinkedInLogoIcon className="size-5" />,
-  },
-  {
-    href: "#",
-    name: "Twitch",
-    icon: <RiTwitchFill className="size-5" />,
-  },
-  {
-    href: "#",
-    name: "Kick",
-    icon: <RiKickFill className="size-5" />,
-  },
-  {
-    href: "#",
     name: "Discord",
     icon: <RiDiscordFill className="size-5" />,
   },
@@ -138,7 +123,7 @@ export function Footer() {
                 <Link href="/login" passHref className="w-full">
                   <Button
                     variant="ringHover"
-                    className="my-4 w-full group rounded-full"
+                    className="group my-4 w-full rounded-full"
                   >
                     Get Started Today
                     <ChevronRightIcon className="ml-1 size-4 transition-all duration-300 ease-out group-hover:translate-x-1" />

@@ -64,7 +64,7 @@ const Stepper: React.FC<StepperProps> = ({
             <React.Fragment key={index}>
               <div className="relative flex flex-col items-center">
                 <motion.button
-                  className={`flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full border-2 transition-colors duration-200 ${
+                  className={`flex h-8 w-8 items-center justify-center rounded-full border-2 transition-colors duration-200 md:h-10 md:w-10 ${
                     isCompleted
                       ? "border-green-500 bg-green-500 text-white"
                       : isCurrent
@@ -76,11 +76,11 @@ const Stepper: React.FC<StepperProps> = ({
                   onClick={() => handleStepClick(stepNumber)}
                 >
                   {isCompleted ? (
-                    <Check className="w-4 h-4 md:w-6 md:h-6" />
+                    <Check className="h-4 w-4 md:h-6 md:w-6" />
                   ) : isLoadingThis ? (
-                    <Loader className="w-4 h-4 md:w-6 md:h-6 animate-spin" />
+                    <Loader className="h-4 w-4 animate-spin md:h-6 md:w-6" />
                   ) : (
-                    <span className="text-xs md:text-sm font-semibold">
+                    <span className="text-xs font-semibold md:text-sm">
                       {stepNumber}
                     </span>
                   )}
@@ -95,14 +95,14 @@ const Stepper: React.FC<StepperProps> = ({
                   {isCurrent ? (
                     step
                   ) : (
-                    <span className="truncate max-w-[60px] md:max-w-none">
+                    <span className="max-w-[60px] truncate md:max-w-none">
                       {step}
                     </span>
                   )}
                 </motion.div>
               </div>
               {index < steps.length - 1 && (
-                <div className="flex-1 h-0.5 bg-gray-300 mx-1 md:mx-2">
+                <div className="mx-1 h-0.5 flex-1 bg-gray-300 md:mx-2">
                   <motion.div
                     className="h-full bg-green-500"
                     initial={{ width: "0%" }}
@@ -132,9 +132,9 @@ const Stepper: React.FC<StepperProps> = ({
               {/* Progress Bar or Text */}
               {!isError && isLoading && (
                 <div className="mt-4">
-                  <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                  <div className="mb-4 h-2.5 w-full rounded-full bg-gray-200">
                     <div
-                      className="bg-blue-600 h-2.5 rounded-full"
+                      className="h-2.5 rounded-full bg-blue-600"
                       style={{ width: `${progress}%` }}
                     />
                   </div>
@@ -151,8 +151,8 @@ const Stepper: React.FC<StepperProps> = ({
                 Close
               </AlertDialogCancel>
             ) : (
-              <div className="flex items-center justify-center mt-4">
-                <Loader className="w-10 h-10 animate-spin text-blue-600" />
+              <div className="mt-4 flex items-center justify-center">
+                <Loader className="h-10 w-10 animate-spin text-blue-600" />
               </div>
             )}
           </AlertDialogFooter>

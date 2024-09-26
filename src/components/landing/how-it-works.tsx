@@ -16,9 +16,9 @@ export function HowItWorksSection() {
       title: "Select Your Streamer",
       content: (
         <div>
-          <div className="flex items-center mb-4">
-            <FaStream className="w-8 h-8 mr-4 text-primary" />
-            <p className="text-neutral-800 dark:text-neutral-200 text-sm font-normal">
+          <div className="mb-4 flex items-center">
+            <FaStream className="mr-4 h-8 w-8 text-primary" />
+            <p className="text-sm font-normal text-neutral-800 dark:text-neutral-200">
               Pick the streamer you want to generate clips for from our library.
             </p>
           </div>
@@ -26,12 +26,12 @@ export function HowItWorksSection() {
             <img
               src="/streamers/jack-doherty.png"
               alt="Mass clips view"
-              className="rounded-lg object-contain h-20 md:h-48 lg:h-64 w-full"
+              className="h-20 w-full rounded-lg object-contain md:h-48 lg:h-64"
             />
             <img
               src="/streamers/ishowspeed.png"
               alt="Streamer selection"
-              className="rounded-lg object-contain h-20 md:h-48 lg:h-64 w-full"
+              className="h-20 w-full rounded-lg object-contain md:h-48 lg:h-64"
             />
           </div>
         </div>
@@ -41,15 +41,15 @@ export function HowItWorksSection() {
       title: "Select Your Clip",
       content: (
         <div>
-          <div className="flex items-center mb-4">
-            <FaStream className="w-8 h-8 mr-4 text-primary" />
-            <p className="text-neutral-800 dark:text-neutral-200 text-sm font-normal">
+          <div className="mb-4 flex items-center">
+            <FaStream className="mr-4 h-8 w-8 text-primary" />
+            <p className="text-sm font-normal text-neutral-800 dark:text-neutral-200">
               Pick the clip from your favorite streamer from our mass library.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <video
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
+              className="h-20 w-full rounded-lg object-cover md:h-44 lg:h-60"
               autoPlay
               muted
               loop
@@ -60,7 +60,7 @@ export function HowItWorksSection() {
               Your browser does not support the video tag.
             </video>
             <video
-              className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
+              className="h-20 w-full rounded-lg object-cover md:h-44 lg:h-60"
               autoPlay
               muted
               loop
@@ -78,9 +78,9 @@ export function HowItWorksSection() {
       title: "Pick a Template",
       content: (
         <div>
-          <div className="flex items-center mb-4">
-            <Layout className="w-8 h-8 mr-4 text-primary" />
-            <p className="text-neutral-800 dark:text-neutral-200 text-sm font-normal">
+          <div className="mb-4 flex items-center">
+            <Layout className="mr-4 h-8 w-8 text-primary" />
+            <p className="text-sm font-normal text-neutral-800 dark:text-neutral-200">
               Choose a template that fits your style and content.
             </p>
           </div>
@@ -89,24 +89,24 @@ export function HowItWorksSection() {
               <img
                 src="/templates/blur-landscape.png"
                 alt="Template selection"
-                className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
+                className="h-20 w-full rounded-lg object-cover md:h-44 lg:h-60"
               />
               <img
                 src="/templates/blur-portrait.png"
                 alt="Template customization"
-                className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
+                className="h-20 w-full rounded-lg object-cover md:h-44 lg:h-60"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <img
                 src="/templates/split-screen-portrait.png"
                 alt="Template selection"
-                className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
+                className="h-20 w-full rounded-lg object-cover md:h-44 lg:h-60"
               />
               <img
                 src="/templates/split-screen-landscape.png"
                 alt="Template customization"
-                className="rounded-lg object-cover h-20 md:h-44 lg:h-60 w-full"
+                className="h-20 w-full rounded-lg object-cover md:h-44 lg:h-60"
               />
             </div>
           </div>
@@ -118,9 +118,9 @@ export function HowItWorksSection() {
       title: "Caption Your Clip",
       content: (
         <div>
-          <div className="flex items-center mb-4">
-            <FaClosedCaptioning className="w-8 h-8 mr-4 text-primary" />
-            <p className="text-neutral-800 dark:text-neutral-200 text-sm font-normal">
+          <div className="mb-4 flex items-center">
+            <FaClosedCaptioning className="mr-4 h-8 w-8 text-primary" />
+            <p className="text-sm font-normal text-neutral-800 dark:text-neutral-200">
               Choose to auto-caption your clips or manually add captions.
             </p>
           </div>
@@ -128,12 +128,12 @@ export function HowItWorksSection() {
             <img
               src="/assets/captions1.png"
               alt="Auto captioning"
-              className="rounded-lg object-contain h-20 md:h-44 lg:h-60 w-full"
+              className="h-20 w-full rounded-lg object-contain md:h-44 lg:h-60"
             />
             <img
               src="/assets/captions2.png"
               alt="Manual captioning"
-              className="rounded-lg object-contain h-20 md:h-44 lg:h-60 w-full"
+              className="h-20 w-full rounded-lg object-contain md:h-44 lg:h-60"
             />
           </div>
         </div>
@@ -143,15 +143,15 @@ export function HowItWorksSection() {
       title: "Generate & Share",
       content: (
         <div>
-          <div className="flex items-center mb-4">
-            <Share className="w-8 h-8 mr-4 text-primary" />
-            <p className="text-neutral-800 dark:text-neutral-200 text-sm font-normal">
+          <div className="mb-4 flex items-center">
+            <Share className="mr-4 h-8 w-8 text-primary" />
+            <p className="text-sm font-normal text-neutral-800 dark:text-neutral-200">
               Create your clip, download, and share it across platforms.
             </p>
           </div>
           <div className="flex items-center gap-4">
             <video
-              className="rounded-lg object-contain h-32 md:h-56 xl:h-[22rem] w-auto"
+              className="h-32 w-auto rounded-lg object-contain md:h-56 xl:h-[22rem]"
               autoPlay
               muted
               loop
@@ -162,7 +162,7 @@ export function HowItWorksSection() {
               Your browser does not support the video tag.
             </video>
             <video
-              className="rounded-lg object-contain h-36 md:h-64 xl:h-96 w-auto"
+              className="h-36 w-auto rounded-lg object-contain md:h-64 xl:h-96"
               autoPlay
               muted
               loop
@@ -174,7 +174,7 @@ export function HowItWorksSection() {
             </video>
 
             <video
-              className="rounded-lg object-contain h-32 md:h-56 xl:h-[22rem] w-auto"
+              className="h-32 w-auto rounded-lg object-contain md:h-56 xl:h-[22rem]"
               autoPlay
               muted
               loop
@@ -211,9 +211,9 @@ export function HowItWorksSection() {
       className="rounded-3xl bg-secondary py-12"
       ref={sectionRef}
     >
-      <div className="max-w-7xl mx-auto py-20 px-4 md:px-8 lg:px-10">
+      <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 lg:px-10">
         <motion.h2
-          className="text-4xl font-bold text-black dark:text-white mb-4"
+          className="mb-4 text-4xl font-bold text-black dark:text-white"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.6, delay: 0.2 }}
@@ -221,7 +221,7 @@ export function HowItWorksSection() {
           How CashClips Works
         </motion.h2>
         <motion.p
-          className="text-neutral-700 dark:text-neutral-300 text-base max-w-2xl mb-12"
+          className="mb-12 max-w-2xl text-base text-neutral-700 dark:text-neutral-300"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.6, delay: 0.4 }}

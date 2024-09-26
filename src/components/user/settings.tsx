@@ -18,7 +18,6 @@ import { Input } from "@/components/ui/input";
 import InvoiceTable from "./dash/invoice-table";
 import { Loader } from "lucide-react";
 import PlanCreditUsage from "./dash/plan-credit-usage";
-import { Separator } from "@/components/ui/separator";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/component";
 import { toast } from "sonner";
@@ -216,19 +215,19 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ user }) => {
     return (
       <div className="absolute inset-0 flex items-center justify-center">
         <Loader className="h-12 w-12 animate-spin" />
-        <p className="text-xl font-bold ml-4">Loading Settings...</p>
+        <p className="ml-4 text-xl font-bold">Loading Settings...</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-[23rem] sm:max-w-5xl md:max-w-7xl mx-auto space-y-8 p-4">
-      <header className="flex flex-col sm:flex-row justify-between items-center mb-8">
-        <div className="text-center sm:text-left mb-4 sm:mb-0">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
+    <div className="mx-auto w-full max-w-[23rem] space-y-8 p-4 sm:max-w-5xl md:max-w-7xl">
+      <header className="mb-8 flex flex-col items-center justify-between sm:flex-row">
+        <div className="mb-4 text-center sm:mb-0 sm:text-left">
+          <h1 className="mb-2 text-2xl font-bold sm:text-3xl md:text-4xl">
             Welcome back, {user?.user_metadata?.username || user.email}
           </h1>
-          <p className="text-muted-foreground text-sm sm:text-base">
+          <p className="text-sm text-muted-foreground sm:text-base">
             Manage your CashClips account and track your usage
           </p>
         </div>
@@ -250,7 +249,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ user }) => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Username</label>
+            <label className="mb-2 block text-sm font-medium">Username</label>
             <Input
               value={username}
               onChange={handleProfileInputChange}
@@ -279,7 +278,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ user }) => {
         <CardContent className="space-y-4">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label className="mb-2 block text-sm font-medium">
                 New Password
               </label>
               <Input
@@ -289,13 +288,13 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ user }) => {
                 className={errors.newPassword ? "border-destructive" : ""}
               />
               {errors.newPassword && (
-                <p className="text-destructive text-sm mt-1">
+                <p className="mt-1 text-sm text-destructive">
                   {errors.newPassword}
                 </p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label className="mb-2 block text-sm font-medium">
                 Confirm New Password
               </label>
               <Input
@@ -305,7 +304,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ user }) => {
                 className={errors.confirmPassword ? "border-destructive" : ""}
               />
               {errors.confirmPassword && (
-                <p className="text-destructive text-sm mt-1">
+                <p className="mt-1 text-sm text-destructive">
                   {errors.confirmPassword}
                 </p>
               )}
@@ -363,7 +362,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ user }) => {
               className={errors.currentPassword ? "border-destructive" : ""}
             />
             {errors.currentPassword && (
-              <p className="text-destructive text-sm mt-1">
+              <p className="mt-1 text-sm text-destructive">
                 {errors.currentPassword}
               </p>
             )}

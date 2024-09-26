@@ -96,7 +96,7 @@ const VideoCard: React.FC<{ clip: Clip; userSpecific: boolean }> = ({
     switch (clip.status) {
       case "succeeded":
         return (
-          <span className="text-green-500 flex items-center">
+          <span className="flex items-center text-green-500">
             <CheckCircle className="mr-1 h-4 w-4" /> Succeeded
           </span>
         );
@@ -105,14 +105,14 @@ const VideoCard: React.FC<{ clip: Clip; userSpecific: boolean }> = ({
       case "transcribing":
       case "rendering":
         return (
-          <span className="text-yellow-500 flex items-center">
+          <span className="flex items-center text-yellow-500">
             <Loader className="mr-1 h-4 w-4 animate-spin" />
             {clip.status.charAt(0).toUpperCase() + clip.status.slice(1)}
           </span>
         );
       case "failed":
         return (
-          <span className="text-red-500 flex items-center">
+          <span className="flex items-center text-red-500">
             <AlertCircle className="mr-1 h-4 w-4" /> Failed
           </span>
         );
@@ -123,9 +123,9 @@ const VideoCard: React.FC<{ clip: Clip; userSpecific: boolean }> = ({
 
   return (
     <>
-      <Card className="h-full flex flex-col">
-        <CardHeader className="flex flex-row justify-between p-2 items-center">
-          <CardTitle className="text-sm font-semibold truncate">
+      <Card className="flex h-full flex-col">
+        <CardHeader className="flex flex-row items-center justify-between p-2">
+          <CardTitle className="truncate text-sm font-semibold">
             Clip {clip.render_id.slice(0, 8)}
           </CardTitle>
         </CardHeader>
@@ -154,7 +154,7 @@ const VideoCard: React.FC<{ clip: Clip; userSpecific: boolean }> = ({
           {clip.response?.url && (
             <div className="mt-2 aspect-square overflow-hidden rounded">
               <video
-                className="w-full h-full mx-auto object-cover cursor-pointer"
+                className="mx-auto h-full w-full cursor-pointer object-cover"
                 src={clip.response.url}
                 onClick={() => setIsVideoViewerOpen(true)}
               />
@@ -195,9 +195,9 @@ const Pagination: React.FC<{
   totalItems,
 }) => {
   return (
-    <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 w-full">
+    <div className="flex w-full flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
       {/* Showing item range and total */}
-      <div className="flex flex-col md:flex-row items-center justify-start space-y-2 md:space-y-0 md:space-x-4 w-full md:w-auto text-center text-sm text-muted-foreground">
+      <div className="flex w-full flex-col items-center justify-start space-y-2 text-center text-sm text-muted-foreground md:w-auto md:flex-row md:space-x-4 md:space-y-0">
         <span>
           Showing{" "}
           <strong>
@@ -229,7 +229,7 @@ const Pagination: React.FC<{
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex items-center space-x-2 justify-center">
+      <div className="flex items-center justify-center space-x-2">
         <Button
           variant="outline"
           className="h-8 w-8 p-0"
@@ -354,14 +354,14 @@ const Creations: React.FC<CreationsProps> = ({
   const totalPages = Math.ceil(totalItems / pageSize);
 
   return (
-    <Card className="w-full  mx-auto space-y-8">
+    <Card className="mx-auto w-full space-y-8">
       <CardHeader className="space-y-3">
         <CardTitle>Clip History</CardTitle>
         <CardDescription>
           View your clipping activity over a selected time period
         </CardDescription>
         {userSpecific && (
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="mb-6 flex flex-col gap-4 md:flex-row">
             <DataTableFacetedFilter
               title="Filter by Status"
               options={[
@@ -392,14 +392,14 @@ const Creations: React.FC<CreationsProps> = ({
       <CardContent>
         <AnimatePresence>
           {clips.length === 0 ? (
-            <div className="h-[300px] w-full flex flex-col gap-4 justify-center items-center">
+            <div className="flex h-[300px] w-full flex-col items-center justify-center gap-4">
               <p>No data available</p>
               <Link href="/user/create" passHref>
                 <Button
                   variant="ringHover"
-                  className="w-full group justify-start"
+                  className="group w-full justify-start"
                 >
-                  <PlusCircle className="mr-2 size-4 group-hover:-translate-x-1 transition-all duration-300" />
+                  <PlusCircle className="mr-2 size-4 transition-all duration-300 group-hover:-translate-x-1" />
                   Generate some clips
                 </Button>
               </Link>
@@ -407,7 +407,7 @@ const Creations: React.FC<CreationsProps> = ({
           ) : (
             <LayoutGroup>
               <motion.div
-                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+                className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
                 layout
               >
                 {clips.map((clip) => (
