@@ -8,22 +8,15 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  const { streamer, category } = req.query;
+  const { streamer } = req.query;
 
-  if (
-    !streamer ||
-    typeof streamer !== "string" ||
-    !category ||
-    typeof category !== "string"
-  ) {
-    return res
-      .status(400)
-      .json({ error: "Streamer and category are required" });
+  if (!streamer || typeof streamer !== "string") {
+    return res.status(400).json({ error: "Streamer is required" });
   }
 
   try {
-    const folderRef = ref(storage, `${streamer}/${category}`);
-    const result = await listAll(folderRef);
+    const streamerRef = ref(storage, streamer);
+    const result = await listAll(streamerRef);
 
     const videos = await Promise.all(
       result.items
@@ -35,7 +28,7 @@ export default async function handler(
           return {
             id: item.name,
             public_id: item.fullPath,
-            folder: `${streamer}/${category}`,
+            folder: streamer,
             url: downloadURL,
             secure_url: downloadURL,
             thumbnail_url: downloadURL,
