@@ -250,7 +250,7 @@ const Render: React.FC<RenderProps> = ({
                   className="mx-auto flex h-96 w-full max-w-md flex-col items-center justify-center"
                 >
                   <div className="mb-4 flex items-center">
-                    <Loader className="mr-3 h-8 w-8 animate-spin text-blue-500" />
+                    <Loader className="mr-3 h-8 w-8 animate-spin text-primary" />
                     <span className="text-xl font-bold">
                       Generating Captions...
                     </span>
@@ -278,9 +278,9 @@ const Render: React.FC<RenderProps> = ({
                           key={font.id}
                           className={`cursor-pointer justify-center rounded border bg-white p-2 transition-all duration-200 ${
                             selectedFont.id === font.id
-                              ? "border-4 border-blue-500"
+                              ? "border-4 border-primary"
                               : "border-gray-300"
-                          } border-2 hover:border-blue-500`}
+                          } border-2 hover:border-primary`}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => {

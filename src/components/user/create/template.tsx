@@ -38,8 +38,8 @@ const Template: React.FC<TemplateProps> = ({
           whileTap={{ scale: 0.95 }}
           className={`cursor-pointer rounded border p-4 transition-colors duration-200 ${
             selectedTemplate?.name === template.name
-              ? "border-2 border-blue-500"
-              : "hover:border-blue-500"
+              ? "border-2 border-primary"
+              : "hover:border-primary"
           }`}
           onClick={() => {
             console.log("Template selected:", template.name);

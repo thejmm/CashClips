@@ -66,9 +66,9 @@ const Stepper: React.FC<StepperProps> = ({
                 <motion.button
                   className={`flex h-8 w-8 items-center justify-center rounded-full border-2 transition-colors duration-200 md:h-10 md:w-10 ${
                     isCompleted
-                      ? "border-green-500 bg-green-500 text-white"
+                      ? "border-primary bg-primary text-white"
                       : isCurrent
-                        ? "border-blue-600 bg-blue-600 text-white"
+                        ? "border-primary bg-primary text-white"
                         : "border-gray-300 bg-white text-gray-500"
                   } ${!isClickable ? "cursor-not-allowed opacity-50" : ""}`}
                   whileHover={isClickable ? { scale: 1.1 } : {}}
@@ -87,7 +87,7 @@ const Stepper: React.FC<StepperProps> = ({
                 </motion.button>
                 <motion.div
                   className={`absolute -bottom-6 w-max text-center text-xs font-medium ${
-                    isCurrent ? "text-blue-600" : "text-gray-500"
+                    isCurrent ? "text-primary" : "text-gray-500"
                   } ${isCurrent ? "" : "hidden md:block"}`}
                   initial={false}
                   animate={{ scale: isCurrent ? 1.1 : 1 }}
@@ -134,7 +134,7 @@ const Stepper: React.FC<StepperProps> = ({
                 <div className="mt-4">
                   <div className="mb-4 h-2.5 w-full rounded-full bg-gray-200">
                     <div
-                      className="h-2.5 rounded-full bg-blue-600"
+                      className="h-2.5 rounded-full bg-primary"
                       style={{ width: `${progress}%` }}
                     />
                   </div>
@@ -152,7 +152,7 @@ const Stepper: React.FC<StepperProps> = ({
               </AlertDialogCancel>
             ) : (
               <div className="mt-4 flex items-center justify-center">
-                <Loader className="h-10 w-10 animate-spin text-blue-600" />
+                <Loader className="h-10 w-10 animate-spin text-primary" />
               </div>
             )}
           </AlertDialogFooter>

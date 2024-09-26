@@ -137,8 +137,8 @@ const Clips: React.FC<ClipsProps> = ({
                   whileTap={{ scale: 0.95 }}
                   className={`cursor-pointer rounded border p-2 transition-colors duration-200 ${
                     selectedVideo?.public_id === video.public_id
-                      ? "border-2 border-blue-500"
-                      : "hover:border-blue-500"
+                      ? "border-2 border-primary"
+                      : "hover:border-primary"
                   }`}
                   onClick={() => handleVideoSelect(video)}
                 >

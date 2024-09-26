@@ -41,8 +41,8 @@ const Streamer: React.FC<StreamerProps> = ({
           whileTap={{ scale: 0.95 }}
           className={`cursor-pointer rounded border p-4 transition-colors duration-200 ${
             selectedStreamer === streamer.name
-              ? "border-2 border-blue-500"
-              : "hover:border-blue-500"
+              ? "border-2 border-primary"
+              : "hover:border-primary"
           }`}
           onClick={() => {
             console.log("Streamer clicked:", streamer.name);

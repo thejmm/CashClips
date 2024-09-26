@@ -14,6 +14,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { ThemeToggle } from "../ui/theme-toggle";
 
 const footerNavs = [
   {
@@ -129,6 +130,9 @@ export function Footer() {
                     <ChevronRightIcon className="ml-1 size-4 transition-all duration-300 ease-out group-hover:translate-x-1" />
                   </Button>
                 </Link>
+              </div>
+              <div>
+                <ThemeToggle />
               </div>
             </div>
           </div>
