@@ -12,15 +12,69 @@ const Streamer: React.FC<StreamerProps> = ({
   selectedStreamer,
   handleStreamerSelect,
 }) => {
-  // NAMES ARE THE STREAMER NAMES THAT SHOULD SHOW
-  // FOLDER NAMES ARE THE FIREBASE FOLDER NAMES
-  // IMAGES ARE THE URLS TO THE STREAMER IMAGES
+  // STREAMER DATA: NAMES, FOLDER NAMES, AND IMAGE URLs
   const streamers = [
-    { name: "Jack Doherty", folder: "Jack-Doherty", image: "/streamers/jack-doherty.png" },
-    { name: "iShowSpeed", folder: "iShowSpeed", image: "/streamers/ishowspeed.png" },
-    { name: "Kai Cenat", folder: "Kai-Cenat", image: "/streamers/kai-cenat.png" },
+    {
+      name: "Jack Doherty",
+      folder: "Jack-Doherty",
+      image: "/streamers/jack-doherty.png",
+    },
+    {
+      name: "iShowSpeed",
+      folder: "iShowSpeed",
+      image: "/streamers/ishowspeed.png",
+    },
+    {
+      name: "Kai Cenat",
+      folder: "Kai-Cenat",
+      image: "/streamers/kai-cenat.png",
+    },
     { name: "xQc", folder: "xQc", image: "/streamers/xqc.png" },
-    { name: "Adin Ross", folder: "Adin-Ross", image: "/streamers/adin-ross.png" },
+    {
+      name: "Adin Ross",
+      folder: "Adin-Ross",
+      image: "/streamers/adin-ross.png",
+    },
+    {
+      name: "Agent00",
+      folder: "Agent00",
+      image: "/streamers/agent00.png",
+    },
+    {
+      name: "Amouranth",
+      folder: "Amouranth",
+      image: "/streamers/amouranth.png",
+    },
+    {
+      name: "Jynxzi",
+      folder: "Jynxzi",
+      image: "/streamers/jynxzi.png",
+    },
+    {
+      name: "Lacy",
+      folder: "Lacy",
+      image: "/streamers/lacy.png",
+    },
+    {
+      name: "Nadia",
+      folder: "Nadia",
+      image: "/streamers/nadia.png",
+    },
+    {
+      name: "Pokimane",
+      folder: "Pokimane",
+      image: "/streamers/pokimane.png",
+    },
+    {
+      name: "shroud",
+      folder: "shroud",
+      image: "/streamers/shroud.png",
+    },
+    {
+      name: "stableronaldo",
+      folder: "stableronaldo",
+      image: "/streamers/stableronaldo.png",
+    },
   ];
 
   useEffect(() => {

@@ -1,14 +1,8 @@
-import {
-  ChevronRightIcon,
-  LinkedInLogoIcon,
-  TwitterLogoIcon,
-} from "@radix-ui/react-icons";
+import { ChevronRightIcon } from "@radix-ui/react-icons";
 import {
   RiDiscordFill,
   RiInstagramFill,
-  RiKickFill,
   RiTiktokFill,
-  RiTwitchFill,
   RiTwitterXFill,
 } from "react-icons/ri";
 
@@ -29,7 +23,7 @@ const footerNavs = [
         name: "How it works",
       },
       {
-        href: "/contact/#faqs",
+        href: "/faq",
         name: "FAQ",
       },
       {
@@ -63,7 +57,7 @@ const footerNavs = [
         name: "Documentation",
       },
       {
-        href: "#",
+        href: "https://cashclips.featurebase.app/",
         name: "Community",
       },
       {
@@ -145,15 +139,29 @@ export function Footer() {
                 <ul className="grid gap-2">
                   {nav.items.map((item) => (
                     <li key={item.name}>
-                      <Link
-                        href={item.href}
-                        className="group inline-flex cursor-pointer items-center justify-start gap-1 text-[15px]/snug font-medium text-neutral-400 duration-200 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
-                      >
-                        <Button variant="linkHover2">
-                          {item.name}
-                          <ChevronRightIcon className="h-4 w-4 translate-x-0 transform opacity-0 transition-all duration-300 ease-out group-hover:translate-x-1 group-hover:opacity-100" />
-                        </Button>
-                      </Link>
+                      {item.href.startsWith("http") ? (
+                        <a
+                          href={item.href + "?utm_source=cashclips"}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group inline-flex cursor-pointer items-center justify-start gap-1 text-[15px]/snug font-medium text-neutral-400 duration-200 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
+                        >
+                          <Button variant="linkHover2">
+                            {item.name}
+                            <ChevronRightIcon className="h-4 w-4 translate-x-0 transform opacity-0 transition-all duration-300 ease-out group-hover:translate-x-1 group-hover:opacity-100" />
+                          </Button>
+                        </a>
+                      ) : (
+                        <Link
+                          href={item.href}
+                          className="group inline-flex cursor-pointer items-center justify-start gap-1 text-[15px]/snug font-medium text-neutral-400 duration-200 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
+                        >
+                          <Button variant="linkHover2">
+                            {item.name}
+                            <ChevronRightIcon className="h-4 w-4 translate-x-0 transform opacity-0 transition-all duration-300 ease-out group-hover:translate-x-1 group-hover:opacity-100" />
+                          </Button>
+                        </Link>
+                      )}
                     </li>
                   ))}
                 </ul>

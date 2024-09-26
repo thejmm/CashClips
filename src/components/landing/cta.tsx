@@ -211,11 +211,9 @@ export function CallToAction() {
                 <img src="/logo.png" className="h-full w-full rounded-3xl" />
               </div>
               <div className="z-10 mt-4 flex flex-col items-center text-center">
-                <h1 className="text-3xl font-bold lg:text-4xl">
-                  Clip Across All Platforms
-                </h1>
+                <h1 className="text-3xl font-bold lg:text-4xl">CashClips</h1>
                 <p className="mt-2">
-                  CashClips: Your one-stop solution for all streaming content
+                  Your one-stop solution for clipping content
                 </p>
                 <Link href="/login" passHref>
                   <Button

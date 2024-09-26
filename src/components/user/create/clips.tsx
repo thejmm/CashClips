@@ -49,7 +49,7 @@ const Clips: React.FC<ClipsProps> = ({
     setError(null);
     try {
       const response = await fetch(
-        `/api/firebase/videos?streamer=${selectedStreamer}`
+        `/api/firebase/videos?streamer=${selectedStreamer}`,
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -82,7 +82,7 @@ const Clips: React.FC<ClipsProps> = ({
 
   const paginatedVideos = allVideos.slice(
     (currentPage - 1) * pageSize,
-    currentPage * pageSize
+    currentPage * pageSize,
   );
 
   return (
@@ -162,8 +162,8 @@ const Clips: React.FC<ClipsProps> = ({
           {allVideos.length > 0 ? (
             <>
               Showing {(currentPage - 1) * pageSize + 1} to{" "}
-              {Math.min(currentPage * pageSize, allVideos.length)} of {allVideos.length}{" "}
-              videos
+              {Math.min(currentPage * pageSize, allVideos.length)} of{" "}
+              {allVideos.length} videos
             </>
           ) : (
             "No videos available"

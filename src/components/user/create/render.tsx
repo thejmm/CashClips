@@ -81,7 +81,9 @@ const Render: React.FC<RenderProps> = ({
       try {
         await videoCreator.initializeVideoPlayer(previewContainerRef.current);
         await videoCreator.setSelectedSource(selectedTemplate);
-        await videoCreator.updateTemplateWithSelectedVideo(selectedVideo as any);
+        await videoCreator.updateTemplateWithSelectedVideo(
+          selectedVideo as any,
+        );
 
         videoCreator.preview!.onTimeChange = (time: number) =>
           setCurrentTime(time);

@@ -47,7 +47,7 @@ const DocsLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <aside className="w-full border-r md:min-h-screen md:w-64">
         <div className="p-4 md:p-6">
           <div className="flex items-center justify-between md:block">
-            <h2 className="mb-6 text-2xl font-bold">CashClips Docs</h2>
+            <h2 className="mb-6 text-2xl font-bold">Docs</h2>
             <DropdownMenu>
               <DropdownMenuTrigger asChild className="md:hidden">
                 <Button variant="outline" size="icon">
