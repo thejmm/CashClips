@@ -3,6 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 import Stripe from "stripe";
 import createClient from "@/utils/supabase/api";
+import { v4 as uuidv4 } from "uuid";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2024-06-20",
@@ -10,7 +11,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse
 ) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
@@ -42,59 +43,35 @@ export default async function handler(
       .single();
 
     if (userError) {
-      if (userError.code === "PGRST116") {
-        // No data found
-        const { data: newUserData, error: createError } = await supabase
-          .from("user_data")
-          .insert({
-            user_id: session.metadata?.supabase_user_id,
-            stripe_customer_id: session.customer.id,
-            plan_name: session.metadata?.plan_name || "",
-            plan_price: session.amount_total || 0,
-            subscription_status: "active",
-            total_credits: session.metadata?.total_credits
-              ? parseInt(session.metadata.total_credits)
-              : 0,
-            used_credits: 0,
-          })
-          .single();
-
-        if (createError) {
-          console.error("Error creating user data:", createError);
-          return res.status(500).json({ error: "Error creating user data" });
-        }
-        userData = newUserData;
-      } else {
-        console.error("Error fetching user data:", userError);
-        return res.status(500).json({ error: "Error fetching user data" });
-      }
+      console.error("Error fetching user data:", userError);
+      return res.status(500).json({ error: "Error fetching user data" });
     }
 
     let subscriptionData = null;
     if (session.subscription && typeof session.subscription !== "string") {
       const subscription = session.subscription;
       subscriptionData = {
-        stripe_subscription_id: subscription.id,
+        id: uuidv4(),
         user_id: userData.user_id,
+        stripe_subscription_id: subscription.id,
+        stripe_customer_id: session.customer.id,
         status: subscription.status,
-        price_id: subscription.items.data[0]?.price.id,
-        quantity: subscription.items.data[0]?.quantity,
-        cancel_at_period_end: subscription.cancel_at_period_end,
-        created_at: new Date(subscription.created * 1000).toISOString(),
+        plan_id: subscription.items.data[0]?.price.id,
         current_period_start: new Date(
-          subscription.current_period_start * 1000,
+          subscription.current_period_start * 1000
         ).toISOString(),
         current_period_end: new Date(
-          subscription.current_period_end * 1000,
+          subscription.current_period_end * 1000
         ).toISOString(),
-        ended_at: subscription.ended_at
-          ? new Date(subscription.ended_at * 1000).toISOString()
+        created_at: new Date(subscription.created * 1000).toISOString(),
+        canceled_at: subscription.canceled_at
+          ? new Date(subscription.canceled_at * 1000).toISOString()
           : null,
         cancel_at: subscription.cancel_at
           ? new Date(subscription.cancel_at * 1000).toISOString()
           : null,
-        canceled_at: subscription.canceled_at
-          ? new Date(subscription.canceled_at * 1000).toISOString()
+        ended_at: subscription.ended_at
+          ? new Date(subscription.ended_at * 1000).toISOString()
           : null,
         trial_start: subscription.trial_start
           ? new Date(subscription.trial_start * 1000).toISOString()
@@ -121,13 +98,25 @@ export default async function handler(
     }
 
     const updatedUserData = {
+      stripe_subscription_id: subscriptionData?.stripe_subscription_id || null,
+      plan_name: session.metadata?.plan_name || userData.plan_name,
+      plan_price: session.amount_total || userData.plan_price,
       subscription_status:
         subscriptionData?.status || userData.subscription_status,
       next_billing_date:
         subscriptionData?.current_period_end || userData.next_billing_date,
+      current_period_start:
+        subscriptionData?.current_period_start || userData.current_period_start,
+      current_period_end:
+        subscriptionData?.current_period_end || userData.current_period_end,
+      canceled_at: subscriptionData?.canceled_at || userData.canceled_at,
+      trial_start: subscriptionData?.trial_start || userData.trial_start,
+      trial_end: subscriptionData?.trial_end || userData.trial_end,
       total_credits: session.metadata?.total_credits
         ? parseInt(session.metadata.total_credits)
         : userData.total_credits,
+      used_credits: 0,
+      updated_at: new Date().toISOString(),
     };
 
     const { error: userDataError } = await supabase
@@ -139,6 +128,36 @@ export default async function handler(
       console.error("Error updating user_data:", userDataError);
     } else {
       console.log("User data updated successfully");
+    }
+
+    // Handle invoice creation if needed
+    if (session.invoice && typeof session.invoice !== "string") {
+      const invoice = session.invoice;
+      const invoiceData = {
+        id: uuidv4(),
+        stripe_invoice_id: invoice.id,
+        user_id: userData.user_id,
+        status: invoice.status,
+        currency: invoice.currency,
+        amount_due: invoice.amount_due,
+        amount_paid: invoice.amount_paid,
+        amount_remaining: invoice.amount_remaining,
+        created: new Date(invoice.created * 1000).toISOString(),
+        period_start: new Date(invoice.period_start * 1000).toISOString(),
+        period_end: new Date(invoice.period_end * 1000).toISOString(),
+        stripe_subscription_id:
+          subscriptionData?.stripe_subscription_id || null,
+      };
+
+      const { error: invoiceError } = await supabase
+        .from("invoices")
+        .upsert(invoiceData, { onConflict: "stripe_invoice_id" });
+
+      if (invoiceError) {
+        console.error("Error creating invoice:", invoiceError);
+      } else {
+        console.log("Invoice created successfully");
+      }
     }
 
     res.status(200).json({

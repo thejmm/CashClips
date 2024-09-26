@@ -11,20 +11,17 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse
 ) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).end("Method Not Allowed");
   }
-
   const { price_id, plan_name, promotekit_referral } = req.body;
   if (!price_id || !plan_name) {
     return res.status(400).json({ error: "Missing price_id or plan_name" });
   }
-
   const supabase = createClient(req, res);
-
   try {
     const {
       data: { user },
@@ -34,7 +31,6 @@ export default async function handler(
       console.error("Authentication error:", userError);
       return res.status(401).json({ error: "Unauthorized" });
     }
-
     let stripeCustomerId = user.user_metadata?.stripe_customer_id;
     if (stripeCustomerId) {
       try {
@@ -44,7 +40,6 @@ export default async function handler(
         stripeCustomerId = null;
       }
     }
-
     if (!stripeCustomerId) {
       try {
         const customer = await stripe.customers.create({
@@ -65,14 +60,13 @@ export default async function handler(
           .json({ error: "Failed to create Stripe customer" });
       }
     }
-
     const planDetails = pricingConfig.plans.find((p) => p.name === plan_name);
     if (!planDetails) {
       return res.status(400).json({ error: "Invalid plan name" });
     }
 
     const totalCreditsMatch = planDetails.features[0].match(
-      /Generate (\d+) clips per month/,
+      /Generate (\d+) clips per month/
     );
     const totalCredits = totalCreditsMatch
       ? parseInt(totalCreditsMatch[1], 10)
@@ -97,7 +91,6 @@ export default async function handler(
       },
       return_url: `${req.headers.origin}/user/return?session_id={CHECKOUT_SESSION_ID}`,
     });
-
     console.log("Checkout session created:", session.id);
     res.status(200).json({ clientSecret: session.client_secret });
   } catch (error) {
