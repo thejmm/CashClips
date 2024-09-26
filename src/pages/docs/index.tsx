@@ -1,9 +1,13 @@
 // src/pages/docs/index.tsx
 import {
   ArrowRight,
+  Clock,
   DollarSign,
   Globe,
+  Layout,
+  MessageSquareText,
   Sparkles,
+  User,
   Users,
   Video,
   Zap,
@@ -61,6 +65,51 @@ const features = [
   },
 ];
 
+const streamers = [
+  "Jack Doherty",
+  "iShowSpeed",
+  "Kai Cenat",
+  "xQc",
+  "Adin Ross",
+  "Agent00",
+  "Amouranth",
+  "Jynxzi",
+  "Lacy",
+  "Nadia",
+  "Pokimane",
+  "shroud",
+  "stableronaldo",
+  "AND GROWING!!",
+];
+
+const highlights = [
+  {
+    icon: Users,
+    title: "Streamers",
+    value: "13+",
+    description: "Growing daily",
+  },
+  { icon: Video, title: "Clips", value: "5,000+", description: "Added daily" },
+  {
+    icon: Layout,
+    title: "Templates",
+    value: "5",
+    description: "And expanding",
+  },
+  {
+    icon: Clock,
+    title: "Creation Time",
+    value: "Minutes",
+    description: "Quick and easy",
+  },
+  {
+    icon: MessageSquareText,
+    title: "Auto Captioning",
+    value: "Included",
+    description: "For all clips",
+  },
+];
+
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 },
@@ -80,8 +129,9 @@ const DocsHome: React.FC = () => {
         className="space-y-12"
       >
         <motion.h1 variants={fadeInUp} className="mb-6 text-4xl font-bold">
-          Documentation
+          CashClips Documentation
         </motion.h1>
+
         <motion.div variants={fadeInUp} className="space-y-6">
           <p className="text-xl">
             Welcome to CashClips, the ultimate platform for creating viral
@@ -90,6 +140,27 @@ const DocsHome: React.FC = () => {
             seconds.
           </p>
 
+          <motion.div variants={fadeInUp} className="my-8">
+            <h2 className="mb-4 text-2xl font-semibold">
+              CashClips at a Glance
+            </h2>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
+              {highlights.map((item) => (
+                <Card key={item.title} className="bg-secondary">
+                  <CardContent className="flex flex-col items-center justify-center p-4 text-center">
+                    <item.icon className="mb-2 h-8 w-8 text-primary" />
+                    <h3 className="text-lg font-bold">{item.value}</h3>
+                    <p className="text-sm font-medium">{item.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {item.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Keep the existing sections for Getting Started and Affiliate */}
           <motion.div
             variants={fadeInUp}
             className="grid grid-cols-1 gap-6 md:grid-cols-2"
@@ -119,6 +190,7 @@ const DocsHome: React.FC = () => {
           </motion.div>
         </motion.div>
 
+        {/* Keep the existing Key Features section */}
         <motion.div variants={fadeInUp}>
           <h2 className="mb-4 text-2xl font-semibold">Key Features</h2>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -132,6 +204,23 @@ const DocsHome: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <p>{feature.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Keep the existing Available Streamers section */}
+        <motion.div variants={fadeInUp}>
+          <h2 className="mb-4 text-2xl font-semibold">Available Streamers</h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+            {streamers.map((streamer) => (
+              <Card key={streamer}>
+                <CardContent className="flex items-center p-4">
+                  <User className="mr-2 h-5 w-5 text-primary" />
+                  <span className="overflow-hidden text-ellipsis whitespace-nowrap text-sm font-medium">
+                    {streamer}
+                  </span>
                 </CardContent>
               </Card>
             ))}

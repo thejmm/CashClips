@@ -1,15 +1,17 @@
-// src/pages/docs/getting-started.tsx
-
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   ArrowRight,
+  CheckCircle,
   Edit,
   Globe,
+  Info,
   Sparkles,
   Users,
   Video,
   Zap,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { Button } from "@/components/ui/button";
 import DocsLayout from "@/components/docs/docs-layout";
@@ -22,73 +24,58 @@ const features = [
     icon: Video,
     title: "Clip Library",
     description:
-      "Access over 100,000 clips from top streamers like xQc, MrBeast, and Kai Cenat. Our AI curates the best moments so you don't have to spend hours watching streams.",
+      "Access over 100,000 clips from top streamers. Our AI curates the best moments.",
   },
   {
     icon: Edit,
     title: "Advanced Templates",
     description:
-      "Choose from 50+ professionally designed templates, including dynamic overlays, transitions, and effects tailored for each platform's requirements.",
+      "Choose from 50+ professionally designed templates tailored for each platform.",
   },
   {
     icon: Users,
     title: "Streamer Picks",
-    description:
-      "Get instant access to viral moments from Adin Ross, Pokimane, Ludwig, and more. Our AI predicts which clips are likely to go viral based on current trends.",
+    description: "Get instant access to viral moments from top creators.",
   },
   {
     icon: Sparkles,
     title: "AI Captions & Translations",
     description:
-      "Our advanced AI not only generates catchy captions but also translates content into 20+ languages, helping you reach a global audience.",
+      "Generate catchy captions and translate content into 20+ languages.",
   },
   {
     icon: Zap,
     title: "One-Click Viral Clips",
     description:
-      "Our proprietary algorithm analyzes thousands of viral videos to create clips that are scientifically engineered for maximum engagement and shareability.",
+      "Our algorithm creates clips engineered for maximum engagement.",
   },
   {
     icon: Globe,
     title: "Multi-Platform Optimization",
     description:
-      "Automatically optimize your clips for Twitch, YouTube Shorts, TikTok, Instagram Reels, and Twitter. We handle aspect ratios, durations, and platform-specific features.",
+      "Automatically optimize clips for various social media platforms.",
   },
 ];
 
 const steps = [
+  { title: "Sign Up", description: "Create your CashClips account." },
+  { title: "Choose Streamer", description: "Browse our library of streamers." },
   {
-    title: "Sign Up",
-    description:
-      "Create your CashClips account and choose your favorite content creators to follow.",
+    title: "Select Content",
+    description: "Find trending clips from top streamers.",
   },
+  { title: "Pick Template", description: "Choose a template for your clip." },
   {
-    title: "Choose Streamer",
-    description: "Browse our extensive library of streamers to choose from.",
-  },
-  {
-    title: "Choose Content",
-    description:
-      "Browse our extensive library to find trending clips from top streamers.",
-  },
-  {
-    title: "Select Template",
-    description:
-      "Pick from our collection of templates designed for maximum engagement on each platform.",
-  },
-  {
-    title: "View & Edit",
-    description:
-      "View and choose wether to add your captions based on your preferences.",
+    title: "Edit & Customize",
+    description: "Adjust captions and make final edits.",
   },
   {
     title: "Generate",
-    description:
-      "Let us process the hard work and use our magic to create a viral-worthy clip in minutes.",
+    description: "Create your viral-worthy clip in minutes.",
   },
   {
-    title: "Download & Publish",
-    description: "Download and share your clip across multiple platforms",
+    title: "Publish",
+    description: "Share your clip across multiple platforms.",
   },
 ];
 
@@ -111,54 +98,71 @@ const GettingStartedPage: React.FC = () => {
         className="space-y-12"
       >
         <motion.section variants={fadeInUp}>
-          <h1 className="mb-4 text-4xl font-bold">Getting Started</h1>
+          <h1 className="mb-4 text-4xl font-bold">
+            Getting Started with CashClips
+          </h1>
           <p className="mb-8 text-xl">
-            This guide will help you create your first viral-worthy video clip
-            in minutes, featuring content from top creators like xQc, MrBeast,
-            and Kai Cenat.
+            Welcome to CashClips! This guide will walk you through the process
+            of creating your first viral-worthy video clip using our advanced
+            AI-powered platform.
           </p>
         </motion.section>
 
         <motion.section variants={fadeInUp}>
-          <h2 className="mb-6 text-2xl font-semibold">Quick Start Guide</h2>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {steps.map((step, index) => (
-              <motion.div key={index} variants={fadeInUp}>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <span className="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                        {index + 1}
-                      </span>
-                      {step.title}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p>{step.description}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertTitle>Before you begin</AlertTitle>
+            <AlertDescription>
+              Make sure you have a CashClips account. If you haven&#39;t signed
+              up yet,
+              <Link
+                href="/signup"
+                className="font-medium text-primary hover:underline"
+              >
+                {" "}
+                create an account here
+              </Link>
+              .
+            </AlertDescription>
+          </Alert>
         </motion.section>
 
         <motion.section variants={fadeInUp}>
           <h2 className="mb-6 text-2xl font-semibold">
-            Advanced CashClips Features
+            Creating Your First Clip
           </h2>
+          <ol className="space-y-4">
+            {steps.map((step, index) => (
+              <motion.li
+                key={index}
+                variants={fadeInUp}
+                className="flex items-start"
+              >
+                <CheckCircle className="mr-2 h-6 w-6 flex-shrink-0 text-primary" />
+                <div>
+                  <h3 className="font-semibold">{step.title}</h3>
+                  <p>{step.description}</p>
+                </div>
+              </motion.li>
+            ))}
+          </ol>
+        </motion.section>
+
+        <motion.section variants={fadeInUp}>
+          <h2 className="mb-6 text-2xl font-semibold">Key Features</h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {features.map((feature, index) => (
-              <motion.div key={index} variants={fadeInUp}>
-                <Card className="h-full">
-                  <CardHeader>
-                    <feature.icon className="mb-2 h-8 w-8 text-primary" />
-                    <CardTitle>{feature.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p>{feature.description}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
+              <Card key={index} className="h-full">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <feature.icon className="mr-2 h-6 w-6 text-primary" />
+                    {feature.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>{feature.description}</p>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </motion.section>
@@ -168,20 +172,16 @@ const GettingStartedPage: React.FC = () => {
           className="rounded-lg bg-accent p-8"
         >
           <h2 className="mb-4 text-2xl font-semibold">
-            Ready to Create Your First Viral Clip?
+            Ready to Start Creating?
           </h2>
           <p className="mb-6 text-lg">
-            With CashClips, you are just minutes away from creating content that
-            will captivate your audience and potentially go viral. Start with
-            clips from top creators like Adin Ross, Pokimane, and Ludwig!
+            Now that you are familiar with CashClips, it&#39;s time to create
+            your first viral clip!
           </p>
-          <Link href="/pricing">
-            <Button
-              variant="ringHover"
-              className="group transition-all duration-300"
-            >
-              Start Clipping Now
-              <ArrowRight className="ml-2 h-4 w-4 transition-all duration-300 group-hover:translate-x-1" />
+          <Link href="/user/dashboard">
+            <Button variant="default" size="lg" className="group">
+              Go to Dashboard
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </Link>
         </motion.section>
