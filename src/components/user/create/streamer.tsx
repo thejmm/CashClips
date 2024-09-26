@@ -12,12 +12,15 @@ const Streamer: React.FC<StreamerProps> = ({
   selectedStreamer,
   handleStreamerSelect,
 }) => {
+  // NAMES ARE THE STREAMER NAMES THAT SHOULD SHOW
+  // FOLDER NAMES ARE THE FIREBASE FOLDER NAMES
+  // IMAGES ARE THE URLS TO THE STREAMER IMAGES
   const streamers = [
-    { name: "Jack-Doherty", image: "/streamers/jack-doherty.png" },
-    { name: "iShowSpeed", image: "/streamers/ishowspeed.png" },
-    { name: "Kai-Cenat", image: "/streamers/kai-cenat.png" },
-    { name: "xQc", image: "/streamers/xqc.png" },
-    { name: "Adin-Ross", image: "/streamers/adin-ross.png" },
+    { name: "Jack Doherty", folder: "Jack-Doherty", image: "/streamers/jack-doherty.png" },
+    { name: "iShowSpeed", folder: "iShowSpeed", image: "/streamers/ishowspeed.png" },
+    { name: "Kai Cenat", folder: "Kai-Cenat", image: "/streamers/kai-cenat.png" },
+    { name: "xQc", folder: "xQc", image: "/streamers/xqc.png" },
+    { name: "Adin Ross", folder: "Adin-Ross", image: "/streamers/adin-ross.png" },
   ];
 
   useEffect(() => {

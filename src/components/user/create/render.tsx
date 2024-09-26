@@ -1,4 +1,3 @@
-// src/components/user/create/render.tsx
 import {
   AlertDialog,
   AlertDialogContent,
@@ -36,8 +35,6 @@ interface FirebaseVideo {
   thumbnail_url: string;
   duration: number;
   format: string;
-  width: number;
-  height: number;
   created_at: string;
 }
 
@@ -84,7 +81,7 @@ const Render: React.FC<RenderProps> = ({
       try {
         await videoCreator.initializeVideoPlayer(previewContainerRef.current);
         await videoCreator.setSelectedSource(selectedTemplate);
-        await videoCreator.updateTemplateWithSelectedVideo(selectedVideo);
+        await videoCreator.updateTemplateWithSelectedVideo(selectedVideo as any);
 
         videoCreator.preview!.onTimeChange = (time: number) =>
           setCurrentTime(time);
@@ -132,12 +129,8 @@ const Render: React.FC<RenderProps> = ({
 
   const formatTime = (time: number) => {
     const seconds = Math.floor(time % 60);
-    const milliseconds = Math.floor(((time * 1000) % 1000) / 10); // Get milliseconds and format to 2 decimal places
-
-    const formattedSeconds = seconds.toString().padStart(2, "0");
-    const formattedMilliseconds = milliseconds.toString().padStart(2, "0");
-
-    return `${formattedSeconds}:${formattedMilliseconds}`;
+    const milliseconds = Math.floor(((time * 1000) % 1000) / 10);
+    return `${seconds.toString().padStart(2, "0")}:${milliseconds.toString().padStart(2, "0")}`;
   };
 
   return (

@@ -1,4 +1,3 @@
-// src/components/user/create.tsx
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,6 +17,7 @@ import Streamer from "./create/streamer";
 import Template from "./create/template";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/component";
+import { useRouter } from "next/router";
 import { videoCreator } from "@/store/creatomate";
 
 interface CreateProps {
@@ -38,15 +38,22 @@ interface FirebaseVideo {
   thumbnail_url: string;
   duration: number;
   format: string;
-  width: number;
-  height: number;
   created_at: string;
 }
 
+const steps = [
+  "pick-streamer",
+  "choose-clip",
+  "select-template",
+  "edit-render",
+  "finished",
+];
+
 const Create: React.FC<CreateProps> = ({ user }) => {
-  const [currentStep, setCurrentStep] = useState(1);
+  const router = useRouter();
+  const { step } = router.query;
+
   const [selectedStreamer, setSelectedStreamer] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<FirebaseVideo | null>(
     null,
   );
@@ -72,6 +79,12 @@ const Create: React.FC<CreateProps> = ({ user }) => {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (!step || !steps.includes(step as string)) {
+      router.push({ query: { step: steps[0] } });
+    }
+  }, [step, router]);
+
   const fetchUserCreditInfo = async () => {
     try {
       const { data, error } = await supabase
@@ -89,9 +102,8 @@ const Create: React.FC<CreateProps> = ({ user }) => {
   };
 
   const handleCreateAnother = () => {
-    setCurrentStep(1);
+    router.push({ query: { step: steps[0] } });
     setSelectedStreamer(null);
-    setSelectedCategory(null);
     setSelectedVideo(null);
     setAvailableVideos([]);
     setSelectedTemplate(null);
@@ -101,10 +113,8 @@ const Create: React.FC<CreateProps> = ({ user }) => {
     fetchUserCreditInfo();
   };
 
-  const handleStepChange = (step: number) => {
-    if (step <= currentStep) {
-      setCurrentStep(step);
-    }
+  const handleStepChange = (stepIndex: number) => {
+    router.push({ query: { step: steps[stepIndex] } });
   };
 
   const handleExport = async () => {
@@ -114,7 +124,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
       const jobId = await videoCreator.finishVideo();
       const result = await videoCreator.checkRenderStatus(jobId);
       setRenderResult(result);
-      setCurrentStep(5);
+      router.push({ query: { step: steps[4] } });
       fetchUserCreditInfo();
     } catch (error) {
       console.error("Export error:", error);
@@ -126,12 +136,12 @@ const Create: React.FC<CreateProps> = ({ user }) => {
 
   const handleVideoSelect = (video: FirebaseVideo) => {
     setSelectedVideo(video);
-    setCurrentStep(3);
+    router.push({ query: { step: steps[2] } });
   };
 
   const handleTemplateSelect = (template: DefaultSource) => {
     setSelectedTemplate(template);
-    setCurrentStep(4);
+    router.push({ query: { step: steps[3] } });
   };
 
   const renderStep = () => {
@@ -169,29 +179,27 @@ const Create: React.FC<CreateProps> = ({ user }) => {
       );
     }
 
-    switch (currentStep) {
-      case 1:
+    switch (step) {
+      case "pick-streamer":
         return (
           <Streamer
             selectedStreamer={selectedStreamer}
             handleStreamerSelect={(streamer) => {
               setSelectedStreamer(streamer);
-              setCurrentStep(2);
+              router.push({ query: { step: steps[1] } });
             }}
           />
         );
-      case 2:
+      case "choose-clip":
         return (
           <Clips
             selectedStreamer={selectedStreamer}
-            selectedCategory={selectedCategory}
-            handleCategoryChange={setSelectedCategory}
             handleVideoSelect={handleVideoSelect}
             selectedVideo={selectedVideo}
             setAvailableVideos={setAvailableVideos}
           />
         );
-      case 3:
+      case "select-template":
         return (
           <Template
             selectedTemplate={selectedTemplate}
@@ -199,7 +207,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
             defaultSources={defaultSources}
           />
         );
-      case 4:
+      case "edit-render":
         return (
           <Render
             previewContainerRef={previewContainerRef}
@@ -212,7 +220,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
             availableVideos={availableVideos}
           />
         );
-      case 5:
+      case "finished":
         return (
           <Finish
             renderResult={renderResult}
@@ -233,30 +241,26 @@ const Create: React.FC<CreateProps> = ({ user }) => {
         animate={{ opacity: 1, y: 0 }}
         className="mb-4 text-lg font-bold md:text-3xl"
       >
-        {
-          [
-            "Pick Your Streamer",
-            "Choose Your Clip",
-            "Select a Template",
-            "Edit & Render",
-            "Finished",
-          ][currentStep - 1]
-        }
+        {step && steps.indexOf(step as string) !== -1
+          ? steps[steps.indexOf(step as string)]
+              .split("-")
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(" ")
+          : "Create Your Video"}
       </motion.h1>
       <Stepper
-        steps={[
-          "Pick Your Streamer",
-          "Choose Your Clip",
-          "Select a Template",
-          "Edit & Render",
-          "Finished",
-        ]}
-        currentStep={currentStep}
-        onStepClick={handleStepChange}
+        steps={steps.map((s) =>
+          s
+            .split("-")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" "),
+        )}
+        currentStep={steps.indexOf(step as string) + 1}
+        onStepClick={(index) => handleStepChange(index)}
         isLoading={isRendering}
         loadingStep={isRendering ? 4 : 0}
         loadingMessage={isRendering ? "Rendering..." : ""}
-        isFinished={currentStep === 5}
+        isFinished={step === "finished"}
         isError={
           !!error ||
           (userCreditInfo &&
