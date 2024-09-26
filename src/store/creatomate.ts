@@ -96,11 +96,7 @@ class VideoCreatorStore {
     return new Promise<void>((resolve, reject) => {
       preview.onReady = async () => {
         try {
-          console.log("Preview is ready");
           await preview.setZoom("centered");
-          if (this.selectedSource) {
-            await preview.setSource(this.selectedSource.data);
-          }
           resolve();
         } catch (error) {
           reject(error);
@@ -231,6 +227,7 @@ class VideoCreatorStore {
       element.duration = this.getMaxAllowedDuration(video.duration);
     } catch (error) {
       console.error("Error loading video element:", error);
+      // Retry mechanism or notification for failure can be implemented here.
     }
   }
 
