@@ -46,65 +46,126 @@ const ReturnPage = () => {
 
   const supabase = createClient();
 
-  // Fireworks effect
-  const triggerFireworks = () => {
-    const duration = 5 * 1000;
-    const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-    const randomInRange = (min: number, max: number) =>
-      Math.random() * (max - min) + min;
-
-    const interval = setInterval(() => {
-      const timeLeft = animationEnd - Date.now();
-
-      if (timeLeft <= 0) {
-        return clearInterval(interval);
-      }
-
-      const particleCount = 50 * (timeLeft / duration);
-      confetti({
-        ...defaults,
-        particleCount,
-        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
-      });
-      confetti({
-        ...defaults,
-        particleCount,
-        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
-      });
-    }, 250);
-  };
-
-  // Side cannons confetti effect
-  const triggerSideCannons = () => {
-    const end = Date.now() + 3 * 1000; // 3 seconds
-    const colors = ["#a786ff", "#fd8bbc", "#eca184", "#f8deb1"];
-
-    const frame = () => {
-      if (Date.now() > end) return;
-
-      confetti({
-        particleCount: 2,
-        angle: 60,
-        spread: 55,
-        startVelocity: 60,
-        origin: { x: 0, y: 0.5 },
-        colors: colors,
-      });
-      confetti({
-        particleCount: 2,
-        angle: 120,
-        spread: 55,
-        startVelocity: 60,
-        origin: { x: 1, y: 0.5 },
-        colors: colors,
-      });
-
-      requestAnimationFrame(frame);
+  const triggerMoneyFireworks = () => {
+    const emojis = ["💸", "💵", "🤑", "🪙", "💰"];
+    const createEmojiElement = (emoji: string | null) => {
+      const element = document.createElement("div");
+      element.textContent = emoji;
+      element.style.position = "fixed";
+      element.style.fontSize = "2rem";
+      element.style.zIndex = "9999";
+      element.style.pointerEvents = "none";
+      element.style.top = `${Math.random() * 100}%`;
+      element.style.left = `${Math.random() * 100}%`;
+      return element;
     };
 
-    frame();
+    const animateEmoji = (element: HTMLDivElement) => {
+      document.body.appendChild(element);
+      const startX = Math.random() * window.innerWidth;
+      const startY = Math.random() * window.innerHeight;
+      const endY = window.innerHeight + 100;
+
+      element.style.transform = `translate(${startX}px, ${startY}px)`;
+      element.style.transition = `transform 5s ease-out, opacity 5s ease-out`;
+      element.style.opacity = "0";
+
+      requestAnimationFrame(() => {
+        element.style.transform = `translate(${startX}px, ${endY}px)`;
+      });
+
+      setTimeout(() => {
+        document.body.removeChild(element);
+      }, 5000);
+    };
+
+    // Fire off 50 emoji particles for fireworks
+    for (let i = 0; i < 50; i++) {
+      const emoji = createEmojiElement(
+        emojis[Math.floor(Math.random() * emojis.length)],
+      );
+      animateEmoji(emoji);
+    }
+  };
+
+  const triggerMoneySideCannons = () => {
+    const emojis = ["💸", "💵", "🤑", "🪙", "💰"];
+    const createSideCannonElement = (emoji: string | null) => {
+      const element = document.createElement("div");
+      element.textContent = emoji;
+      element.style.position = "fixed";
+      element.style.fontSize = "3rem";
+      element.style.zIndex = "9999";
+      element.style.pointerEvents = "none";
+      element.style.left = `0px`; // Left side of the screen
+      element.style.bottom = `50%`; // Middle of the screen
+      return element;
+    };
+
+    const animateSideCannon = (element: HTMLDivElement) => {
+      document.body.appendChild(element);
+      const endX = window.innerWidth + 100; // Move to the right side of the screen
+      const endY = Math.random() * window.innerHeight;
+
+      element.style.transform = `translate(0px, 0px)`;
+      element.style.transition = `transform 3s ease-in-out, opacity 3s ease-in-out`;
+      element.style.opacity = "0";
+
+      requestAnimationFrame(() => {
+        element.style.transform = `translate(${endX}px, ${endY}px)`;
+      });
+
+      setTimeout(() => {
+        document.body.removeChild(element);
+      }, 3000);
+    };
+
+    // Fire off 20 emoji particles for side cannons
+    for (let i = 0; i < 20; i++) {
+      const emoji = createSideCannonElement(
+        emojis[Math.floor(Math.random() * emojis.length)],
+      );
+      animateSideCannon(emoji);
+    }
+  };
+
+  const triggerMoneySnow = () => {
+    const emojis = ["💸", "💵", "🤑", "🪙", "💰"];
+    const createSnowElement = (emoji: string | null) => {
+      const element = document.createElement("div");
+      element.textContent = emoji;
+      element.style.position = "fixed";
+      element.style.fontSize = "2.5rem";
+      element.style.zIndex = "9999";
+      element.style.pointerEvents = "none";
+      element.style.top = "-50px"; // Start from above the screen
+      element.style.left = `${Math.random() * 100}%`; // Random horizontal position
+      return element;
+    };
+
+    const animateSnow = (element: HTMLDivElement) => {
+      document.body.appendChild(element);
+      const endY = window.innerHeight + 100; // End position below the screen
+
+      element.style.transition = `transform 10s linear, opacity 10s ease-out`;
+      element.style.opacity = "0";
+
+      requestAnimationFrame(() => {
+        element.style.transform = `translateY(${endY}px)`;
+      });
+
+      setTimeout(() => {
+        document.body.removeChild(element);
+      }, 10000); // Remove after the animation
+    };
+
+    // Fire off 30 emoji particles for snow effect
+    for (let i = 0; i < 30; i++) {
+      const emoji = createSnowElement(
+        emojis[Math.floor(Math.random() * emojis.length)],
+      );
+      animateSnow(emoji);
+    }
   };
 
   useEffect(() => {
@@ -149,8 +210,9 @@ const ReturnPage = () => {
 
   useEffect(() => {
     if (!loading && !error && sessionData?.status === "complete" && userData) {
-      triggerFireworks();
-      triggerSideCannons();
+      triggerMoneyFireworks();
+      triggerMoneySideCannons();
+      triggerMoneySnow();
     }
   }, [loading, error, sessionData, userData]);
 
