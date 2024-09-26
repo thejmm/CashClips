@@ -1,8 +1,30 @@
-// src/pages/api/firebase/videos.ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getDownloadURL, getMetadata, listAll, ref } from "firebase/storage";
+import {
+  getDownloadURL,
+  getMetadata,
+  list,
+  listAll,
+  ref,
+} from "firebase/storage";
 
 import { storage } from "@/utils/firebase/firebase";
+
+// Helper to paginate the results if necessary
+async function fetchAllItems(storageRef: any) {
+  let allItems: any[] = [];
+  let nextPageToken = null;
+
+  do {
+    const res = await list(storageRef, {
+      maxResults: 1000,
+      pageToken: nextPageToken,
+    });
+    allItems = allItems.concat(res.items);
+    nextPageToken = res.nextPageToken;
+  } while (nextPageToken);
+
+  return allItems;
+}
 
 export default async function handler(
   req: NextApiRequest,
@@ -14,12 +36,14 @@ export default async function handler(
     return res.status(400).json({ error: "Streamer is required" });
   }
 
+  const encodedStreamer = encodeURIComponent(streamer);
+
   try {
-    const streamerRef = ref(storage, streamer);
-    const result = await listAll(streamerRef);
+    const streamerRef = ref(storage, encodedStreamer);
+    const allItems = await fetchAllItems(streamerRef);
 
     const videos = await Promise.all(
-      result.items
+      allItems
         .filter((item) => item.name.endsWith(".mp4"))
         .map(async (item) => {
           const metadata = await getMetadata(item);

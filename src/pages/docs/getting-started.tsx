@@ -116,7 +116,7 @@ const GettingStartedPage: React.FC = () => {
               Make sure you have a CashClips account. If you haven&#39;t signed
               up yet,
               <Link
-                href="/signup"
+                href="/login"
                 className="font-medium text-primary hover:underline"
               >
                 {" "}

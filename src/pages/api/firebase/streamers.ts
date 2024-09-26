@@ -12,7 +12,10 @@ export default async function handler(
     const streamersRef = ref(storage, "");
     const streamersResult = await listAll(streamersRef);
 
-    const streamers = streamersResult.prefixes.map((prefix) => prefix.name);
+    const streamers = streamersResult.prefixes.map((prefix) =>
+      encodeURIComponent(prefix.name),
+    );
+
     return res.status(200).json({ streamers });
   } catch (error: any) {
     res
