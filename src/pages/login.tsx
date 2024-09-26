@@ -1,3 +1,4 @@
+// src/pages/login.tsx
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Eye, EyeOff, Loader2, X } from "lucide-react";
@@ -17,8 +18,6 @@ import { useRouter } from "next/router";
 type AuthStage = "signIn" | "signUp" | "resetPassword" | "checkEmail";
 type AuthAction = "signin" | "signup" | "resetpassword";
 type SignInMethod = "email" | "google" | "twitch" | null;
-
-const MAX_SIGN_UPS = 250;
 
 const pageVariants = {
   initial: { opacity: 0, scale: 0.8 },
@@ -382,18 +381,34 @@ const LoginPage: React.FC = () => {
               </motion.div>
             )}
           </motion.div>
+          {authStage === "resetPassword" && (
+            <motion.div variants={itemVariants}>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => updateURL("signIn", "signin")}
+              >
+                Return to Login
+              </Button>
+            </motion.div>
+          )}
         </motion.form>
-        <motion.div variants={itemVariants} className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Or continue with
-            </span>
-          </div>
-        </motion.div>
-        {renderSocialButtons()}
+        {authStage !== "resetPassword" && (
+          <>
+            <motion.div variants={itemVariants} className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or continue with
+                </span>
+              </div>
+            </motion.div>
+            {renderSocialButtons()}
+          </>
+        )}
       </motion.div>
     );
   };

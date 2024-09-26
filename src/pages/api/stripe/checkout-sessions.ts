@@ -42,8 +42,32 @@ export default async function handler(
       .single();
 
     if (userError) {
-      console.error("Error fetching user data:", userError);
-      return res.status(500).json({ error: "Error fetching user data" });
+      if (userError.code === "PGRST116") {
+        // No data found
+        const { data: newUserData, error: createError } = await supabase
+          .from("user_data")
+          .insert({
+            user_id: session.metadata?.supabase_user_id,
+            stripe_customer_id: session.customer.id,
+            plan_name: session.metadata?.plan_name || "",
+            plan_price: session.amount_total || 0,
+            subscription_status: "active",
+            total_credits: session.metadata?.total_credits
+              ? parseInt(session.metadata.total_credits)
+              : 0,
+            used_credits: 0,
+          })
+          .single();
+
+        if (createError) {
+          console.error("Error creating user data:", createError);
+          return res.status(500).json({ error: "Error creating user data" });
+        }
+        userData = newUserData;
+      } else {
+        console.error("Error fetching user data:", userError);
+        return res.status(500).json({ error: "Error fetching user data" });
+      }
     }
 
     let subscriptionData = null;

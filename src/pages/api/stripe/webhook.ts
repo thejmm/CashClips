@@ -116,6 +116,47 @@ async function handleSubscriptionChange(
     console.error("Error updating user_data:", userDataError);
     throw userDataError;
   }
+
+  const { error: subscriptionError } = await supabase
+    .from("subscriptions")
+    .upsert(
+      {
+        stripe_subscription_id: subscription.id,
+        user_id: userData.user_id,
+        status: subscription.status,
+        price_id: priceId,
+        quantity: subscription.items.data[0]?.quantity,
+        cancel_at_period_end: subscription.cancel_at_period_end,
+        created_at: new Date(subscription.created * 1000).toISOString(),
+        current_period_start: new Date(
+          subscription.current_period_start * 1000,
+        ).toISOString(),
+        current_period_end: new Date(
+          subscription.current_period_end * 1000,
+        ).toISOString(),
+        ended_at: subscription.ended_at
+          ? new Date(subscription.ended_at * 1000).toISOString()
+          : null,
+        cancel_at: subscription.cancel_at
+          ? new Date(subscription.cancel_at * 1000).toISOString()
+          : null,
+        canceled_at: subscription.canceled_at
+          ? new Date(subscription.canceled_at * 1000).toISOString()
+          : null,
+        trial_start: subscription.trial_start
+          ? new Date(subscription.trial_start * 1000).toISOString()
+          : null,
+        trial_end: subscription.trial_end
+          ? new Date(subscription.trial_end * 1000).toISOString()
+          : null,
+      },
+      { onConflict: "stripe_subscription_id" },
+    );
+
+  if (subscriptionError) {
+    console.error("Error upserting subscription:", subscriptionError);
+    throw subscriptionError;
+  }
 }
 
 async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
@@ -176,6 +217,7 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
 
   if (userDataError) {
     console.error("Error updating user_data status:", userDataError);
+    throw userDataError;
   }
 }
 
@@ -233,8 +275,13 @@ async function handleCheckoutSessionCompleted(
 
     console.log("User data updated:", userData);
 
-    console.log("User data updated successfully");
+    if (subscription) {
+      await handleSubscriptionChange(subscription, supabase);
+    }
+
+    console.log("User data and subscription updated successfully");
   } catch (error) {
     console.error("Error updating user data:", error);
+    throw error;
   }
 }
