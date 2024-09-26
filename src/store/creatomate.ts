@@ -92,6 +92,7 @@ class VideoCreatorStore {
       process.env.NEXT_PUBLIC_CREATOMATE_PUBLIC_TOKEN!,
     );
     this.preview = preview;
+
     return new Promise<void>((resolve, reject) => {
       preview.onReady = async () => {
         try {
@@ -161,13 +162,15 @@ class VideoCreatorStore {
   ): Promise<void> {
     if (!this.preview || !this.selectedSource) return;
 
+    const videoUrl = selectedVideo.url;
+
+    // Wait until the video is fully ready and accessible
+    await this.ensureVideoFullyLoaded(videoUrl);
+
     const source = this.preview.getSource();
-    const selectedVideoUrl = selectedVideo.url;
     const selectedVideoDuration = this.getMaxAllowedDuration(
       selectedVideo.duration,
     );
-
-    console.log("Updating template with selected video:", selectedVideoUrl);
 
     const videoElements = source.elements.filter(
       (el: any) => el.type === "video",
@@ -207,9 +210,24 @@ class VideoCreatorStore {
     });
   }
 
+  private async ensureVideoFullyLoaded(url: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const videoElement = document.createElement("video");
+      videoElement.src = url;
+      videoElement.onloadeddata = () => resolve();
+      videoElement.onerror = () =>
+        reject(new Error(`Failed to load video at ${url}`));
+    });
+  }
+
   private async updateVideoElement(element: any, video: FirebaseVideo) {
-    element.source = video.url;
-    element.duration = this.getMaxAllowedDuration(video.duration);
+    try {
+      await this.ensureVideoFullyLoaded(video.url);
+      element.source = video.url;
+      element.duration = this.getMaxAllowedDuration(video.duration);
+    } catch (error) {
+      console.error("Error loading video element:", error);
+    }
   }
 
   private getMaxAllowedDuration(duration: number): number {
