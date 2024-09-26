@@ -50,7 +50,6 @@ export function HeroSection() {
                 muted
                 loop
                 controls={false}
-                 
                 playsInline
               >
                 <source src="/assets/share2.mp4" type="video/mp4" />

@@ -45,7 +45,7 @@ const Clips: React.FC<ClipsProps> = ({
   setAvailableVideos,
 }) => {
   const [categories, setCategories] = useState<{ id: string; name: string }[]>(
-    []
+    [],
   );
   const [videos, setVideos] = useState<FirebaseVideo[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(false);
@@ -78,7 +78,7 @@ const Clips: React.FC<ClipsProps> = ({
     if (selectedStreamer && selectedCategory) {
       setLoadingVideos(true);
       fetch(
-        `/api/firebase/videos?streamer=${selectedStreamer}&category=${selectedCategory}`
+        `/api/firebase/videos?streamer=${selectedStreamer}&category=${selectedCategory}`,
       )
         .then((res) => res.json())
         .then((data) => {

@@ -48,7 +48,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
   const [selectedStreamer, setSelectedStreamer] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<FirebaseVideo | null>(
-    null
+    null,
   );
   const [availableVideos, setAvailableVideos] = useState<FirebaseVideo[]>([]);
   const [selectedTemplate, setSelectedTemplate] =
@@ -59,7 +59,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
   const [isVideoViewerOpen, setIsVideoViewerOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userCreditInfo, setUserCreditInfo] = useState<UserCreditInfo | null>(
-    null
+    null,
   );
 
   const previewContainerRef = useRef<HTMLDivElement>(null);
