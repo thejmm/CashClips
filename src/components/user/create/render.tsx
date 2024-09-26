@@ -61,8 +61,9 @@ const Render: React.FC<RenderProps> = ({
   availableVideos,
 }) => {
   const [isInitialized, setIsInitialized] = useState(false);
-  const [isGeneratingCaptions, setIsGeneratingCaptions] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isGeneratingCaptions, setIsGeneratingCaptions] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [selectedFont, setSelectedFont] = useState(fontStyles[0]);
@@ -79,6 +80,9 @@ const Render: React.FC<RenderProps> = ({
         return;
       }
 
+      setIsLoading(true);
+      setError(null);
+
       try {
         await videoCreator.initializeVideoPlayer(previewContainerRef.current);
         await videoCreator.setSelectedSource(selectedTemplate);
@@ -94,6 +98,8 @@ const Render: React.FC<RenderProps> = ({
         setIsInitialized(true);
       } catch (err) {
         setError("Failed to initialize editor: " + (err as Error).message);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -144,16 +150,16 @@ const Render: React.FC<RenderProps> = ({
       className="flex h-full flex-col"
     >
       <div className="relative flex-grow rounded-t-xl border">
-        {!isInitialized && !error && (
+        {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center rounded-t-xl bg-white/20">
             <Loader className="h-12 w-12 animate-spin" />
-            <p className="ml-4 text-xl font-bold">Initializing editor...</p>
+            <p className="ml-4 text-xl font-bold">Loading video...</p>
           </div>
         )}
         {error && (
           <div className="absolute inset-0 flex items-center justify-center rounded-t-xl bg-white/20">
             <p className="text-xl font-bold text-red-600">
-              Failed to initialize editor
+              {error}
             </p>
           </div>
         )}

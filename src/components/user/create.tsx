@@ -1,4 +1,3 @@
-// src/pages/user/create.tsx
 import {
   AlertDialog,
   AlertDialogAction,
@@ -73,6 +72,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
 
+  // Fetch user credits once the user is available
   useEffect(() => {
     if (user) {
       videoCreator.setUserId(user.id);
@@ -80,35 +80,32 @@ const Create: React.FC<CreateProps> = ({ user }) => {
     }
   }, [user]);
 
+  // Use router.replace instead of push to prevent unnecessary history updates
   useEffect(() => {
     if (!step || !steps.includes(step as string)) {
-      router.push({ query: { step: steps[0] } });
-    }
-  }, [step, router]);
-
-  useEffect(() => {
-    if (!step || !steps.includes(step as string)) {
-      router.push({ query: { step: steps[0] } });
+      router.replace({ query: { step: steps[0] } });
+      return;
     }
 
     const stepIndex = steps.indexOf(step as string);
 
     if (stepIndex >= 1 && !selectedStreamer) {
-      router.push({ query: { step: steps[0] } });
+      router.replace({ query: { step: steps[0] } });
       return;
     }
 
     if (stepIndex >= 2 && !selectedVideo) {
-      router.push({ query: { step: steps[1] } });
+      router.replace({ query: { step: steps[1] } });
       return;
     }
 
     if (stepIndex >= 3 && !selectedTemplate) {
-      router.push({ query: { step: steps[2] } });
+      router.replace({ query: { step: steps[2] } });
       return;
     }
   }, [step, selectedStreamer, selectedVideo, selectedTemplate, router]);
 
+  // Fetch user credit info from Supabase
   const fetchUserCreditInfo = async () => {
     try {
       const { data, error } = await supabase
@@ -126,7 +123,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
   };
 
   const handleCreateAnother = () => {
-    router.push({ query: { step: steps[0] } });
+    router.replace({ query: { step: steps[0] } });
     setSelectedStreamer(null);
     setSelectedVideo(null);
     setAvailableVideos([]);
@@ -138,7 +135,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
   };
 
   const handleStepChange = (stepIndex: number) => {
-    router.push({ query: { step: steps[stepIndex] } });
+    router.replace({ query: { step: steps[stepIndex] } });
   };
 
   const handleExport = async () => {
@@ -148,7 +145,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
       const jobId = await videoCreator.finishVideo();
       const result = await videoCreator.checkRenderStatus(jobId);
       setRenderResult(result);
-      router.push({ query: { step: steps[4] } });
+      router.replace({ query: { step: steps[4] } }); // Move to the finished step
       fetchUserCreditInfo();
     } catch (error) {
       console.error("Export error:", error);
@@ -160,12 +157,12 @@ const Create: React.FC<CreateProps> = ({ user }) => {
 
   const handleVideoSelect = (video: FirebaseVideo) => {
     setSelectedVideo(video);
-    router.push({ query: { step: steps[2] } });
+    router.replace({ query: { step: steps[2] } }); // Move to template step
   };
 
   const handleTemplateSelect = (template: DefaultSource) => {
     setSelectedTemplate(template);
-    router.push({ query: { step: steps[3] } });
+    router.replace({ query: { step: steps[3] } }); // Move to edit-render step
   };
 
   const renderStep = () => {
@@ -192,9 +189,6 @@ const Create: React.FC<CreateProps> = ({ user }) => {
           <p className="text-lg">
             Looks like you are loving Cash Clips as much as we do! 😊
           </p>
-          <p className="text-lg">
-            Ready to take your content creation to the next level?
-          </p>
           <p className="mt-4 text-sm text-gray-600">
             Your credits will refresh when your billing cycle resets.
           </p>
@@ -210,7 +204,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
             selectedStreamer={selectedStreamer}
             handleStreamerSelect={(streamer) => {
               setSelectedStreamer(streamer.folder as any);
-              router.push({ query: { step: steps[1] } });
+              router.replace({ query: { step: steps[1] } });
             }}
           />
         );
@@ -293,14 +287,16 @@ const Create: React.FC<CreateProps> = ({ user }) => {
       />
       <AnimatePresence mode="wait">{renderStep()}</AnimatePresence>
 
-      <AlertDialog open={!!error}>
-        <AlertDialogContent>
-          <AlertDialogDescription>{error}</AlertDialogDescription>
-          <AlertDialogAction onClick={() => setError(null)}>
-            OK
-          </AlertDialogAction>
-        </AlertDialogContent>
-      </AlertDialog>
+      {error && (
+        <AlertDialog open={!!error}>
+          <AlertDialogContent>
+            <AlertDialogDescription>{error}</AlertDialogDescription>
+            <AlertDialogAction onClick={() => setError(null)}>
+              OK
+            </AlertDialogAction>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 };
