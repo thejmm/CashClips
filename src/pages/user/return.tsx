@@ -32,7 +32,7 @@ interface UserData {
   project_limit: number;
   api_key_limit: number;
   next_billing_date: string | null;
-  subscription_status: string | null; // Now using this directly from user_data
+  subscription_status: string | null;
 }
 
 const ReturnPage = () => {
@@ -48,7 +48,7 @@ const ReturnPage = () => {
 
   // Fireworks effect
   const triggerFireworks = () => {
-    const duration = 5 * 1000; // 5 seconds
+    const duration = 5 * 1000;
     const animationEnd = Date.now() + duration;
     const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 
@@ -112,7 +112,7 @@ const ReturnPage = () => {
       if (session_id) {
         try {
           const sessionResponse = await axios.get(
-            `/api/stripe/checkout-sessions?session_id=${session_id}`
+            `/api/stripe/checkout-sessions?session_id=${session_id}`,
           );
           setSessionData(sessionResponse.data);
 
@@ -175,13 +175,13 @@ const ReturnPage = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen">
+      <div className="flex h-screen flex-col items-center justify-center">
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", stiffness: 260, damping: 20 }}
         >
-          <Loader className="w-12 h-12 animate-spin mb-4" />
+          <Loader className="mb-4 h-12 w-12 animate-spin" />
         </motion.div>
         <Progress value={progress} className="w-[60%] max-w-xs" />
       </div>
@@ -191,14 +191,14 @@ const ReturnPage = () => {
   if (error || !sessionData || sessionData.status !== "complete" || !userData) {
     return (
       <motion.div
-        className="flex items-center justify-center h-screen"
+        className="flex h-screen items-center justify-center"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">
+            <CardTitle className="text-center text-2xl font-bold">
               {error ? "Error" : "Payment Incomplete"}
             </CardTitle>
           </CardHeader>
@@ -220,12 +220,12 @@ const ReturnPage = () => {
   }
 
   const planDetails = pricingConfig.plans.find(
-    (plan) => plan.name === userData.plan_name
+    (plan) => plan.name === userData.plan_name,
   );
 
   return (
     <motion.div
-      className="min-h-screen flex items-center justify-center p-4"
+      className="flex min-h-screen items-center justify-center p-4"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -233,14 +233,14 @@ const ReturnPage = () => {
       <Card className="w-full max-w-2xl">
         <CardHeader>
           <motion.div
-            className="flex justify-center mb-6"
+            className="mb-6 flex justify-center"
             variants={itemVariants}
           >
-            <div className="rounded-full p-2 bg-green-100">
-              <CheckCircle className="w-12 h-12 text-green-600" />
+            <div className="rounded-full bg-green-100 p-2">
+              <CheckCircle className="h-12 w-12 text-green-600" />
             </div>
           </motion.div>
-          <CardTitle className="text-3xl font-bold text-center mb-2">
+          <CardTitle className="mb-2 text-center text-3xl font-bold">
             <motion.span variants={itemVariants}>
               Thank you for your purchase!
             </motion.span>
@@ -255,12 +255,12 @@ const ReturnPage = () => {
         <CardContent>
           <motion.div className="mt-8 space-y-4" variants={itemVariants}>
             <div className="flex items-center">
-              <Package className="w-6 h-6 mr-2 text-blue-500" />
+              <Package className="mr-2 h-6 w-6 text-blue-500" />
               <span className="font-medium">Plan:</span>
               <span className="ml-2">{userData.plan_name}</span>
             </div>
             <div className="flex items-center">
-              <CreditCard className="w-6 h-6 mr-2 text-green-500" />
+              <CreditCard className="mr-2 h-6 w-6 text-green-500" />
               <span className="font-medium">Price:</span>
               <span className="ml-2">
                 {new Intl.NumberFormat("en-US", {
@@ -272,7 +272,7 @@ const ReturnPage = () => {
             </div>
             {userData.next_billing_date && (
               <div className="flex items-center">
-                <Calendar className="w-6 h-6 mr-2 text-purple-500" />
+                <Calendar className="mr-2 h-6 w-6 text-purple-500" />
                 <span className="font-medium">Next Billing Date:</span>
                 <span className="ml-2">
                   {new Date(userData.next_billing_date).toLocaleDateString()}
@@ -287,8 +287,8 @@ const ReturnPage = () => {
             </div>
             {planDetails && (
               <div className="mt-4">
-                <h3 className="font-medium mb-2">Plan Features:</h3>
-                <ul className="list-disc list-inside">
+                <h3 className="mb-2 font-medium">Plan Features:</h3>
+                <ul className="list-inside list-disc">
                   {planDetails.features.map((feature, index) => (
                     <li key={index}>{feature}</li>
                   ))}
@@ -301,7 +301,7 @@ const ReturnPage = () => {
             variants={itemVariants}
           >
             <Button
-              onClick={() => router.push("/user")}
+              onClick={() => router.push("/user/dashboard")}
               className="inline-flex items-center px-6 py-3"
             >
               Go to Dashboard

@@ -328,7 +328,7 @@ async function handleCheckoutSessionCompleted(
           plan_name: plan_name,
           plan_price: session.amount_total,
           subscription_status: subscription ? subscription.status : "active",
-                    total_credits: parseInt(total_credits),
+          total_credits: parseInt(total_credits),
           used_credits: 0,
           next_billing_date: subscription
             ? new Date(subscription.current_period_end * 1000).toISOString()

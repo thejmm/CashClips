@@ -111,8 +111,8 @@ const GettingStartedPage: React.FC = () => {
         className="space-y-12"
       >
         <motion.section variants={fadeInUp}>
-          <h1 className="text-4xl font-bold mb-4">Getting Started</h1>
-          <p className="text-xl mb-8">
+          <h1 className="mb-4 text-4xl font-bold">Getting Started</h1>
+          <p className="mb-8 text-xl">
             This guide will help you create your first viral-worthy video clip
             in minutes, featuring content from top creators like xQc, MrBeast,
             and Kai Cenat.
@@ -120,14 +120,14 @@ const GettingStartedPage: React.FC = () => {
         </motion.section>
 
         <motion.section variants={fadeInUp}>
-          <h2 className="text-2xl font-semibold mb-6">Quick Start Guide</h2>
+          <h2 className="mb-6 text-2xl font-semibold">Quick Start Guide</h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {steps.map((step, index) => (
               <motion.div key={index} variants={fadeInUp}>
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center">
-                      <span className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center mr-3">
+                      <span className="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
                         {index + 1}
                       </span>
                       {step.title}
@@ -143,7 +143,7 @@ const GettingStartedPage: React.FC = () => {
         </motion.section>
 
         <motion.section variants={fadeInUp}>
-          <h2 className="text-2xl font-semibold mb-6">
+          <h2 className="mb-6 text-2xl font-semibold">
             Advanced CashClips Features
           </h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -151,7 +151,7 @@ const GettingStartedPage: React.FC = () => {
               <motion.div key={index} variants={fadeInUp}>
                 <Card className="h-full">
                   <CardHeader>
-                    <feature.icon className="w-8 h-8 mb-2 text-primary" />
+                    <feature.icon className="mb-2 h-8 w-8 text-primary" />
                     <CardTitle>{feature.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -165,12 +165,12 @@ const GettingStartedPage: React.FC = () => {
 
         <motion.section
           variants={fadeInUp}
-          className="bg-accent p-8 rounded-lg"
+          className="rounded-lg bg-accent p-8"
         >
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="mb-4 text-2xl font-semibold">
             Ready to Create Your First Viral Clip?
           </h2>
-          <p className="text-lg mb-6">
+          <p className="mb-6 text-lg">
             With CashClips, you are just minutes away from creating content that
             will captivate your audience and potentially go viral. Start with
             clips from top creators like Adin Ross, Pokimane, and Ludwig!
@@ -181,7 +181,7 @@ const GettingStartedPage: React.FC = () => {
               className="group transition-all duration-300"
             >
               Start Clipping Now
-              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-all duration-300" />
+              <ArrowRight className="ml-2 h-4 w-4 transition-all duration-300 group-hover:translate-x-1" />
             </Button>
           </Link>
         </motion.section>

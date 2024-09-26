@@ -3,14 +3,14 @@ import React from "react";
 const TermsOfServiceAffilate: React.FC = () => {
   return (
     <>
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <h1 className="text-4xl font-bold mb-6">
+      <div className="container mx-auto max-w-4xl px-4 py-8">
+        <h1 className="mb-6 text-4xl font-bold">
           Affiliate Terms and conditions
         </h1>
         <p className="mb-4 text-sm">Last updated: [Insert Date]</p>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
+          <h2 className="mb-4 text-2xl font-semibold">1. Introduction</h2>
           <p className="mb-4">
             Welcome to CashClips. These Terms of Service (&ldquo;Terms&rdquo;)
             govern your access to and use of CashClips&apos; services, including

@@ -17,7 +17,7 @@ export default function CreatePage({ user }: CreatePageProps) {
       checkSubscription={true}
       user={user}
       title="Create Clips"
-      icon={<PlusCircle className="w-6 h-6" />}
+      icon={<PlusCircle className="h-6 w-6" />}
     >
       <Create user={user} />
     </DashboardLayout>

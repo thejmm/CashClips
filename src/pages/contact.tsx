@@ -136,14 +136,14 @@ export default function ContactPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <h1 className="text-4xl font-bold text-center mb-8">Contact Us</h1>
-        <p className="text-center text-muted-foreground mb-12">
+        <h1 className="mb-8 text-center text-4xl font-bold">Contact Us</h1>
+        <p className="mb-12 text-center text-muted-foreground">
           We would love to hear from you. Please fill out this form or check our
           FAQ section below.
         </p>
       </motion.div>
 
-      <div className="grid md:grid-cols-2 gap-12">
+      <div className="grid gap-12 md:grid-cols-2">
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
@@ -165,7 +165,7 @@ export default function ContactPage() {
                     {...register("name", { required: "Name is required" })}
                   />
                   {errors.name && (
-                    <p className="text-sm text-red-500 mt-1">
+                    <p className="mt-1 text-sm text-red-500">
                       {(errors.name as FieldError).message}
                     </p>
                   )}
@@ -183,7 +183,7 @@ export default function ContactPage() {
                     })}
                   />
                   {errors.email && (
-                    <p className="text-sm text-red-500 mt-1">
+                    <p className="mt-1 text-sm text-red-500">
                       {(errors.email as FieldError).message}
                     </p>
                   )}
@@ -196,7 +196,7 @@ export default function ContactPage() {
                     })}
                   />
                   {errors.message && (
-                    <p className="text-sm text-red-500 mt-1">
+                    <p className="mt-1 text-sm text-red-500">
                       {(errors.message as FieldError).message}
                     </p>
                   )}
@@ -228,7 +228,7 @@ export default function ContactPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center">
-                <Mail className="h-5 w-5 mr-3 text-primary" />
+                <Mail className="mr-3 h-5 w-5 text-primary" />
                 <p>support@cashclips.com</p>
               </div>
             </CardContent>
@@ -243,7 +243,7 @@ export default function ContactPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.6 }}
       >
-        <h2 className="text-3xl font-bold text-center mb-8">
+        <h2 className="mb-8 text-center text-3xl font-bold">
           Frequently Asked Questions
         </h2>
         <div className="mb-6">

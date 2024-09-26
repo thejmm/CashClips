@@ -129,14 +129,14 @@ export default function CheckoutPage() {
       />
       <div className="min-h-screen">
         <div className="container mx-auto max-w-7xl py-16">
-          <div className="max-w-6xl mx-auto md:grid md:grid-cols-2 gap-12">
-            <div className="p-6 md:sticky md:top-0 md:self-start space-y-8">
+          <div className="mx-auto max-w-6xl gap-12 md:grid md:grid-cols-2">
+            <div className="space-y-8 p-6 md:sticky md:top-0 md:self-start">
               <div className="mt-16">
-                <h2 className="text-3xl font-semibold mb-4">
+                <h2 className="mb-4 text-3xl font-semibold">
                   {plan.name} Plan
                 </h2>
-                <p className="text-xl mb-6">{plan.description}</p>
-                <div className="text-4xl font-bold mb-6">
+                <p className="mb-6 text-xl">{plan.description}</p>
+                <div className="mb-6 text-4xl font-bold">
                   $
                   {(
                     (interval === "year"
@@ -150,7 +150,7 @@ export default function CheckoutPage() {
                 <ul className="space-y-3">
                   {plan.features.map((feature: string, index: number) => (
                     <li key={index} className="flex items-start">
-                      <CheckCircle className="mr-2 h-5 w-5 text-green-500 flex-shrink-0 mt-1" />
+                      <CheckCircle className="mr-2 mt-1 h-5 w-5 flex-shrink-0 text-green-500" />
                       <span>{feature}</span>
                     </li>
                   ))}
@@ -158,7 +158,7 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                <h3 className="text-2xl font-semibold mb-4">
+                <h3 className="mb-4 text-2xl font-semibold">
                   Billing Information
                 </h3>
                 <Accordion type="single" collapsible className="w-full">
@@ -173,7 +173,7 @@ export default function CheckoutPage() {
             </div>
 
             <div className="mt-8 md:mt-0">
-              <div className="bg-card rounded-3xl overflow-hidden shadow-xl">
+              <div className="overflow-hidden rounded-3xl bg-card shadow-xl">
                 {clientSecret ? (
                   <EmbeddedCheckoutProvider
                     stripe={stripePromise}
@@ -182,7 +182,7 @@ export default function CheckoutPage() {
                     <EmbeddedCheckout className="min-h-screen" />
                   </EmbeddedCheckoutProvider>
                 ) : (
-                  <Skeleton className="animate-pulse min-h-screen" />
+                  <Skeleton className="min-h-screen animate-pulse" />
                 )}
               </div>
             </div>

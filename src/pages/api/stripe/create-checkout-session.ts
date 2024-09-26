@@ -11,7 +11,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -66,7 +66,7 @@ export default async function handler(
     }
 
     const totalCreditsMatch = planDetails.features[0].match(
-      /Generate (\d+) clips per month/
+      /Generate (\d+) clips per month/,
     );
     const totalCredits = totalCreditsMatch
       ? parseInt(totalCreditsMatch[1], 10)

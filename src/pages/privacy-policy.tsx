@@ -11,12 +11,12 @@ const PrivacyPolicy: React.FC = () => {
           content="Comprehensive Privacy Policy for CashClips"
         />
       </Head>
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <h1 className="text-4xl font-bold mb-6">Privacy Policy</h1>
+      <div className="container mx-auto max-w-4xl px-4 py-8">
+        <h1 className="mb-6 text-4xl font-bold">Privacy Policy</h1>
         <p className="mb-4 text-sm">Last updated: [Insert Date]</p>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
+          <h2 className="mb-4 text-2xl font-semibold">1. Introduction</h2>
           <p className="mb-4">
             CashClips (&ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;)
             is committed to protecting your privacy. This Privacy Policy
@@ -35,14 +35,14 @@ const PrivacyPolicy: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="mb-4 text-2xl font-semibold">
             2. Information We Collect
           </h2>
-          <h3 className="text-xl font-semibold mt-4 mb-2">2.1 Personal Data</h3>
+          <h3 className="mb-2 mt-4 text-xl font-semibold">2.1 Personal Data</h3>
           <p className="mb-4">
             We may collect the following types of Personal Data:
           </p>
-          <ul className="list-disc pl-6 mb-4">
+          <ul className="mb-4 list-disc pl-6">
             <li>
               Identity Information: First name, last name, username, title, date
               of birth
@@ -75,11 +75,11 @@ const PrivacyPolicy: React.FC = () => {
             </li>
           </ul>
 
-          <h3 className="text-xl font-semibold mt-4 mb-2">
+          <h3 className="mb-2 mt-4 text-xl font-semibold">
             2.2 Non-Personal Data
           </h3>
           <p className="mb-4">We also collect non-personal data, including:</p>
-          <ul className="list-disc pl-6 mb-4">
+          <ul className="mb-4 list-disc pl-6">
             <li>
               Demographic Information: Age, gender, location (city or postal
               code level), interests
@@ -96,10 +96,10 @@ const PrivacyPolicy: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="mb-4 text-2xl font-semibold">
             3. How We Collect Information
           </h2>
-          <ul className="list-disc pl-6 mb-4">
+          <ul className="mb-4 list-disc pl-6">
             <li>
               Direct Interactions: When you create an account, fill out forms,
               subscribe to our service, or contact us
@@ -116,13 +116,13 @@ const PrivacyPolicy: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="mb-4 text-2xl font-semibold">
             4. How We Use Your Information
           </h2>
           <p className="mb-4">
             We use your information for the following purposes:
           </p>
-          <ul className="list-disc pl-6 mb-4">
+          <ul className="mb-4 list-disc pl-6">
             <li>To provide and maintain our Service</li>
             <li>To notify you about changes to our Service</li>
             <li>
@@ -143,14 +143,14 @@ const PrivacyPolicy: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="mb-4 text-2xl font-semibold">
             5. Legal Bases for Processing (GDPR)
           </h2>
           <p className="mb-4">
             Under GDPR, we rely on the following legal bases for processing
             personal data:
           </p>
-          <ul className="list-disc pl-6 mb-4">
+          <ul className="mb-4 list-disc pl-6">
             <li>Consent</li>
             <li>Performance of a contract</li>
             <li>Compliance with a legal obligation</li>
@@ -161,11 +161,11 @@ const PrivacyPolicy: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="mb-4 text-2xl font-semibold">
             6. Disclosure of Your Information
           </h2>
           <p className="mb-4">We may disclose your information to:</p>
-          <ul className="list-disc pl-6 mb-4">
+          <ul className="mb-4 list-disc pl-6">
             <li>Our subsidiaries and affiliates</li>
             <li>
               Contractors, service providers, and other third parties we use to
@@ -187,7 +187,7 @@ const PrivacyPolicy: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">7. Data Retention</h2>
+          <h2 className="mb-4 text-2xl font-semibold">7. Data Retention</h2>
           <p className="mb-4">
             We will retain your Personal Data only for as long as is necessary
             for the purposes set out in this Privacy Policy. We will retain and
@@ -198,7 +198,7 @@ const PrivacyPolicy: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">8. Data Security</h2>
+          <h2 className="mb-4 text-2xl font-semibold">8. Data Security</h2>
           <p className="mb-4">
             The security of your data is important to us but remember that no
             method of transmission over the Internet or method of electronic
@@ -209,14 +209,14 @@ const PrivacyPolicy: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="mb-4 text-2xl font-semibold">
             9. Your Data Protection Rights
           </h2>
           <p className="mb-4">
             Depending on your location, you may have the following data
             protection rights:
           </p>
-          <ul className="list-disc pl-6 mb-4">
+          <ul className="mb-4 list-disc pl-6">
             <li>
               The right to access, update or delete your personal information
             </li>
@@ -229,11 +229,11 @@ const PrivacyPolicy: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="mb-4 text-2xl font-semibold">
             10. CCPA Privacy Rights (California Residents)
           </h2>
           <p className="mb-4">California residents have the right to:</p>
-          <ul className="list-disc pl-6 mb-4">
+          <ul className="mb-4 list-disc pl-6">
             <li>
               Request disclosure of the personal information we collect, use,
               disclose, and sell
@@ -245,7 +245,7 @@ const PrivacyPolicy: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="mb-4 text-2xl font-semibold">
             11. GDPR Data Protection Rights (EU/EEA Residents)
           </h2>
           <p className="mb-4">
@@ -253,7 +253,7 @@ const PrivacyPolicy: React.FC = () => {
             delete, or limit the use of your Personal Data. You have the right
             to:
           </p>
-          <ul className="list-disc pl-6 mb-4">
+          <ul className="mb-4 list-disc pl-6">
             <li>Access your data</li>
             <li>Rectify your data</li>
             <li>Erase your data</li>
@@ -265,7 +265,7 @@ const PrivacyPolicy: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="mb-4 text-2xl font-semibold">
             12. Children&apos;s Privacy
           </h2>
           <p className="mb-4">
@@ -278,7 +278,7 @@ const PrivacyPolicy: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="mb-4 text-2xl font-semibold">
             13. Links to Other Websites
           </h2>
           <p className="mb-4">
@@ -290,7 +290,7 @@ const PrivacyPolicy: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="mb-4 text-2xl font-semibold">
             14. Changes to This Privacy Policy
           </h2>
           <p className="mb-4">
@@ -302,7 +302,7 @@ const PrivacyPolicy: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="mb-4 text-2xl font-semibold">
             15. International Transfers
           </h2>
           <p className="mb-4">
@@ -314,7 +314,7 @@ const PrivacyPolicy: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">16. Consent</h2>
+          <h2 className="mb-4 text-2xl font-semibold">16. Consent</h2>
           <p className="mb-4">
             By using our Service, you hereby consent to our Privacy Policy and
             agree to its terms.
@@ -322,12 +322,12 @@ const PrivacyPolicy: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">17. Contact Us</h2>
+          <h2 className="mb-4 text-2xl font-semibold">17. Contact Us</h2>
           <p className="mb-4">
             If you have any questions about this Privacy Policy, please contact
             us:
           </p>
-          <ul className="list-disc pl-6 mb-4">
+          <ul className="mb-4 list-disc pl-6">
             <li>By email: [insert contact email]</li>
             <li>
               By visiting this page on our website: [insert contact page URL]

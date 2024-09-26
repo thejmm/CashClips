@@ -15,7 +15,7 @@ export default function SettingsPage({ user }: SettingsPageProps) {
     <DashboardLayout
       user={user}
       title="Settings"
-      icon={<Settings className="w-6 h-6" />}
+      icon={<Settings className="h-6 w-6" />}
     >
       <SettingsContent user={user} />
     </DashboardLayout>

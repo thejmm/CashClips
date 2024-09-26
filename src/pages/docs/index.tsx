@@ -79,7 +79,7 @@ const DocsHome: React.FC = () => {
         variants={stagger}
         className="space-y-12"
       >
-        <motion.h1 variants={fadeInUp} className="text-4xl font-bold mb-6">
+        <motion.h1 variants={fadeInUp} className="mb-6 text-4xl font-bold">
           Documentation
         </motion.h1>
         <motion.div variants={fadeInUp} className="space-y-6">
@@ -92,7 +92,7 @@ const DocsHome: React.FC = () => {
 
           <motion.div
             variants={fadeInUp}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+            className="grid grid-cols-1 gap-6 md:grid-cols-2"
           >
             {sections.map((section) => (
               <Card key={section.title}>
@@ -110,7 +110,7 @@ const DocsHome: React.FC = () => {
                       className="group transition-all duration-300"
                     >
                       Explore{" "}
-                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-all duration-300" />
+                      <ArrowRight className="ml-2 h-4 w-4 transition-all duration-300 group-hover:translate-x-1" />
                     </Button>
                   </Link>
                 </CardContent>
@@ -120,8 +120,8 @@ const DocsHome: React.FC = () => {
         </motion.div>
 
         <motion.div variants={fadeInUp}>
-          <h2 className="text-2xl font-semibold mb-4">Key Features</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <h2 className="mb-4 text-2xl font-semibold">Key Features</h2>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {features.map((feature) => (
               <Card key={feature.title}>
                 <CardHeader>

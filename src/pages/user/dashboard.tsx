@@ -16,7 +16,7 @@ export default function DashboardPage({ user }: HomePageProps) {
     <DashboardLayout
       user={user}
       title="Dashboard"
-      icon={<LayoutDashboardIcon className="w-6 h-6" />}
+      icon={<LayoutDashboardIcon className="h-6 w-6" />}
     >
       <CashClipsDashboard user={user} />
     </DashboardLayout>

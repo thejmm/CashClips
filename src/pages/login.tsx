@@ -196,7 +196,7 @@ const LoginPage: React.FC = () => {
       <motion.div variants={itemVariants}>
         <Button
           type="button"
-          className="w-full flex items-center justify-center"
+          className="flex w-full items-center justify-center"
           onClick={() => handleSocialLogin("google")}
           disabled={loading}
         >
@@ -207,7 +207,7 @@ const LoginPage: React.FC = () => {
       <motion.div variants={itemVariants}>
         <Button
           type="button"
-          className="w-full flex items-center justify-center"
+          className="flex w-full items-center justify-center"
           onClick={() => handleSocialLogin("twitch")}
           disabled={loading}
         >
@@ -225,7 +225,7 @@ const LoginPage: React.FC = () => {
       animate={{ opacity: 1, height: "auto" }}
       exit={{ opacity: 0, height: 0 }}
     >
-      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+      <div className="h-2 overflow-hidden rounded-full bg-gray-200">
         <motion.div
           className="h-full bg-primary"
           initial={{ width: 0 }}
@@ -243,9 +243,9 @@ const LoginPage: React.FC = () => {
             transition={{ delay: index * 0.1 }}
           >
             {validRequirements[index] ? (
-              <Check className="h-4 w-4 text-primary mr-2" />
+              <Check className="mr-2 h-4 w-4 text-primary" />
             ) : (
-              <X className="h-4 w-4 text-destructive mr-2" />
+              <X className="mr-2 h-4 w-4 text-destructive" />
             )}
             {req.text}
           </motion.li>
@@ -341,7 +341,7 @@ const LoginPage: React.FC = () => {
             <motion.div variants={itemVariants}>
               <Button
                 type="button"
-                className="w-36 flex items-center mx-auto text-xs"
+                className="mx-auto flex w-36 items-center text-xs"
                 variant="linkHover2"
                 onClick={() => updateURL("resetPassword", "resetpassword")}
               >
@@ -374,9 +374,9 @@ const LoginPage: React.FC = () => {
                 initial={{ opacity: 0, x: -20, y: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
-                className="hidden sm:flex absolute top-1/2 -translate-y-1/2 left-full whitespace-nowrap ml-2 bg-accent px-2 py-1 rounded-md text-xs text-foreground/80 items-center"
+                className="absolute left-full top-1/2 ml-2 hidden -translate-y-1/2 items-center whitespace-nowrap rounded-md bg-accent px-2 py-1 text-xs text-foreground/80 sm:flex"
               >
-                <div className="absolute -left-1 w-0 h-0 border-t-[6px] border-t-transparent border-r-[6px] border-r-accent border-b-[6px] border-b-transparent"></div>
+                <div className="absolute -left-1 h-0 w-0 border-b-[6px] border-r-[6px] border-t-[6px] border-b-transparent border-r-accent border-t-transparent"></div>
                 Last used
               </motion.div>
             )}
@@ -420,9 +420,9 @@ const LoginPage: React.FC = () => {
       exit="out"
       variants={pageVariants}
       transition={pageTransition}
-      className="h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className="flex h-screen items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8"
     >
-      <div className="w-full max-w-[320px] sm:max-w-md space-y-8 overflow-hidden">
+      <div className="w-full max-w-[320px] space-y-8 overflow-hidden sm:max-w-md">
         <motion.div
           initial="hidden"
           animate="visible"

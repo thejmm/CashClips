@@ -4,12 +4,12 @@ import React from "react";
 const TermsOfService: React.FC = () => {
   return (
     <>
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <h1 className="text-4xl font-bold mb-6">Terms of Service</h1>
+      <div className="container mx-auto max-w-4xl px-4 py-8">
+        <h1 className="mb-6 text-4xl font-bold">Terms of Service</h1>
         <p className="mb-4 text-sm">Last updated: [Insert Date]</p>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
+          <h2 className="mb-4 text-2xl font-semibold">1. Introduction</h2>
           <p className="mb-4">
             Welcome to CashClips. These Terms of Service (&ldquo;Terms&rdquo;)
             govern your access to and use of CashClips&apos; services, including
@@ -26,8 +26,8 @@ const TermsOfService: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">2. Definitions</h2>
-          <ul className="list-disc pl-6 mb-4">
+          <h2 className="mb-4 text-2xl font-semibold">2. Definitions</h2>
+          <ul className="mb-4 list-disc pl-6">
             <li>
               <strong>&ldquo;User&rdquo;</strong> refers to any individual or
               entity that accesses or uses the Services.
@@ -56,12 +56,12 @@ const TermsOfService: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">3. Eligibility</h2>
+          <h2 className="mb-4 text-2xl font-semibold">3. Eligibility</h2>
           <p className="mb-4">
             You must be at least 13 years old to use the Services. By agreeing
             to these Terms, you represent and warrant that:
           </p>
-          <ul className="list-disc pl-6 mb-4">
+          <ul className="mb-4 list-disc pl-6">
             <li>You are at least 13 years of age.</li>
             <li>
               If you are under 18 years old, you have obtained parental or legal
@@ -85,7 +85,7 @@ const TermsOfService: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="mb-4 text-2xl font-semibold">
             4. Account Creation and Maintenance
           </h2>
           <p className="mb-4">
@@ -108,7 +108,7 @@ const TermsOfService: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">5. User Content</h2>
+          <h2 className="mb-4 text-2xl font-semibold">5. User Content</h2>
           <p className="mb-4">
             Our Services allow you to post, link, store, share and otherwise
             make available certain information, text, graphics, videos, or other
@@ -135,9 +135,9 @@ const TermsOfService: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">6. Prohibited Uses</h2>
+          <h2 className="mb-4 text-2xl font-semibold">6. Prohibited Uses</h2>
           <p className="mb-4">You agree not to use the Services:</p>
-          <ul className="list-disc pl-6 mb-4">
+          <ul className="mb-4 list-disc pl-6">
             <li>
               In any way that violates any applicable federal, state, local, or
               international law or regulation.
@@ -162,7 +162,7 @@ const TermsOfService: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="mb-4 text-2xl font-semibold">
             7. Intellectual Property Rights
           </h2>
           <p className="mb-4">
@@ -181,7 +181,7 @@ const TermsOfService: React.FC = () => {
             republish, download, store, or transmit any of the material on our
             Services, except as follows:
           </p>
-          <ul className="list-disc pl-6 mb-4">
+          <ul className="mb-4 list-disc pl-6">
             <li>
               Your computer may temporarily store copies of such materials
               incidental to your accessing and viewing those materials.
@@ -206,7 +206,7 @@ const TermsOfService: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="mb-4 text-2xl font-semibold">
             8. Copyright Infringement
           </h2>
           <p className="mb-4">
@@ -220,7 +220,7 @@ const TermsOfService: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">9. Termination</h2>
+          <h2 className="mb-4 text-2xl font-semibold">9. Termination</h2>
           <p className="mb-4">
             We may terminate or suspend your account and bar access to the
             Services immediately, without prior notice or liability, under our
@@ -237,7 +237,7 @@ const TermsOfService: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">10. Indemnification</h2>
+          <h2 className="mb-4 text-2xl font-semibold">10. Indemnification</h2>
           <p className="mb-4">
             You agree to defend, indemnify, and hold harmless CashClips, its
             parent company, officers, directors, employees, and agents, from and
@@ -252,7 +252,7 @@ const TermsOfService: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="mb-4 text-2xl font-semibold">
             11. Limitation of Liability
           </h2>
           <p className="mb-4">
@@ -272,7 +272,7 @@ const TermsOfService: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="mb-4 text-2xl font-semibold">
             12. Disclaimer of Warranties
           </h2>
           <p className="mb-4">
@@ -294,7 +294,7 @@ const TermsOfService: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">13. Governing Law</h2>
+          <h2 className="mb-4 text-2xl font-semibold">13. Governing Law</h2>
           <p className="mb-4">
             These Terms shall be governed and construed in accordance with the
             laws of [Your State/Country], without regard to its conflict of law
@@ -309,7 +309,7 @@ const TermsOfService: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">14. Changes to Terms</h2>
+          <h2 className="mb-4 text-2xl font-semibold">14. Changes to Terms</h2>
           <p className="mb-4">
             We reserve the right, at our sole discretion, to modify or replace
             these Terms at any time. If a revision is material, we will provide
@@ -326,7 +326,7 @@ const TermsOfService: React.FC = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">15. Contact Us</h2>
+          <h2 className="mb-4 text-2xl font-semibold">15. Contact Us</h2>
           <p className="mb-4">
             If you have any questions about these Terms, please contact us at
             [insert contact email].

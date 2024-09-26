@@ -115,10 +115,10 @@ const AffiliatePage: React.FC = () => {
       >
         {/* Header Section */}
         <motion.section variants={fadeInUp}>
-          <h1 className="text-4xl font-bold mb-4">
+          <h1 className="mb-4 text-4xl font-bold">
             CashClips Affiliate Program
           </h1>
-          <p className="text-xl mb-8">
+          <p className="mb-8 text-xl">
             Join our affiliate program and earn a one-time 5% commission for
             every user you refer who subscribes to one of our plans.
           </p>
@@ -126,13 +126,13 @@ const AffiliatePage: React.FC = () => {
 
         {/* Bento Grid Layout */}
         <motion.section variants={fadeInUp}>
-          <div className="flex flex-col items-center mb-12">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-screen-lg">
+          <div className="mb-12 flex flex-col items-center">
+            <div className="grid w-full max-w-screen-lg grid-cols-1 gap-6 md:grid-cols-2">
               <motion.div variants={fadeInUp} className="col-span-1">
-                <Card className="flex flex-col items-center text-center shadow-lg rounded-lg">
+                <Card className="flex flex-col items-center rounded-lg text-center shadow-lg">
                   <CardHeader>
                     <CardTitle className="flex items-center justify-center text-xl">
-                      <DollarSign className="mr-2  text-primary" /> Earn
+                      <DollarSign className="mr-2 text-primary" /> Earn
                       Commissions
                     </CardTitle>
                   </CardHeader>
@@ -144,10 +144,10 @@ const AffiliatePage: React.FC = () => {
               </motion.div>
 
               <motion.div variants={fadeInUp} className="col-span-1">
-                <Card className="flex flex-col items-center text-center shadow-lg rounded-lg">
+                <Card className="flex flex-col items-center rounded-lg text-center shadow-lg">
                   <CardHeader>
                     <CardTitle className="flex items-center justify-center text-xl">
-                      <TrendingUp className="mr-2  text-primary" /> One-Time
+                      <TrendingUp className="mr-2 text-primary" /> One-Time
                       Payment
                     </CardTitle>
                   </CardHeader>
@@ -163,10 +163,10 @@ const AffiliatePage: React.FC = () => {
                 variants={fadeInUp}
                 className="col-span-1 md:col-span-2"
               >
-                <Card className="flex flex-col items-center text-center shadow-lg rounded-lg">
+                <Card className="flex flex-col items-center rounded-lg text-center shadow-lg">
                   <CardHeader>
                     <CardTitle className="flex items-center justify-center text-lg">
-                      <Users className="mr-2  text-primary" /> No Caps or Limits
+                      <Users className="mr-2 text-primary" /> No Caps or Limits
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -177,11 +177,10 @@ const AffiliatePage: React.FC = () => {
               </motion.div>
 
               <motion.div variants={fadeInUp} className="col-span-1">
-                <Card className="flex flex-col items-center text-center shadow-lg rounded-lg">
+                <Card className="flex flex-col items-center rounded-lg text-center shadow-lg">
                   <CardHeader>
                     <CardTitle className="flex items-center justify-center text-lg">
-                      <CheckCircle className="mr-2  text-primary" /> Easy
-                      Payouts
+                      <CheckCircle className="mr-2 text-primary" /> Easy Payouts
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -192,7 +191,7 @@ const AffiliatePage: React.FC = () => {
               </motion.div>
 
               <motion.div variants={fadeInUp} className="col-span-1">
-                <Card className="flex flex-col items-center text-center shadow-lg rounded-lg">
+                <Card className="flex flex-col items-center rounded-lg text-center shadow-lg">
                   <CardHeader>
                     <CardTitle className="flex items-center justify-center text-lg">
                       <BarChartIcon className="mr-2 text-primary" /> Real-Time
@@ -219,7 +218,7 @@ const AffiliatePage: React.FC = () => {
                   className="group transition-all duration-300"
                 >
                   Join the CashClips Affiliate Program
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-all duration-300" />
+                  <ArrowRight className="ml-2 h-4 w-4 transition-all duration-300 group-hover:translate-x-1" />
                 </Button>
               </a>
             </div>
@@ -228,8 +227,8 @@ const AffiliatePage: React.FC = () => {
 
         {/* How it works */}
         <motion.section variants={fadeInUp}>
-          <h2 className="text-3xl font-semibold my-4">How It Works</h2>
-          <ol className="list-decimal list-inside space-y-4 mb-8">
+          <h2 className="my-4 text-3xl font-semibold">How It Works</h2>
+          <ol className="mb-8 list-inside list-decimal space-y-4">
             <motion.li variants={fadeInUp}>
               Sign up for our affiliate program using the same email address as
               your CashClips account.
@@ -258,7 +257,7 @@ const AffiliatePage: React.FC = () => {
 
         {/* Slider and CurrencyTicker */}
         <motion.section>
-          <h2 className="text-3xl font-semibold mb-4">
+          <h2 className="mb-4 text-3xl font-semibold">
             How Many Users Will You Refer?
           </h2>
           <p className="mb-4">
@@ -280,30 +279,30 @@ const AffiliatePage: React.FC = () => {
 
         {/* Commission Structure Section */}
         <motion.section>
-          <h2 className="text-3xl font-semibold mb-4">
+          <h2 className="mb-4 text-3xl font-semibold">
             Your Estimated Earnings Based on Plan Commission
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
             {pricingConfig.plans.map((plan) => (
               <motion.div key={plan.id}>
-                <Card className="flex flex-col items-center text-center shadow-lg rounded-lg">
+                <Card className="flex flex-col items-center rounded-lg text-center shadow-lg">
                   <CardHeader>
                     <CardTitle className="text-xl">{plan.name} Plan</CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-col items-center">
-                    <p className="w-full flex items-center gap-2 whitespace-nowrap">
+                    <p className="flex w-full items-center gap-2 whitespace-nowrap">
                       <span className="text-xs font-semibold">Monthly:</span>{" "}
                       <CurrencyTicker
                         value={calculateCommission(plan.monthlyPrice)}
-                        className="text-primary text-2xl"
+                        className="text-2xl text-primary"
                       />{" "}
                       USD
                     </p>
-                    <p className="w-full flex items-center gap-2 whitespace-nowrap">
+                    <p className="flex w-full items-center gap-2 whitespace-nowrap">
                       <span className="text-xs font-semibold">Yearly:</span>{" "}
                       <CurrencyTicker
                         value={calculateCommission(plan.yearlyPrice)}
-                        className="text-primary text-2xl"
+                        className="text-2xl text-primary"
                       />{" "}
                       USD
                     </p>
@@ -316,7 +315,7 @@ const AffiliatePage: React.FC = () => {
 
         {/* FAQ Section */}
         <motion.section variants={fadeInUp}>
-          <h2 className="text-3xl font-semibold my-8">
+          <h2 className="my-8 text-3xl font-semibold">
             Frequently Asked Questions
           </h2>
           <Accordion type="single" collapsible className="w-full">
@@ -358,8 +357,8 @@ const AffiliatePage: React.FC = () => {
         </motion.section>
 
         <motion.section variants={fadeInUp} className="mt-12 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Start Earning?</h2>
-          <p className="text-xl mb-6">
+          <h2 className="mb-4 text-3xl font-bold">Ready to Start Earning?</h2>
+          <p className="mb-6 text-xl">
             Join our affiliate program today and start turning your influence
             into income!
           </p>
@@ -374,7 +373,7 @@ const AffiliatePage: React.FC = () => {
               className="group transition-all duration-300"
             >
               Join the CashClips Affiliate Program
-              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-all duration-300" />
+              <ArrowRight className="ml-2 h-4 w-4 transition-all duration-300 group-hover:translate-x-1" />
             </Button>
           </a>
         </motion.section>
