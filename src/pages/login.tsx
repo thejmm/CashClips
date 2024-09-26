@@ -227,7 +227,7 @@ const LoginPage: React.FC = () => {
     >
       <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
         <motion.div
-          className="h-full bg-green-500"
+          className="h-full bg-primary"
           initial={{ width: 0 }}
           animate={{ width: `${passwordStrength}%` }}
           transition={{ duration: 0.3 }}
@@ -243,9 +243,9 @@ const LoginPage: React.FC = () => {
             transition={{ delay: index * 0.1 }}
           >
             {validRequirements[index] ? (
-              <Check className="h-4 w-4 text-green-500 mr-2" />
+              <Check className="h-4 w-4 text-primary mr-2" />
             ) : (
-              <X className="h-4 w-4 text-red-500 mr-2" />
+              <X className="h-4 w-4 text-destructive mr-2" />
             )}
             {req.text}
           </motion.li>
