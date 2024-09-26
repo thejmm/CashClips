@@ -89,7 +89,7 @@ class VideoCreatorStore {
     const preview = new Preview(
       htmlElement,
       "interactive",
-      process.env.NEXT_PUBLIC_CREATOMATE_PUBLIC_TOKEN!
+      process.env.NEXT_PUBLIC_CREATOMATE_PUBLIC_TOKEN!,
     );
     this.preview = preview;
     return new Promise<void>((resolve, reject) => {
@@ -148,7 +148,7 @@ class VideoCreatorStore {
 
     const source = this.preview.getSource();
     const elementToUpdate = source.elements.find(
-      (el: any) => el.id === elementId
+      (el: any) => el.id === elementId,
     );
     if (elementToUpdate) {
       elementToUpdate.source = newSource;
@@ -157,20 +157,20 @@ class VideoCreatorStore {
   }
 
   async updateTemplateWithSelectedVideo(
-    selectedVideo: FirebaseVideo
+    selectedVideo: FirebaseVideo,
   ): Promise<void> {
     if (!this.preview || !this.selectedSource) return;
 
     const source = this.preview.getSource();
     const selectedVideoUrl = selectedVideo.url;
     const selectedVideoDuration = this.getMaxAllowedDuration(
-      selectedVideo.duration
+      selectedVideo.duration,
     );
 
     console.log("Updating template with selected video:", selectedVideoUrl);
 
     const videoElements = source.elements.filter(
-      (el: any) => el.type === "video"
+      (el: any) => el.type === "video",
     );
 
     switch (this.selectedSource.type) {
@@ -197,7 +197,7 @@ class VideoCreatorStore {
 
     console.log(
       "Source elements after update:",
-      JSON.stringify(source.elements, null, 2)
+      JSON.stringify(source.elements, null, 2),
     );
 
     await this.preview.setSource(source, true);
@@ -224,7 +224,7 @@ class VideoCreatorStore {
   async addCaptionsAsElements(
     elementId: string,
     captions: any,
-    fontStyle: FontStyle
+    fontStyle: FontStyle,
   ): Promise<void> {
     if (!this.preview || !captions) return;
 
@@ -262,7 +262,7 @@ class VideoCreatorStore {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url }),
-      }
+      },
     );
 
     if (!response.ok) {
@@ -335,7 +335,7 @@ class VideoCreatorStore {
   async finishVideo(
     modifications: any = {},
     outputFormat: string = "mp4",
-    frameRate: number = 30
+    frameRate: number = 30,
   ): Promise<string> {
     if (!this.preview || !this.userId) {
       throw new Error("Preview is not initialized or user ID is not set");
@@ -375,7 +375,7 @@ class VideoCreatorStore {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify([renderJob]),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -435,7 +435,7 @@ class VideoCreatorStore {
         try {
           const response = await fetch(
             `https://thejmm--render-cash-clips-fastapi-app.modal.run/api/creatomate/fetch-render-status?id=${jobId}`,
-            { method: "GET", headers: { "Content-Type": "application/json" } }
+            { method: "GET", headers: { "Content-Type": "application/json" } },
           );
 
           if (!response.ok) {
@@ -460,12 +460,12 @@ class VideoCreatorStore {
             await this.updateCreatedClipStatus(jobId, "failed", jobStatus);
             reject(
               new Error(
-                `Job ${jobId} failed: ${jobStatus.error || "Unknown error"}`
-              )
+                `Job ${jobId} failed: ${jobStatus.error || "Unknown error"}`,
+              ),
             );
           } else if (
             !["rendering", "planned", "waiting", "transcribing"].includes(
-              jobStatus.status
+              jobStatus.status,
             )
           ) {
             clearInterval(pollInterval);
@@ -493,7 +493,7 @@ class VideoCreatorStore {
   async updateCreatedClipStatus(
     jobId: string,
     status: string,
-    response: any = {}
+    response: any = {},
   ) {
     try {
       const { error } = await supabase
@@ -560,7 +560,7 @@ class VideoCreatorStore {
       plan_name: string;
       used_credits: number;
       total_credits: number;
-    }>
+    }>,
   ): Promise<void> {
     if (!this.userId) {
       throw new Error("User ID not set");

@@ -6,7 +6,7 @@ import { storage } from "@/utils/firebase/firebase";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   const { streamer, category } = req.query;
 
@@ -43,7 +43,7 @@ export default async function handler(
             format: "mp4",
             created_at: metadata.timeCreated,
           };
-        })
+        }),
     );
 
     res.status(200).json({ videos });

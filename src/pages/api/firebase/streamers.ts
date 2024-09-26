@@ -6,7 +6,7 @@ import { storage } from "@/utils/firebase/firebase";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   const { streamer } = req.query;
 
@@ -31,10 +31,13 @@ export default async function handler(
     const streamerRef = ref(storage, streamer);
     const streamerResult = await listAll(streamerRef);
 
-    const categories = streamerResult.prefixes.reduce((acc, prefix) => {
-      acc[prefix.name] = `${streamer}/${prefix.name}`;
-      return acc;
-    }, {} as Record<string, string>);
+    const categories = streamerResult.prefixes.reduce(
+      (acc, prefix) => {
+        acc[prefix.name] = `${streamer}/${prefix.name}`;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
 
     res.status(200).json({
       streamer,
