@@ -71,12 +71,7 @@ const Render: React.FC<RenderProps> = ({
 
   useEffect(() => {
     const initializePreview = async () => {
-      if (
-        !previewContainerRef.current ||
-        isInitialized ||
-        !selectedVideo ||
-        !selectedTemplate
-      ) {
+      if (!selectedVideo || !selectedTemplate) {
         return;
       }
 
@@ -84,33 +79,17 @@ const Render: React.FC<RenderProps> = ({
       setError(null);
 
       try {
-        await videoCreator.initializeVideoPlayer(previewContainerRef.current);
         await videoCreator.setSelectedSource(selectedTemplate);
-        await videoCreator.updateTemplateWithSelectedVideo(
-          selectedVideo as any,
-        );
-
-        videoCreator.preview!.onTimeChange = (time: number) =>
-          setCurrentTime(time);
-        videoCreator.preview!.onStateChange = (state) =>
-          setDuration(selectedVideo.duration);
-
-        setIsInitialized(true);
+        await videoCreator.updateTemplateWithSelectedVideo(selectedVideo as any);
+        setIsLoading(false);
       } catch (err) {
         setError("Failed to initialize editor: " + (err as Error).message);
-      } finally {
         setIsLoading(false);
       }
     };
 
     initializePreview();
-  }, [
-    selectedVideo,
-    selectedTemplate,
-    previewContainerRef,
-    isInitialized,
-    availableVideos,
-  ]);
+  }, [selectedVideo, selectedTemplate]);
 
   const handleGenerateCaptions = async () => {
     if (!selectedVideo) return;
@@ -164,7 +143,11 @@ const Render: React.FC<RenderProps> = ({
           </div>
         )}
         <div
-          ref={previewContainerRef}
+          ref={(element) => {
+            if (element && element !== videoCreator.preview?.element) {
+              videoCreator.initializeVideoPlayer(element);
+            }
+          }}
           className="relative h-full w-full rounded-t-xl border"
           style={{ height: "28rem" }}
         />
