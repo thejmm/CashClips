@@ -189,7 +189,7 @@ const AuthButton = ({ initialUser }: { initialUser: User | null }) => {
           </SheetContent>
         </Sheet>
       ) : (
-        <Link href="/login" passHref>
+        <Link href="/user/dashboard" passHref>
           <Button
             className="w-full rounded-full px-6 text-sm font-semibold"
             variant="ringHover"

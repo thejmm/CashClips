@@ -136,7 +136,15 @@ const PlanCreditUsage: React.FC<PlanCreditUsageProps> = ({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Progress value={usagePercentage} className="mb-2 w-full" />
+          <Progress
+            value={
+              userData?.total_credits !== null &&
+              userData?.total_credits !== undefined
+                ? usagePercentage
+                : 100
+            }
+            className="mb-2 w-full"
+          />
           <p className="mb-4 text-sm text-muted-foreground">
             {userData?.total_credits !== null &&
             userData?.total_credits !== undefined
