@@ -17,18 +17,48 @@ export function HowItWorksSection() {
           <div className="flex items-center">
             <FaStream className="mr-4 h-6 w-6 text-primary sm:h-8 sm:w-8" />
             <p className="text-xs font-normal text-neutral-800 dark:text-neutral-200 sm:text-sm">
-              Pick the streamer you want to generate clips for from our library.
+              Pick from the top streamers to find clips for from our library.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:gap-4">
             <img
               src="/streamers/jack-doherty.png"
-              alt="Mass clips view"
+              alt="Jack Doherty"
               className="h-16 w-full rounded-lg object-contain sm:h-20 md:h-32 lg:h-48"
             />
             <img
               src="/streamers/ishowspeed.png"
-              alt="Streamer selection"
+              alt="iShowSpeed"
+              className="h-16 w-full rounded-lg object-contain sm:h-20 md:h-32 lg:h-48"
+            />
+            <img
+              src="/streamers/kai-cenat.png"
+              alt="Kai Cenat"
+              className="h-16 w-full rounded-lg object-contain sm:h-20 md:h-32 lg:h-48"
+            />
+            <img
+              src="/streamers/xqc.png"
+              alt="xQc"
+              className="h-16 w-full rounded-lg object-contain sm:h-20 md:h-32 lg:h-48"
+            />
+            <img
+              src="/streamers/adin-ross.png"
+              alt="Adin Ross"
+              className="h-16 w-full rounded-lg object-contain sm:h-20 md:h-32 lg:h-48"
+            />
+            <img
+              src="/streamers/amouranth.png"
+              alt="Amouranth"
+              className="h-16 w-full rounded-lg object-contain sm:h-20 md:h-32 lg:h-48"
+            />
+            <img
+              src="/streamers/lacy.png"
+              alt="Lacy"
+              className="h-16 w-full rounded-lg object-contain sm:h-20 md:h-32 lg:h-48"
+            />
+            <img
+              src="/streamers/stableronaldo.png"
+              alt="stableronaldo"
               className="h-16 w-full rounded-lg object-contain sm:h-20 md:h-32 lg:h-48"
             />
           </div>
@@ -68,6 +98,50 @@ export function HowItWorksSection() {
               <source src="/assets/clips2.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
+            <video
+              className="h-16 w-full rounded-lg object-cover sm:h-20 md:h-32 lg:h-44"
+              autoPlay
+              muted
+              loop
+              controls={false}
+              playsInline
+            >
+              <source src="/assets/clips3.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            <video
+              className="h-16 w-full rounded-lg object-cover sm:h-20 md:h-32 lg:h-44"
+              autoPlay
+              muted
+              loop
+              controls={false}
+              playsInline
+            >
+              <source src="/assets/clips4.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            <video
+              className="h-16 w-full rounded-lg object-cover sm:h-20 md:h-32 lg:h-44"
+              autoPlay
+              muted
+              loop
+              controls={false}
+              playsInline
+            >
+              <source src="/assets/clips5.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            <video
+              className="h-16 w-full rounded-lg object-cover sm:h-20 md:h-32 lg:h-44"
+              autoPlay
+              muted
+              loop
+              controls={false}
+              playsInline
+            >
+              <source src="/assets/clips6.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
           </div>
         </div>
       ),
@@ -93,8 +167,6 @@ export function HowItWorksSection() {
               alt="Template customization"
               className="h-16 w-full rounded-lg object-cover sm:h-20 md:h-32 lg:h-44"
             />
-          </div>
-          <div className="grid grid-cols-2 gap-2 sm:gap-4">
             <img
               src="/templates/split-screen-portrait.png"
               alt="Template selection"
@@ -102,6 +174,16 @@ export function HowItWorksSection() {
             />
             <img
               src="/templates/split-screen-landscape.png"
+              alt="Template customization"
+              className="h-16 w-full rounded-lg object-cover sm:h-20 md:h-32 lg:h-44"
+            />
+            <img
+              src="/templates/landscape.png"
+              alt="Template selection"
+              className="h-16 w-full rounded-lg object-cover sm:h-20 md:h-32 lg:h-44"
+            />
+            <img
+              src="/templates/stories.png"
               alt="Template customization"
               className="h-16 w-full rounded-lg object-cover sm:h-20 md:h-32 lg:h-44"
             />
