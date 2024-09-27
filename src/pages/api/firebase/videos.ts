@@ -1,16 +1,9 @@
 // src/pages/api/firebase/videos.ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import {
-  getDownloadURL,
-  getMetadata,
-  list,
-  listAll,
-  ref,
-} from "firebase/storage";
+import { getDownloadURL, getMetadata, list, ref } from "firebase/storage";
 
 import { storage } from "@/utils/firebase/firebase";
 
-// Helper to paginate the results if necessary
 async function fetchAllItems(storageRef: any) {
   let allItems: any[] = [];
   let nextPageToken = null;
@@ -57,7 +50,7 @@ export default async function handler(
             url: downloadURL,
             secure_url: downloadURL,
             thumbnail_url: downloadURL,
-            duration: metadata.size ? metadata.size / 1000000 : 0,
+            size: metadata.size,
             format: "mp4",
             created_at: metadata.timeCreated,
           };

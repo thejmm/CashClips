@@ -26,12 +26,6 @@ const getRandomVideoUrl = () => {
   return videoUrls[Math.floor(Math.random() * videoUrls.length)];
 };
 
-const getRandomVideos = (count: number) => {
-  return Array(count)
-    .fill(null)
-    .map(() => getRandomVideoUrl());
-};
-
 export const defaultSources: DefaultSource[] = [
   {
     name: "Portrait Split Screen",
@@ -42,14 +36,22 @@ export const defaultSources: DefaultSource[] = [
       output_format: "mp4",
       width: 1080,
       height: 1920,
-      elements: getRandomVideos(2).map((url, index) => ({
-        id: uuidv4(),
-        duration: 10,
-        source: url,
-        type: "video",
-        y: index === 0 ? "25%" : "75%",
-        height: "50%",
-      })),
+      elements: [
+        {
+          id: uuidv4(),
+          source: "", // Pass custom url here
+          type: "video",
+          y: "25%",
+          height: "50%",
+        },
+        {
+          id: uuidv4(),
+          source: getRandomVideoUrl(), // generate a random video for the second element
+          type: "video",
+          y: "75%",
+          height: "50%",
+        },
+      ],
     },
   },
   {
@@ -61,15 +63,24 @@ export const defaultSources: DefaultSource[] = [
       output_format: "mp4",
       width: 1920,
       height: 1080,
-      elements: getRandomVideos(2).map((url, index) => ({
-        id: uuidv4(),
-        duration: 10,
-        source: url,
-        type: "video",
-        x: index === 0 ? "75%" : "25%",
-        height: "100%",
-        width: "50%",
-      })),
+      elements: [
+        {
+          id: uuidv4(),
+          source: "", // Pass custom url here
+          type: "video",
+          x: "75%",
+          height: "100%",
+          width: "50%",
+        },
+        {
+          id: uuidv4(),
+          source: getRandomVideoUrl(), // generate a random video for the second element
+          type: "video",
+          x: "25%",
+          height: "100%",
+          width: "50%",
+        },
+      ],
     },
   },
   {
@@ -83,12 +94,11 @@ export const defaultSources: DefaultSource[] = [
       height: 1920,
       fill_color: "#262626",
       elements: (() => {
-        const url = getRandomVideoUrl();
+        const url = ""; // Pass custom url here
         return [
           {
             id: uuidv4(),
-            duration: 10,
-            source: url,
+              source: url,
             type: "video",
             volume: "0%",
             color_overlay: "rgba(0,0,0,0.15)",
@@ -97,8 +107,7 @@ export const defaultSources: DefaultSource[] = [
           },
           {
             id: uuidv4(),
-            duration: 10,
-            source: url,
+              source: url,
             type: "video",
             fit: "contain",
           },
@@ -117,12 +126,11 @@ export const defaultSources: DefaultSource[] = [
       height: 1080,
       fill_color: "#262626",
       elements: (() => {
-        const url = getRandomVideoUrl();
+        const url = ""; // Pass custom url here
         return [
           {
             id: uuidv4(),
-            duration: 10,
-            source: url,
+              source: url,
             type: "video",
             volume: "0%",
             color_overlay: "rgba(0,0,0,0.15)",
@@ -131,8 +139,7 @@ export const defaultSources: DefaultSource[] = [
           },
           {
             id: uuidv4(),
-            duration: 10,
-            source: url,
+              source: url,
             type: "video",
             fit: "cover",
             width: "50%",
@@ -151,23 +158,27 @@ export const defaultSources: DefaultSource[] = [
       output_format: "mp4",
       width: 1920,
       height: 1080,
-      elements: getRandomVideos(2).map((url, index) => ({
-        id: uuidv4(),
-        duration: 10,
-        source: url,
-        type: "video",
-        ...(index === 0
-          ? { width: "100%", height: "100%" }
-          : {
-              width: "30%",
-              height: "30%",
-              x: "18%",
-              y: "20%",
-              border_radius: "10px",
-              stroke_color: "#FFFFFF",
-              stroke_width: "4px",
-            }),
-      })),
+      elements: [
+        {
+          id: uuidv4(),
+          source: "", // Pass custom url here
+          type: "video",
+          width: "100%",
+          height: "100%",
+        },
+        {
+          id: uuidv4(),
+          source: getRandomVideoUrl(), // Generate a random video for the second element
+          type: "video",
+          width: "30%",
+          height: "30%",
+          x: "18%",
+          y: "20%",
+          border_radius: "10px",
+          stroke_color: "#FFFFFF",
+          stroke_width: "4px",
+        },
+      ],
     },
   },
   {
@@ -182,8 +193,7 @@ export const defaultSources: DefaultSource[] = [
       elements: [
         {
           id: uuidv4(),
-          duration: 10,
-          source: getRandomVideoUrl(),
+          source: "", // Pass custom url here
           type: "video",
           width: "100%",
           height: "100%",
@@ -204,8 +214,7 @@ export const defaultSources: DefaultSource[] = [
       elements: [
         {
           id: uuidv4(),
-          duration: 10,
-          source: getRandomVideoUrl(),
+          source: "", // Pass custom url here
           type: "video",
           width: "100%",
           height: "100%",
@@ -226,8 +235,7 @@ export const defaultSources: DefaultSource[] = [
       elements: [
         {
           id: uuidv4(),
-          duration: 10,
-          source: getRandomVideoUrl(),
+          source: "", // Pass custom url here
           type: "video",
           width: "100%",
           height: "100%",
@@ -248,8 +256,7 @@ export const defaultSources: DefaultSource[] = [
       elements: [
         {
           id: uuidv4(),
-          duration: 10,
-          source: getRandomVideoUrl(),
+          source: "", // Pass custom url here
           type: "video",
           width: "100%",
           height: "100%",
@@ -270,8 +277,7 @@ export const defaultSources: DefaultSource[] = [
       elements: [
         {
           id: uuidv4(),
-          duration: 10,
-          source: getRandomVideoUrl(),
+          source: "", // Pass custom url here
           type: "video",
           width: "100%",
           height: "100%",

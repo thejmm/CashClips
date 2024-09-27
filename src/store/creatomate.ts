@@ -112,8 +112,24 @@ class VideoCreatorStore {
     });
   }
 
-  async setSelectedSource(source: DefaultSource): Promise<void> {
+  async setSelectedSource(
+    source: any,
+    selectedVideo?: FirebaseVideo,
+  ): Promise<void> {
     console.log("Setting selected source:", source);
+
+    // Inject custom video URL if provided
+    if (selectedVideo) {
+      source.data.elements = source.data.elements.map(
+        (element: { source: string }) => {
+          if (element.source === "") {
+            element.source = selectedVideo.url;
+          }
+          return element;
+        },
+      );
+    }
+
     this.selectedSource = source;
     if (this.preview) {
       await this.preview.setSource(source.data);
@@ -246,29 +262,30 @@ class VideoCreatorStore {
     if (!this.preview || !captions) return;
 
     const source = deepClone(this.preview.getSource());
-
     const elements = this.preview.state!.elements;
 
     const track = Math.max(...elements.map((e) => e.track), 0) + 1;
 
-    const maxDuration = this.getMaxAllowedDuration(this.totalDuration);
-
     for (const word of captions.words) {
-      if (word.start < maxDuration) {
+      const startInSeconds = word.start / 1000;
+      const endInSeconds = word.end / 1000;
+
+      if (startInSeconds < this.totalDuration) {
         const id = uuid();
+        const duration = endInSeconds - startInSeconds;
+
         source.elements.push({
           id,
           type: "text",
           text: word.word,
-          start: word.start,
-          duration: Math.min(word.end, maxDuration) - word.start,
+          start: startInSeconds,
+          duration,
           track,
-          ...fontStyle.styles, // Spread in the selected font styles
+          ...fontStyle.styles,
         });
       }
     }
 
-    // Apply the updated source to the preview
     await this.preview.setSource(source, true);
   }
 
@@ -372,7 +389,6 @@ class VideoCreatorStore {
     const source = this.preview.getSource();
     const planLimits = PLAN_LIMITS[this.userPlan as keyof typeof PLAN_LIMITS];
 
-    // Trim the video to the maximum allowed duration
     source.duration = Math.min(source.duration, planLimits.max_duration);
 
     const renderJob = {

@@ -53,3 +53,28 @@ export function groupBy<K, V>(
     return map;
   }, new Map<K, V[]>());
 }
+
+interface FirebaseVideo {
+  id: string;
+  public_id: string;
+  folder: string;
+  url: string;
+  secure_url: string;
+  thumbnail_url: string;
+  duration: number;
+  format: string;
+  created_at: string;
+}
+
+export const fetchVideoDuration = async (video: FirebaseVideo): Promise<number> => {
+    return new Promise((resolve) => {
+      const videoElement = document.createElement("video");
+      videoElement.src = video.url;
+      videoElement.onloadedmetadata = () => {
+        resolve(videoElement.duration);
+      };
+      videoElement.onerror = () => {
+        resolve(0); // Return 0 if there's an error loading the video
+      };
+    });
+  };
