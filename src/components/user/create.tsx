@@ -72,7 +72,6 @@ const Create: React.FC<CreateProps> = ({ user }) => {
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
 
-  // Fetch user credits once the user is available
   useEffect(() => {
     if (user) {
       videoCreator.setUserId(user.id);
@@ -80,32 +79,23 @@ const Create: React.FC<CreateProps> = ({ user }) => {
     }
   }, [user]);
 
-  // Use router.replace instead of push to prevent unnecessary history updates
   useEffect(() => {
     if (!step || !steps.includes(step as string)) {
-      router.replace({ query: { step: steps[0] } });
+      router.push({ query: { step: steps[0] } });
       return;
     }
 
-    const stepIndex = steps.indexOf(step as string);
+    const currentStepIndex = steps.indexOf(step as string);
 
-    if (stepIndex >= 1 && !selectedStreamer) {
-      router.replace({ query: { step: steps[0] } });
-      return;
-    }
-
-    if (stepIndex >= 2 && !selectedVideo) {
-      router.replace({ query: { step: steps[1] } });
-      return;
-    }
-
-    if (stepIndex >= 3 && !selectedTemplate) {
-      router.replace({ query: { step: steps[2] } });
-      return;
+    if (currentStepIndex > 0 && !selectedStreamer) {
+      router.push({ query: { step: steps[0] } });
+    } else if (currentStepIndex > 1 && !selectedVideo) {
+      router.push({ query: { step: steps[1] } });
+    } else if (currentStepIndex > 2 && !selectedTemplate) {
+      router.push({ query: { step: steps[2] } });
     }
   }, [step, selectedStreamer, selectedVideo, selectedTemplate, router]);
 
-  // Fetch user credit info from Supabase
   const fetchUserCreditInfo = async () => {
     try {
       const { data, error } = await supabase
@@ -123,7 +113,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
   };
 
   const handleCreateAnother = () => {
-    router.replace({ query: { step: steps[0] } });
+    router.push({ query: { step: steps[0] } });
     setSelectedStreamer(null);
     setSelectedVideo(null);
     setAvailableVideos([]);
@@ -132,10 +122,15 @@ const Create: React.FC<CreateProps> = ({ user }) => {
     setRenderResult(null);
     setError(null);
     fetchUserCreditInfo();
+    videoCreator.resetStore();
   };
 
   const handleStepChange = (stepIndex: number) => {
-    router.replace({ query: { step: steps[stepIndex] } });
+    const targetStep = steps[stepIndex];
+    if (stepIndex > 0 && !selectedStreamer) return;
+    if (stepIndex > 1 && !selectedVideo) return;
+    if (stepIndex > 2 && !selectedTemplate) return;
+    router.push({ query: { step: targetStep } });
   };
 
   const handleExport = async () => {
@@ -145,7 +140,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
       const jobId = await videoCreator.finishVideo();
       const result = await videoCreator.checkRenderStatus(jobId);
       setRenderResult(result);
-      router.replace({ query: { step: steps[4] } }); // Move to the finished step
+      router.push({ query: { step: steps[4] } });
       fetchUserCreditInfo();
     } catch (error) {
       console.error("Export error:", error);
@@ -157,12 +152,12 @@ const Create: React.FC<CreateProps> = ({ user }) => {
 
   const handleVideoSelect = (video: FirebaseVideo) => {
     setSelectedVideo(video);
-    router.replace({ query: { step: steps[2] } }); // Move to template step
+    router.push({ query: { step: steps[2] } });
   };
 
   const handleTemplateSelect = (template: DefaultSource) => {
     setSelectedTemplate(template);
-    router.replace({ query: { step: steps[3] } }); // Move to edit-render step
+    router.push({ query: { step: steps[3] } });
   };
 
   const renderStep = () => {
@@ -204,7 +199,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
             selectedStreamer={selectedStreamer}
             handleStreamerSelect={(streamer) => {
               setSelectedStreamer(streamer.folder as any);
-              router.replace({ query: { step: steps[1] } });
+              router.push({ query: { step: steps[1] } });
             }}
           />
         );

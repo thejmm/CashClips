@@ -41,7 +41,7 @@ export default function Header({ user, sticky = false }: DashboardLayoutProps) {
           href="/"
         >
           <img src="/logo.png" className="h-10 w-10 rounded-lg" alt="Logo" />
-          <p className="!m-0 hidden md:inline-block whitespace-pre !p-0 text-lg font-bold transition duration-150 md:text-xl">
+          <p className="!m-0 hidden whitespace-pre !p-0 text-lg font-bold transition duration-150 md:inline-block md:text-xl">
             Cash Clips
           </p>
         </Link>

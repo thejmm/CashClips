@@ -25,7 +25,7 @@ import { createClient } from "@/utils/supabase/component";
 export const pricingConfig = {
   plans: [
     {
-      id: "prod_QsAwqGUvll7to7",
+      id: "prod_QvXTtv5odfOzcW",
       name: "Starter",
       description:
         "For new clippers starting their journey. Get essential tools to clip and make cash.",
@@ -39,12 +39,12 @@ export const pricingConfig = {
         "Auto-captioning",
       ],
       stripePriceId: {
-        month: "price_1Q0QacGXekY7Ey1HF9xNx8pF",
-        year: "price_1Q0QacGXekY7Ey1HkFuCuQUo",
+        month: "price_1Q3gOxGXekY7Ey1HNqHTOjnF",
+        year: "price_1Q3gPGGXekY7Ey1Hd8HjG2H4",
       },
     },
     {
-      id: "prod_NEW_CLIPPER_PLAN",
+      id: "prod_QvXVD1w1jPIsU5",
       name: "Clipper",
       description:
         "Perfect for clippers who need high-quality clips and more flexibility to cover daily posting limits.",
@@ -59,12 +59,12 @@ export const pricingConfig = {
         "Auto-captioning",
       ],
       stripePriceId: {
-        month: "price_1NEW123GXekY7Ey1H",
-        year: "price_1NEW456GXekY7Ey1H",
+        month: "price_1Q3gQAGXekY7Ey1HatlfVPkv",
+        year: "price_1Q3gTFGXekY7Ey1HgL9s8V7Y",
       },
     },
     {
-      id: "prod_QuBBHuwTXizC4Z",
+      id: "prod_QvXVx0bApYi7Ab",
       name: "Streamer",
       description:
         "Ideal for streamers who need high-quality clips and more flexibility to cover 2x daily posting limits.",
@@ -78,12 +78,12 @@ export const pricingConfig = {
         "Auto-captioning",
       ],
       stripePriceId: {
-        month: "price_1Q2MozGXekY7Ey1Hmlxlymo1",
-        year: "price_1Q2MpEGXekY7Ey1Hmddlf2mC",
+        month: "price_1Q3gQtGXekY7Ey1HGVjobmNz",
+        year: "price_1Q3gTvGXekY7Ey1HJ5Lg61Jh",
       },
     },
     {
-      id: "prod_QuBBBQZF76RFMu",
+      id: "prod_QvXXnkvkKXyYC2",
       name: "Ultimate",
       description:
         "For professional clippers and popular streamers. Maximize your content output with high-quality clips.",
@@ -98,12 +98,12 @@ export const pricingConfig = {
         "Auto-captioning",
       ],
       stripePriceId: {
-        month: "price_1Q2MpbGXekY7Ey1HQjaqseUy",
-        year: "price_1Q2MpmGXekY7Ey1HnnJoOqOS",
+        month: "price_1Q3gSCGXekY7Ey1HqyElJiE1",
+        year: "price_1Q3gUCGXekY7Ey1Hn6drSHf6",
       },
     },
     {
-      id: "prod_QuBC5R7bvRKKAx",
+      id: "prod_QvXXN3MLJksYqg",
       name: "Agency",
       description:
         "Perfect for clip agencies and large creator teams. Get powerful tools to manage multiple channels efficiently.",
@@ -117,8 +117,8 @@ export const pricingConfig = {
         "Auto-captioning",
       ],
       stripePriceId: {
-        month: "price_1Q2Mq2GXekY7Ey1HD1m6009W",
-        year: "price_1Q2MqGGXekY7Ey1HeYd7iICb",
+        month: "price_1Q3gSQGXekY7Ey1HF5o4oWQ5",
+        year: "price_1Q3gUSGXekY7Ey1HSLPmCEs6",
       },
     },
   ],

@@ -47,7 +47,7 @@ const Stepper: React.FC<StepperProps> = ({
 
   const handleStepClick = (stepNumber: number) => {
     if (stepNumber <= currentStep) {
-      onStepClick(stepNumber);
+      onStepClick(stepNumber - 1);
     }
   };
 

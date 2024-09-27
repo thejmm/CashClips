@@ -1,8 +1,11 @@
-// src/components/user/create/template.tsx
-import React, { useEffect } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import React, { useEffect, useState } from "react";
 
-import { DefaultSource } from "@/utils/creatomate/templates";
+import { Button } from "@/components/ui/button"; // Assuming Button is part of your UI components
+import { DefaultSource } from "@/utils/creatomate/template-types";
+import { Input } from "@/components/ui/input"; // Assuming Input is part of your UI components
 import { motion } from "framer-motion";
+import { useMediaQuery } from "react-responsive"; // For responsive page sizing
 
 interface TemplateProps {
   selectedTemplate: DefaultSource | null;
@@ -15,6 +18,38 @@ const Template: React.FC<TemplateProps> = ({
   handleTemplateSelect,
   defaultSources,
 }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(4); // Default page size for smaller screens
+  const [searchTerm, setSearchTerm] = useState(""); // For searching templates
+  const isLg = useMediaQuery({ query: "(min-width: 1024px)" });
+  const isMd = useMediaQuery({ query: "(min-width: 640px)" });
+
+  // Adjust page size based on screen size
+  useEffect(() => {
+    if (isLg) {
+      setPageSize(8); // 8 templates per page on large screens
+    } else if (isMd) {
+      setPageSize(6); // 6 templates per page on medium screens
+    } else {
+      setPageSize(4); // 4 templates per page on small screens
+    }
+  }, [isLg, isMd]);
+
+  // Filter templates based on the search term
+  const filteredTemplates = defaultSources.filter((template) =>
+    template.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
+  const totalPages = Math.ceil(filteredTemplates.length / pageSize);
+  const paginatedTemplates = filteredTemplates.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(Math.max(1, Math.min(newPage, totalPages)));
+  };
+
   useEffect(() => {
     console.log("Template component mounted");
     console.log(
@@ -29,31 +64,87 @@ const Template: React.FC<TemplateProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+      className="space-y-6"
     >
-      {defaultSources.map((template) => (
-        <motion.div
-          key={template.name}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className={`cursor-pointer rounded border p-4 transition-colors duration-200 ${
-            selectedTemplate?.name === template.name
-              ? "border-2 border-primary"
-              : "hover:border-primary"
-          }`}
-          onClick={() => {
-            console.log("Template selected:", template.name);
-            handleTemplateSelect(template);
+      {/* Search bar */}
+      <div className="mb-4">
+        <Input
+          type="text"
+          placeholder="Search templates..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1); // Reset to page 1 on search
           }}
-        >
-          <img
-            src={template.coverImage}
-            alt={template.name}
-            className="mb-2 h-48 w-full rounded object-cover"
-          />
-          <p className="text-center font-medium">{template.name}</p>
-        </motion.div>
-      ))}
+          className="w-full rounded border border-gray-300 p-2"
+        />
+      </div>
+
+      {/* Template grid */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        {paginatedTemplates.length > 0 ? (
+          paginatedTemplates.map((template) => (
+            <motion.div
+              key={template.name}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`cursor-pointer rounded border p-4 transition-colors duration-200 ${
+                selectedTemplate?.name === template.name
+                  ? "border-2 border-primary"
+                  : "hover:border-primary"
+              }`}
+              onClick={() => {
+                console.log("Template selected:", template.name);
+                handleTemplateSelect(template);
+              }}
+            >
+              <img
+                src={template.coverImage}
+                alt={template.name}
+                className="mb-2 h-48 w-full rounded object-cover"
+              />
+              <p className="text-center font-medium">{template.name}</p>
+            </motion.div>
+          ))
+        ) : (
+          <p className="col-span-full text-center">No templates found.</p>
+        )}
+      </div>
+
+      {/* Pagination controls */}
+      <div className="flex flex-col items-center justify-between space-y-4 py-4 sm:flex-row sm:space-y-0">
+        <div className="text-sm text-gray-500">
+          {filteredTemplates.length > 0 ? (
+            <>
+              Showing {(currentPage - 1) * pageSize + 1} to{" "}
+              {Math.min(currentPage * pageSize, filteredTemplates.length)} of{" "}
+              {filteredTemplates.length} templates
+            </>
+          ) : (
+            "No templates available"
+          )}
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Previous</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            <span className="hidden sm:inline">Next</span>
+            <ChevronRight className="h-4 w-4 sm:ml-2" />
+          </Button>
+        </div>
+      </div>
     </motion.div>
   );
 };

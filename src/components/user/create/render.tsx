@@ -1,4 +1,3 @@
-// src/components/user/create/render.tsx
 import {
   AlertDialog,
   AlertDialogContent,
@@ -21,7 +20,6 @@ import React, { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { DefaultSource } from "@/utils/creatomate/template-types";
-import { FontStyle } from "@/utils/creatomate/font-types";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { fontStyles } from "@/utils/creatomate/fonts";
@@ -82,9 +80,7 @@ const Render: React.FC<RenderProps> = ({
       try {
         await videoCreator.initializeVideoPlayer(previewContainerRef.current);
         await videoCreator.setSelectedSource(selectedTemplate);
-        await videoCreator.updateTemplateWithSelectedVideo(
-          selectedVideo as any,
-        );
+        await videoCreator.updateTemplateWithSelectedVideo(selectedVideo);
 
         videoCreator.preview!.onTimeChange = (time: number) =>
           setCurrentTime(time);
@@ -115,11 +111,7 @@ const Render: React.FC<RenderProps> = ({
         selectedVideo.url,
         "captions",
       );
-      await videoCreator.queueCaptionsUpdate(
-        "video1",
-        captions,
-        selectedFont.styles as FontStyle,
-      );
+      videoCreator.queueCaptionsUpdate("video1", captions, selectedFont);
       await videoCreator.applyQueuedUpdates();
       setIsCaptionsGenerated(true);
     } catch (err) {
@@ -131,9 +123,10 @@ const Render: React.FC<RenderProps> = ({
   };
 
   const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
-    const milliseconds = Math.floor(((time * 1000) % 1000) / 10);
-    return `${seconds.toString().padStart(2, "0")}:${milliseconds.toString().padStart(2, "0")}`;
+    const milliseconds = Math.floor((time * 1000) % 1000);
+    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}.${milliseconds.toString().padStart(3, "0")}`;
   };
 
   return (
@@ -202,8 +195,7 @@ const Render: React.FC<RenderProps> = ({
               </Button>
             </div>
             <span className="text-sm font-medium">
-              {formatTime(currentTime)} /{" "}
-              {selectedVideo ? formatTime(selectedVideo.duration) : "00.00.00"}
+              {formatTime(currentTime)} / {formatTime(duration)}
             </span>
           </div>
 
