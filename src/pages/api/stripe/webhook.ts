@@ -4,6 +4,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import Stripe from "stripe";
 import { buffer } from "micro";
 import createClient from "@/utils/supabase/api";
+import { pricingConfig } from "@/components/landing/pricing";
 import { v4 as uuidv4 } from "uuid";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -54,7 +55,6 @@ export default async function handler(
         );
         break;
       case "invoice.paid":
-      case "invoice.payment_failed":
         await handleInvoicePayment(
           event.data.object as Stripe.Invoice,
           supabase,
@@ -184,7 +184,7 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
 
   const { data: userData, error: userError } = await supabase
     .from("user_data")
-    .select("user_id")
+    .select("user_id, stripe_customer_id, plan_name")
     .eq("stripe_customer_id", customerId)
     .single();
 
@@ -194,6 +194,48 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
       userError,
     );
     throw new Error(`No user found for Stripe customer ${customerId}`);
+  }
+
+  const subscription = await stripe.subscriptions.retrieve(
+    invoice.subscription as string,
+  );
+  const planId = subscription.items.data[0].price.id;
+
+  const matchedPlan = pricingConfig.plans.find(
+    (plan) =>
+      plan.stripePriceId.month === planId || plan.stripePriceId.year === planId,
+  );
+
+  if (!matchedPlan) {
+    console.error("Plan not found for ID:", planId);
+    throw new Error("Unknown plan ID");
+  }
+
+  const newTotalCredits = parseInt(matchedPlan.features[0].split(" ")[1]);
+
+  const { error: userDataUpdateError } = await supabase
+    .from("user_data")
+    .update({
+      used_credits: 0, // Reset credits
+      total_credits: newTotalCredits, // Update total credits
+      plan_name: matchedPlan.name,
+      plan_price: matchedPlan.monthlyPrice, // Adjust based on the current plan
+      subscription_status: invoice.status === "paid" ? "active" : "past_due",
+      next_billing_date: new Date(
+        subscription.current_period_end * 1000,
+      ).toISOString(),
+      current_period_start: new Date(
+        subscription.current_period_start * 1000,
+      ).toISOString(),
+      current_period_end: new Date(
+        subscription.current_period_end * 1000,
+      ).toISOString(),
+    })
+    .eq("user_id", userData.user_id);
+
+  if (userDataUpdateError) {
+    console.error("Error updating user data:", userDataUpdateError);
+    throw userDataUpdateError;
   }
 
   const { error: invoiceError } = await supabase.from("invoices").upsert(
@@ -235,17 +277,6 @@ async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
 
   if (subscriptionError) {
     console.error("Error updating subscription status:", subscriptionError);
-  }
-
-  const { error: userDataError } = await supabase
-    .from("user_data")
-    .update({
-      subscription_status: invoice.status === "paid" ? "active" : "past_due",
-    })
-    .eq("user_id", userData.user_id);
-
-  if (userDataError) {
-    console.error("Error updating user_data status:", userDataError);
   }
 }
 

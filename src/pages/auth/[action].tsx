@@ -79,11 +79,11 @@ const AuthPage = () => {
         animate="in"
         exit="out"
         variants={pageVariants}
-        className="min-h-[80vh] flex items-center justify-center px-4 sm:px-6 lg:px-8"
+        className="flex min-h-[80vh] items-center justify-center px-4 sm:px-6 lg:px-8"
       >
         <motion.div
           variants={contentVariants}
-          className="w-full max-w-[320px] sm:max-w-md space-y-8"
+          className="w-full max-w-[320px] space-y-8 sm:max-w-md"
         >
           <AuthHeader action={action} />
           <AuthForm

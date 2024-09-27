@@ -8,7 +8,6 @@ export interface FontStyle {
     font_weight?: string | number;
     stroke_color?: string;
     font_size?: string;
-    stroke?: string;
     stroke_width?: string;
     text_shadow?: string;
     text_align?: string;

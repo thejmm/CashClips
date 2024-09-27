@@ -171,7 +171,7 @@ export const defaultSources: DefaultSource[] = [
     },
   },
   {
-    name: "Perfect Square",
+    name: "Instagram Square (1:1)",
     coverImage: "/templates/square.png",
     layout: "square",
     type: "square",
@@ -179,6 +179,94 @@ export const defaultSources: DefaultSource[] = [
       output_format: "mp4",
       width: 1080,
       height: 1080,
+      elements: [
+        {
+          id: uuidv4(),
+          duration: 10,
+          source: getRandomVideoUrl(),
+          type: "video",
+          width: "100%",
+          height: "100%",
+          fit: "cover",
+        },
+      ],
+    },
+  },
+  {
+    name: "Instagram Portrait (4:5)",
+    coverImage: "/templates/instagram-portrait.png",
+    layout: "portrait",
+    type: "square",
+    data: {
+      output_format: "mp4",
+      width: 1080,
+      height: 1350,
+      elements: [
+        {
+          id: uuidv4(),
+          duration: 10,
+          source: getRandomVideoUrl(),
+          type: "video",
+          width: "100%",
+          height: "100%",
+          fit: "cover",
+        },
+      ],
+    },
+  },
+  {
+    name: "Instagram Stories / TikTok (9:16)",
+    coverImage: "/templates/stories.png",
+    layout: "portrait",
+    type: "square",
+    data: {
+      output_format: "mp4",
+      width: 1080,
+      height: 1920,
+      elements: [
+        {
+          id: uuidv4(),
+          duration: 10,
+          source: getRandomVideoUrl(),
+          type: "video",
+          width: "100%",
+          height: "100%",
+          fit: "cover",
+        },
+      ],
+    },
+  },
+  {
+    name: "Landscape (16:9)",
+    coverImage: "/templates/landscape.png",
+    layout: "landscape",
+    type: "square",
+    data: {
+      output_format: "mp4",
+      width: 1920,
+      height: 1080,
+      elements: [
+        {
+          id: uuidv4(),
+          duration: 10,
+          source: getRandomVideoUrl(),
+          type: "video",
+          width: "100%",
+          height: "100%",
+          fit: "cover",
+        },
+      ],
+    },
+  },
+  {
+    name: "Pinterest (2:3)",
+    coverImage: "/templates/pinterest.png",
+    layout: "portrait",
+    type: "square",
+    data: {
+      output_format: "mp4",
+      width: 1000,
+      height: 1500,
       elements: [
         {
           id: uuidv4(),
