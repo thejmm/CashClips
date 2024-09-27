@@ -98,7 +98,7 @@ export const defaultSources: DefaultSource[] = [
         return [
           {
             id: uuidv4(),
-              source: url,
+            source: url,
             type: "video",
             volume: "0%",
             color_overlay: "rgba(0,0,0,0.15)",
@@ -107,7 +107,7 @@ export const defaultSources: DefaultSource[] = [
           },
           {
             id: uuidv4(),
-              source: url,
+            source: url,
             type: "video",
             fit: "contain",
           },
@@ -130,7 +130,7 @@ export const defaultSources: DefaultSource[] = [
         return [
           {
             id: uuidv4(),
-              source: url,
+            source: url,
             type: "video",
             volume: "0%",
             color_overlay: "rgba(0,0,0,0.15)",
@@ -139,7 +139,7 @@ export const defaultSources: DefaultSource[] = [
           },
           {
             id: uuidv4(),
-              source: url,
+            source: url,
             type: "video",
             fit: "cover",
             width: "50%",
