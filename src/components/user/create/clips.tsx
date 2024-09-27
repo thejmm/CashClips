@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
+import { fetchVideoDuration } from "@/utils/creatomate/utils";
 import { motion } from "framer-motion";
 
 interface FirebaseVideo {
@@ -60,8 +61,15 @@ const Clips: React.FC<ClipsProps> = ({
         throw new Error("Invalid data format received from server");
       }
 
-      setAllVideos(data.videos);
-      setAvailableVideos(data.videos);
+      const videosWithDurations = await Promise.all(
+        data.videos.map(async (video: FirebaseVideo) => {
+          const duration = await fetchVideoDuration(video);
+          return { ...video, duration };
+        }),
+      );
+
+      setAllVideos(videosWithDurations);
+      setAvailableVideos(videosWithDurations);
     } catch (error) {
       console.error("Error fetching videos:", error);
       setError(`Failed to fetch videos: ${(error as Error).message}`);
@@ -73,7 +81,6 @@ const Clips: React.FC<ClipsProps> = ({
   useEffect(() => {
     fetchVideos();
   }, [fetchVideos]);
-
   const totalPages = Math.max(1, Math.ceil(allVideos.length / pageSize));
 
   const handlePageChange = (newPage: number) => {
@@ -148,7 +155,9 @@ const Clips: React.FC<ClipsProps> = ({
                   style={{ pointerEvents: "none" }}
                 />
                 <span className="absolute bottom-1 left-1 rounded bg-black bg-opacity-50 px-1 text-xs text-white">
-                  {video.duration.toFixed(2)}s
+                  {video.duration
+                    ? `${video.duration.toFixed(2)}s`
+                    : "Loading..."}
                 </span>
               </div>
               <p className="truncate text-center font-medium">{video.id}</p>

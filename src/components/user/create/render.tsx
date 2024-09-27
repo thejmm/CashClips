@@ -94,13 +94,7 @@ const Render: React.FC<RenderProps> = ({
     };
 
     initializePreview();
-  }, [
-    selectedVideo,
-    selectedTemplate,
-    previewContainerRef,
-    isInitialized,
-    availableVideos,
-  ]);
+  }, [selectedVideo, selectedTemplate, previewContainerRef, isInitialized]);
 
   const handleGenerateCaptions = async () => {
     if (!selectedVideo) return;
@@ -121,6 +115,12 @@ const Render: React.FC<RenderProps> = ({
       setShowFontDialog(false);
     }
   };
+
+  useEffect(() => {
+    if (selectedVideo) {
+      setDuration(selectedVideo.duration);
+    }
+  }, [selectedVideo]);
 
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
@@ -223,10 +223,14 @@ const Render: React.FC<RenderProps> = ({
       </div>
 
       {/* Font Selection Dialog */}
-      <AlertDialog open={showFontDialog}>
-        <AlertDialogContent>
+      <AlertDialog open={showFontDialog} onOpenChange={setShowFontDialog}>
+        <AlertDialogContent className="max-w-md rounded-lg p-6">
           <AlertDialogHeader>
-            <AlertDialogTitle>Select Font Style</AlertDialogTitle>
+            {!isGeneratingCaptions ? (
+              <AlertDialogTitle>Select Font Style</AlertDialogTitle>
+            ) : (
+              <AlertDialogTitle>Processing...</AlertDialogTitle>
+            )}
           </AlertDialogHeader>
           <AlertDialogDescription>
             <AnimatePresence mode="wait">
@@ -237,6 +241,7 @@ const Render: React.FC<RenderProps> = ({
                   exit={{ opacity: 0, scale: 0.8 }}
                   className="mx-auto flex h-96 w-full max-w-md flex-col items-center justify-center"
                 >
+                  {/* Loading State with Progress Bar */}
                   <div className="mb-4 flex items-center">
                     <Loader className="mr-3 h-8 w-8 animate-spin text-primary" />
                     <span className="text-xl font-bold">
@@ -249,7 +254,15 @@ const Render: React.FC<RenderProps> = ({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
                   >
-                    <Progress value={0} className="h-2 w-full bg-gray-200" />
+                    <div className="mb-4 h-2.5 w-full rounded-full bg-gray-200">
+                      <div
+                        className="h-2.5 rounded-full bg-primary"
+                        // style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                    {/* <p className="text-center text-sm">
+                      {progress.toFixed(2)}% Complete
+                    </p> */}
                   </motion.div>
                 </motion.div>
               ) : (
@@ -259,6 +272,7 @@ const Render: React.FC<RenderProps> = ({
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                 >
+                  {/* Font Selection */}
                   <ScrollArea className="h-96 w-full rounded-lg border pr-2">
                     <div className="grid grid-cols-2 gap-4 p-2">
                       {fontStyles.map((font) => (
@@ -291,17 +305,15 @@ const Render: React.FC<RenderProps> = ({
             </AnimatePresence>
           </AlertDialogDescription>
           <AlertDialogFooter>
-            {!isGeneratingCaptions ? (
+            {!isGeneratingCaptions && (
               <Button onClick={() => setShowFontDialog(false)}>Close</Button>
-            ) : (
-              <Button
-                disabled={isGeneratingCaptions}
-                onClick={() => setShowFontDialog(false)}
-              >
-                Finish
-              </Button>
             )}
           </AlertDialogFooter>
+          {isGeneratingCaptions && (
+            <div className="mt-4 flex items-center justify-center">
+              <Loader className="h-10 w-10 animate-spin text-primary" />
+            </div>
+          )}
         </AlertDialogContent>
       </AlertDialog>
 
