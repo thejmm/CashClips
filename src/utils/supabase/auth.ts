@@ -16,7 +16,7 @@ export async function getUserServerSideProps(
   if (error || !user) {
     return {
       redirect: {
-        destination: "/login",
+        destination: "/auth/signin",
         permanent: false,
       },
     };
