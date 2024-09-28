@@ -16,7 +16,7 @@ const defaultSEO: DefaultSeoProps = {
 
     images: [
       {
-        url: "https://cashclips.io/seo.svg",
+        url: "https://cashclips.io/seo.png",
         width: 1200,
         height: 630,
         alt: "CashClips - Create Shareable Content",
