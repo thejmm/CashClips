@@ -24,25 +24,38 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
   const { streamer } = req.query;
+  const userId = req.headers["user-id"] as string;
 
   if (!streamer || typeof streamer !== "string") {
     return res.status(400).json({ error: "Streamer is required" });
   }
 
-  const encodedStreamer = encodeURIComponent(streamer);
+  if (streamer === "user-uploads" && !userId) {
+    return res
+      .status(400)
+      .json({ error: "User ID is required for user uploads" });
+  }
 
   try {
-    const streamerRef = ref(storage, encodedStreamer);
-    const allItems = await fetchAllItems(streamerRef);
+    let storageRef;
+    if (streamer === "user-uploads") {
+      storageRef = ref(storage, `user-uploads/${userId}`);
+    } else {
+      storageRef = ref(storage, encodeURIComponent(streamer));
+    }
 
+    const allItems = await fetchAllItems(storageRef);
     const videos = await Promise.all(
       allItems
         .filter((item) => item.name.endsWith(".mp4"))
         .map(async (item) => {
           const metadata = await getMetadata(item);
           const downloadURL = await getDownloadURL(item);
-
           return {
             id: item.name,
             public_id: item.fullPath,
@@ -56,7 +69,6 @@ export default async function handler(
           };
         }),
     );
-
     res.status(200).json({ videos });
   } catch (error: any) {
     res

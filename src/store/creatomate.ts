@@ -79,6 +79,15 @@ class VideoCreatorStore {
     }
   }
 
+  private getMaxAllowedDuration(duration: number): number {
+    if (!this.userPlan) {
+      console.warn("User plan not set, using default duration");
+      return duration;
+    }
+    const planLimits = PLAN_LIMITS[this.userPlan as keyof typeof PLAN_LIMITS];
+    return Math.min(duration, planLimits.max_duration);
+  }
+
   async initializeVideoPlayer(htmlElement: HTMLDivElement) {
     if (this.preview) {
       this.preview.dispose();
@@ -138,7 +147,11 @@ class VideoCreatorStore {
     this.queuedVideoUpdates.push({ elementId, source });
   }
 
-  queueCaptionsUpdate(elementId: string, captions: any, fontStyle: FontStyle) {
+  queueCaptionsUpdate(
+    elementId: string,
+    captions: any | null,
+    fontStyle: FontStyle,
+  ) {
     this.queuedCaptions.push({ elementId, captions, fontStyle });
   }
 
@@ -151,9 +164,25 @@ class VideoCreatorStore {
     this.queuedVideoUpdates = [];
 
     for (const { elementId, captions, fontStyle } of this.queuedCaptions) {
-      await this.addCaptionsAsElements(elementId, captions, fontStyle);
+      if (captions) {
+        await this.addCaptionsAsElements(elementId, captions, fontStyle);
+      } else {
+        await this.setFontStyle(elementId, fontStyle);
+      }
     }
     this.queuedCaptions = [];
+  }
+
+  async setFontStyle(elementId: string, style: FontStyle): Promise<void> {
+    const preview = this.preview;
+    if (!preview) return;
+
+    const element = preview.findElement((el) => el.source.id === elementId);
+    if (element) {
+      await preview.applyModifications({
+        [`${elementId}.fontStyle`]: style,
+      });
+    }
   }
 
   async updateVideoSource(elementId: string, newSource: string): Promise<void> {
@@ -236,15 +265,6 @@ class VideoCreatorStore {
       console.error("Error loading video element:", error);
       // Retry mechanism or notification for failure can be implemented here.
     }
-  }
-
-  private getMaxAllowedDuration(duration: number): number {
-    if (!this.userPlan) {
-      console.warn("User plan not set, using default duration");
-      return duration;
-    }
-    const planLimits = PLAN_LIMITS[this.userPlan as keyof typeof PLAN_LIMITS];
-    return Math.min(duration, planLimits.max_duration);
   }
 
   async addCaptionsAsElements(
