@@ -104,7 +104,7 @@ graph LR
 
     classDef default fill:#f0f0f0,stroke:#333,stroke-width:1px;
     classDef plan fill:#e1f5fe,stroke:#01579b,stroke-width:2px,font-weight:bold;
-    classDef price fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef price fill:#ffffff,stroke:#fbc02d,stroke-width:2px;
     classDef profit fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,font-weight:bold;
     
     class A default;
@@ -113,4 +113,32 @@ graph LR
     class BMP,BYP,CMP,CYP,DMP,DYP,EMP,EYP,FMP,FYP profit;
 
     linkStyle default stroke:#666,stroke-width:1px;
+
+    %% Override text color to black for all nodes
+    style A fill:#f0f0f0,stroke:#333,color:#000;
+    style B fill:#e1f5fe,stroke:#01579b,color:#000;
+    style C fill:#e1f5fe,stroke:#01579b,color:#000;
+    style D fill:#e1f5fe,stroke:#01579b,color:#000;
+    style E fill:#e1f5fe,stroke:#01579b,color:#000;
+    style F fill:#e1f5fe,stroke:#01579b,color:#000;
+    style BM fill:#ffffff,stroke:#fbc02d,color:#000;
+    style BY fill:#ffffff,stroke:#fbc02d,color:#000;
+    style CM fill:#ffffff,stroke:#fbc02d,color:#000;
+    style CY fill:#ffffff,stroke:#fbc02d,color:#000;
+    style DM fill:#ffffff,stroke:#fbc02d,color:#000;
+    style DY fill:#ffffff,stroke:#fbc02d,color:#000;
+    style EM fill:#ffffff,stroke:#fbc02d,color:#000;
+    style EY fill:#ffffff,stroke:#fbc02d,color:#000;
+    style FM fill:#ffffff,stroke:#fbc02d,color:#000;
+    style FY fill:#ffffff,stroke:#fbc02d,color:#000;
+    style BMP fill:#c8e6c9,stroke:#2e7d32,color:#000;
+    style BYP fill:#c8e6c9,stroke:#2e7d32,color:#000;
+    style CMP fill:#c8e6c9,stroke:#2e7d32,color:#000;
+    style CYP fill:#c8e6c9,stroke:#2e7d32,color:#000;
+    style DMP fill:#c8e6c9,stroke:#2e7d32,color:#000;
+    style DYP fill:#c8e6c9,stroke:#2e7d32,color:#000;
+    style EMP fill:#c8e6c9,stroke:#2e7d32,color:#000;
+    style EYP fill:#c8e6c9,stroke:#2e7d32,color:#000;
+    style FMP fill:#c8e6c9,stroke:#2e7d32,color:#000;
+    style FYP fill:#c8e6c9,stroke:#2e7d32,color:#000;
 ```
