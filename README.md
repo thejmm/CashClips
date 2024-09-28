@@ -71,7 +71,6 @@ $\text{Profit Margin} = \left( \frac{\text{Yearly Profit}}{\text{Yearly Price}} 
 ---
 
 ```mermaid
-```mermaid
 graph LR
     A[Pricing Plans]
 
@@ -114,5 +113,4 @@ graph LR
     class BMP,BYP,CMP,CYP,DMP,DYP,EMP,EYP,FMP,FYP profit;
 
     linkStyle default stroke:#666,stroke-width:1px;
-```
 ```
