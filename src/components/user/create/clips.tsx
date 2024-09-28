@@ -1,3 +1,4 @@
+// src/components/user/create/clips.tsx
 import { ChevronLeft, ChevronRight, Loader } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 import {

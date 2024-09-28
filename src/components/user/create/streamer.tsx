@@ -1,4 +1,5 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+// src/components/user/create/streamer.tsx
+import { ChevronLeft, ChevronRight, Upload } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -15,11 +16,17 @@ export interface Streamer {
 export interface StreamerProps {
   selectedStreamer: string | null;
   handleStreamerSelect: (streamer: Streamer) => void;
+  handleCustomUpload: (file: File) => void;
+  isUploading: boolean;
+  uploadProgress: number;
 }
 
 const Streamer: React.FC<StreamerProps> = ({
   selectedStreamer,
   handleStreamerSelect,
+  handleCustomUpload,
+  isUploading,
+  uploadProgress,
 }) => {
   const streamers = [
     {
@@ -102,6 +109,13 @@ const Streamer: React.FC<StreamerProps> = ({
     }
   }, [isLg, isMd]);
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleCustomUpload(file);
+    }
+  };
+
   // Filter streamers based on the search term
   const filteredStreamers = streamers.filter((streamer) =>
     streamer.name.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -136,7 +150,7 @@ const Streamer: React.FC<StreamerProps> = ({
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
-            setCurrentPage(1); // Reset to page 1 on search
+            setCurrentPage(1);
           }}
           className="w-full rounded border border-gray-300 p-2"
         />
@@ -144,6 +158,42 @@ const Streamer: React.FC<StreamerProps> = ({
 
       {/* Streamer grid */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        {/* {currentPage === 1 && (
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="cursor-pointer rounded border border-dashed border-primary p-4 transition-colors duration-200 hover:bg-primary/10"
+          >
+            <label className="flex h-full w-full cursor-pointer flex-col items-center justify-center">
+              <input
+                type="file"
+                accept="video/*"
+                onChange={handleFileChange}
+                className="hidden"
+                disabled={isUploading}
+              />
+              {isUploading ? (
+                <div className="w-full">
+                  <p className="mb-2 text-center">
+                    Uploading: {uploadProgress.toFixed(2)}%
+                  </p>
+                  <div className="h-2 w-full rounded-full bg-gray-200">
+                    <div
+                      className="h-full rounded-full bg-primary"
+                      style={{ width: `${uploadProgress}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <Upload className="mb-2 h-12 w-12 text-primary" />
+                  <p className="text-center font-medium">Upload Your Own</p>
+                </>
+              )}
+            </label>
+          </motion.div>
+        )} */}
+
         {paginatedStreamers.length > 0 ? (
           paginatedStreamers.map((streamer) => (
             <motion.div

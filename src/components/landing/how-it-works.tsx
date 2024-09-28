@@ -1,3 +1,4 @@
+// src/components/landing/how-it-works.tsx
 import { FaClosedCaptioning, FaGamepad, FaStream } from "react-icons/fa";
 import { Layout, Scissors, Share } from "lucide-react";
 import React, { useRef } from "react";
@@ -317,7 +318,7 @@ export function HowItWorksSection() {
                 <motion.div
                   key={index}
                   variants={itemVariants}
-                  transition={{ duration: 0.6, delay: index * 0.2 }}
+                  transition={{ duration: 0.2, delay: index * 0.2 }}
                 >
                   {item.content}
                 </motion.div>

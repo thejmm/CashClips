@@ -47,7 +47,7 @@ export function HeroSection() {
                   staggerChildren: 0.2,
                 }}
               >
-                {["Create", "Viral", "Clips", "in Seconds"].map(
+                {["Create", "Viral", "Clips", "In", "Minutes"].map(
                   (text, index) => (
                     <motion.span
                       key={index}

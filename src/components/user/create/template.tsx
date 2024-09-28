@@ -1,11 +1,12 @@
+// src/components/user/create/template.tsx
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button"; // Assuming Button is part of your UI components
+import { Button } from "@/components/ui/button";
 import { DefaultSource } from "@/utils/creatomate/template-types";
-import { Input } from "@/components/ui/input"; // Assuming Input is part of your UI components
+import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
-import { useMediaQuery } from "react-responsive"; // For responsive page sizing
+import { useMediaQuery } from "react-responsive";
 
 interface TemplateProps {
   selectedTemplate: DefaultSource | null;
@@ -19,23 +20,21 @@ const Template: React.FC<TemplateProps> = ({
   defaultSources,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(4); // Default page size for smaller screens
-  const [searchTerm, setSearchTerm] = useState(""); // For searching templates
+  const [pageSize, setPageSize] = useState(4);
+  const [searchTerm, setSearchTerm] = useState("");
   const isLg = useMediaQuery({ query: "(min-width: 1024px)" });
   const isMd = useMediaQuery({ query: "(min-width: 640px)" });
 
-  // Adjust page size based on screen size
   useEffect(() => {
     if (isLg) {
-      setPageSize(8); // 8 templates per page on large screens
+      setPageSize(8);
     } else if (isMd) {
-      setPageSize(6); // 6 templates per page on medium screens
+      setPageSize(6);
     } else {
-      setPageSize(4); // 4 templates per page on small screens
+      setPageSize(4);
     }
   }, [isLg, isMd]);
 
-  // Filter templates based on the search term
   const filteredTemplates = defaultSources.filter((template) =>
     template.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
@@ -49,15 +48,6 @@ const Template: React.FC<TemplateProps> = ({
   const handlePageChange = (newPage: number) => {
     setCurrentPage(Math.max(1, Math.min(newPage, totalPages)));
   };
-
-  useEffect(() => {
-    console.log("Template component mounted");
-    console.log(
-      "Available templates:",
-      defaultSources.map((t) => t.name),
-    );
-    console.log("Selected template:", selectedTemplate?.name);
-  }, [selectedTemplate, defaultSources]);
 
   return (
     <motion.div
@@ -94,7 +84,6 @@ const Template: React.FC<TemplateProps> = ({
                   : "hover:border-primary"
               }`}
               onClick={() => {
-                console.log("Template selected:", template.name);
                 handleTemplateSelect(template);
               }}
             >

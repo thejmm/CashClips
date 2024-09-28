@@ -188,7 +188,7 @@ const PlanCard: React.FC<{
   const renderButton = () => {
     if (!isLoggedIn) {
       return (
-        <Link href="/login" passHref>
+        <Link href="/auth/signin" passHref>
           <Button
             variant="ringHover"
             className="group w-full transition-all duration-300"

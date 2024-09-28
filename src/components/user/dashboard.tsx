@@ -90,10 +90,8 @@ const CashClipsDashboard: React.FC<{ user: SupabaseAuthUser }> = ({ user }) => {
             </AvatarFallback>
           </Avatar>
         </header>
-
-        <ClipHistory clipData={clipData} />
-
         <Creations userSpecific={true} title="Created Clips" />
+        <ClipHistory clipData={clipData} />
       </div>
     </div>
   );

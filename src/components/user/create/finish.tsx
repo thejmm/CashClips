@@ -1,3 +1,4 @@
+// src/components/user/create/finish.tsx
 import React, { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -7,15 +8,11 @@ import { motion } from "framer-motion";
 interface FinishProps {
   renderResult: any;
   handleCreateAnother: () => void;
-  isVideoViewerOpen: boolean;
-  setIsVideoViewerOpen: (open: boolean) => void;
 }
 
 const Finish: React.FC<FinishProps> = ({
   renderResult,
   handleCreateAnother,
-  isVideoViewerOpen,
-  setIsVideoViewerOpen,
 }) => {
   useEffect(() => {
     if (renderResult) {

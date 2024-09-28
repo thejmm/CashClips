@@ -1,3 +1,4 @@
+// src/components/user/create.tsx
 import {
   AlertDialog,
   AlertDialogAction,
@@ -7,6 +8,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { DefaultSource, defaultSources } from "@/utils/creatomate/templates";
 import React, { useEffect, useRef, useState } from "react";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 
 import { CashClipsPricing } from "../landing/pricing";
 import Clips from "./create/clips";
@@ -17,6 +19,7 @@ import Streamer from "./create/streamer";
 import Template from "./create/template";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/component";
+import { storage } from "@/utils/firebase/firebase";
 import { useRouter } from "next/router";
 import { videoCreator } from "@/store/creatomate";
 
@@ -63,7 +66,6 @@ const Create: React.FC<CreateProps> = ({ user }) => {
   const [isRendering, setIsRendering] = useState(false);
   const [isCaptionsGenerated, setIsCaptionsGenerated] = useState(false);
   const [renderResult, setRenderResult] = useState<any>(null);
-  const [isVideoViewerOpen, setIsVideoViewerOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userCreditInfo, setUserCreditInfo] = useState<UserCreditInfo | null>(
     null,
@@ -71,6 +73,8 @@ const Create: React.FC<CreateProps> = ({ user }) => {
 
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
     if (user) {
@@ -109,6 +113,66 @@ const Create: React.FC<CreateProps> = ({ user }) => {
     } catch (error) {
       console.error("Error fetching user credit info:", error);
       setError("Failed to load user credit information.");
+    }
+  };
+
+  const handleCustomUpload = async (file: File) => {
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      const storageRef = ref(storage, `user-uploads/${user.id}/${file.name}`);
+
+      const metadata = {
+        contentType: file.type,
+        customMetadata: {
+          token: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_TOKEN,
+        },
+      };
+
+      const uploadTask = uploadBytesResumable(
+        storageRef,
+        file,
+        metadata as any,
+      );
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadProgress(progress);
+        },
+        (error) => {
+          console.error("Upload error:", error);
+          setError("Failed to upload file. Please try again.");
+          setIsUploading(false);
+        },
+        async () => {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          const customVideo: FirebaseVideo = {
+            id: file.name,
+            public_id: `user-uploads/${user.id}/${file.name}`,
+            folder: "user-uploads",
+            url: downloadURL,
+            secure_url: downloadURL,
+            thumbnail_url: downloadURL,
+            duration: 0, // You might want to calculate this
+            format: file.type.split("/")[1],
+            created_at: new Date().toISOString(),
+          };
+
+          setSelectedVideo(customVideo);
+          setSelectedStreamer("user-uploads");
+          router.push({ query: { step: steps[2] } });
+          setIsUploading(false);
+          setUploadProgress(0);
+        },
+      );
+    } catch (error) {
+      console.error("Error initiating upload:", error);
+      setError("Failed to start upload. Please try again.");
+      setIsUploading(false);
     }
   };
 
@@ -181,12 +245,12 @@ const Create: React.FC<CreateProps> = ({ user }) => {
             </span>{" "}
             credits this month.
           </p>
-          <p className="text-lg">
-            Looks like you are loving Cash Clips as much as we do! 😊
-          </p>
           <p className="mt-4 text-sm text-gray-600">
-            Your credits will refresh when your billing cycle resets.
+            Please note: Your credits will refresh when your billing cycle
+            resets. If you choose to update your plan, upon your new billing
+            cycle you will receive the new plan credit amounts.
           </p>
+
           <CashClipsPricing />
         </div>
       );
@@ -201,6 +265,9 @@ const Create: React.FC<CreateProps> = ({ user }) => {
               setSelectedStreamer(streamer.folder as any);
               router.push({ query: { step: steps[1] } });
             }}
+            handleCustomUpload={handleCustomUpload}
+            isUploading={isUploading}
+            uploadProgress={uploadProgress}
           />
         );
       case "choose-clip":
@@ -231,6 +298,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
             selectedVideo={selectedVideo}
             selectedTemplate={selectedTemplate}
             availableVideos={availableVideos}
+            userCreditInfo={userCreditInfo}
           />
         );
       case "finished":
@@ -238,8 +306,6 @@ const Create: React.FC<CreateProps> = ({ user }) => {
           <Finish
             renderResult={renderResult}
             handleCreateAnother={handleCreateAnother}
-            isVideoViewerOpen={isVideoViewerOpen}
-            setIsVideoViewerOpen={setIsVideoViewerOpen}
           />
         );
       default:
@@ -270,15 +336,7 @@ const Create: React.FC<CreateProps> = ({ user }) => {
         )}
         currentStep={steps.indexOf(step as string) + 1}
         onStepClick={(index) => handleStepChange(index)}
-        isLoading={isRendering}
-        loadingStep={isRendering ? 4 : 0}
-        loadingMessage={isRendering ? "Rendering..." : ""}
         isFinished={step === "finished"}
-        isError={
-          !!error ||
-          (userCreditInfo &&
-            userCreditInfo.used_credits >= userCreditInfo.total_credits)
-        }
       />
       <AnimatePresence mode="wait">{renderStep()}</AnimatePresence>
 
