@@ -26,11 +26,9 @@ export default async function handler(
   const supabase = createClient(req, res);
 
   try {
-    console.log("Retrieving session:", session_id);
     const session = await stripe.checkout.sessions.retrieve(session_id, {
       expand: ["customer", "subscription", "payment_intent"],
     });
-    console.log("Session retrieved:", session.id);
 
     if (!session.customer || typeof session.customer === "string") {
       return res.status(400).json({ error: "Invalid customer data" });
@@ -87,8 +85,6 @@ export default async function handler(
 
       if (subscriptionError) {
         console.error("Error updating subscription:", subscriptionError);
-      } else {
-        console.log("Subscription updated successfully");
       }
     }
 
@@ -126,8 +122,6 @@ export default async function handler(
 
     if (userDataError) {
       console.error("Error updating user_data:", userDataError);
-    } else {
-      console.log("User data updated successfully");
     }
 
     // Handle invoice creation if needed
@@ -155,8 +149,6 @@ export default async function handler(
 
       if (invoiceError) {
         console.error("Error creating invoice:", invoiceError);
-      } else {
-        console.log("Invoice created successfully");
       }
     }
 

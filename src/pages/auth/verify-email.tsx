@@ -3,6 +3,7 @@
 import AuthHeader from "@/components/auth/auth-header";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { NextSeo } from "next-seo";
 import React from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/router";
@@ -39,38 +40,64 @@ const VerifyEmailPage = () => {
   };
 
   return (
-    <motion.div
-      variants={pageVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      className="flex min-h-[80vh] items-center justify-center px-4 sm:px-6 lg:px-8"
-    >
+    <>
+      <NextSeo
+        title="Verify Email - CashClips"
+        description="Verify your email address to complete your sign-up or reset your password."
+        canonical="https://cashclips.io/auth/verify-email"
+        openGraph={{
+          url: "https://cashclips.io/auth/verify-email",
+          title: "Verify Email - CashClips",
+          description:
+            "Please verify your email address to complete your sign-up or reset your password on CashClips.",
+          images: [
+            {
+              url: "https://cashclips.io/seo.svg",
+              width: 1200,
+              height: 630,
+              alt: "CashClips Verify Email",
+            },
+          ],
+        }}
+        twitter={{
+          handle: "@cashclipsio",
+          site: "@cashclipsio",
+          cardType: "summary_large_image",
+        }}
+      />
       <motion.div
-        variants={contentVariants}
-        className="w-full max-w-[320px] space-y-8 sm:max-w-md"
+        variants={pageVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        className="flex min-h-[80vh] items-center justify-center px-4 sm:px-6 lg:px-8"
       >
-        <AuthHeader
-          action={
-            verifyAction === "reset-password"
-              ? "reset-password"
-              : "verify-email"
-          }
-        />
-        <p className="text-center text-sm">{getInstructionText()}</p>
-        <p className="text-center text-sm">
-          If you don not see the email, please check your spam folder. The
-          recipient will be{" "}
-          <strong className="text-primary">noreply@email.cashclip.io</strong>.
-        </p>
+        <motion.div
+          variants={contentVariants}
+          className="w-full max-w-[320px] space-y-8 sm:max-w-md"
+        >
+          <AuthHeader
+            action={
+              verifyAction === "reset-password"
+                ? "reset-password"
+                : "verify-email"
+            }
+          />
+          <p className="text-center text-sm">{getInstructionText()}</p>
+          <p className="text-center text-sm">
+            If you don not see the email, please check your spam folder. The
+            recipient will be{" "}
+            <strong className="text-primary">noreply@email.cashclip.io</strong>.
+          </p>
 
-        <Link href="/auth/signin" passHref>
-          <Button variant="outline" className="mt-4 w-full">
-            Return to Login
-          </Button>
-        </Link>
+          <Link href="/auth/signin" passHref>
+            <Button variant="outline" className="mt-4 w-full">
+              Return to Login
+            </Button>
+          </Link>
+        </motion.div>
       </motion.div>
-    </motion.div>
+    </>
   );
 };
 

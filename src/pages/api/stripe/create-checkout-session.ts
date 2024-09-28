@@ -91,7 +91,6 @@ export default async function handler(
       },
       return_url: `${req.headers.origin}/auth/return?session_id={CHECKOUT_SESSION_ID}`,
     });
-    console.log("Checkout session created:", session.id);
     res.status(200).json({ clientSecret: session.client_secret });
   } catch (error) {
     console.error("Error creating Stripe checkout session:", error);

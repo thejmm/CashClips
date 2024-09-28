@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import React, { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { NextSeo } from "next-seo";
 import { Progress } from "@/components/ui/progress";
 import axios from "axios";
 import confetti from "canvas-confetti";
@@ -225,94 +226,120 @@ const ReturnPage = () => {
   );
 
   return (
-    <motion.div
-      className="flex min-h-screen items-center justify-center p-4"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <Card className="w-full max-w-2xl">
-        <CardHeader>
-          <motion.div
-            className="mb-6 flex justify-center"
-            variants={itemVariants}
-          >
-            <div className="rounded-full bg-green-100 p-2">
-              <CheckCircle className="h-12 w-12 text-green-600" />
-            </div>
-          </motion.div>
-          <CardTitle className="mb-2 text-center text-3xl font-bold">
-            <motion.span variants={itemVariants}>
-              Thank you for your purchase!
-            </motion.span>
-          </CardTitle>
-          <motion.p
-            className="text-center text-gray-600"
-            variants={itemVariants}
-          >
-            Your subscription is now active.
-          </motion.p>
-        </CardHeader>
-        <CardContent>
-          <motion.div className="mt-8 space-y-4" variants={itemVariants}>
-            <div className="flex items-center">
-              <Package className="mr-2 h-6 w-6 text-blue-500" />
-              <span className="font-medium">Plan:</span>
-              <span className="ml-2">{userData.plan_name}</span>
-            </div>
-            <div className="flex items-center">
-              <CreditCard className="mr-2 h-6 w-6 text-green-500" />
-              <span className="font-medium">Price:</span>
-              <span className="ml-2">
-                {new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                }).format(userData.plan_price / 100)}
-                /month
-              </span>
-            </div>
-            {userData.next_billing_date && (
+    <>
+      <NextSeo
+        title="Status - CashClips"
+        description="Check the status of your CashClips subscription and manage your account."
+        canonical="https://cashclips.io/user/return"
+        openGraph={{
+          url: "https://cashclips.io/user/return",
+          title: "Subscription Status - CashClips",
+          description:
+            "View your CashClips subscription details and manage your account settings.",
+          images: [
+            {
+              url: "https://cashclips.io/seo.svg",
+              width: 1200,
+              height: 630,
+              alt: "CashClips Subscription Status",
+            },
+          ],
+        }}
+        twitter={{
+          handle: "@cashclipsio",
+          site: "@cashclipsio",
+          cardType: "summary_large_image",
+        }}
+      />
+      <motion.div
+        className="flex min-h-screen items-center justify-center p-4"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <Card className="w-full max-w-2xl">
+          <CardHeader>
+            <motion.div
+              className="mb-6 flex justify-center"
+              variants={itemVariants}
+            >
+              <div className="rounded-full bg-green-100 p-2">
+                <CheckCircle className="h-12 w-12 text-green-600" />
+              </div>
+            </motion.div>
+            <CardTitle className="mb-2 text-center text-3xl font-bold">
+              <motion.span variants={itemVariants}>
+                Thank you for your purchase!
+              </motion.span>
+            </CardTitle>
+            <motion.p
+              className="text-center text-gray-600"
+              variants={itemVariants}
+            >
+              Your subscription is now active.
+            </motion.p>
+          </CardHeader>
+          <CardContent>
+            <motion.div className="mt-8 space-y-4" variants={itemVariants}>
               <div className="flex items-center">
-                <Calendar className="mr-2 h-6 w-6 text-purple-500" />
-                <span className="font-medium">Next Billing Date:</span>
+                <Package className="mr-2 h-6 w-6 text-blue-500" />
+                <span className="font-medium">Plan:</span>
+                <span className="ml-2">{userData.plan_name}</span>
+              </div>
+              <div className="flex items-center">
+                <CreditCard className="mr-2 h-6 w-6 text-green-500" />
+                <span className="font-medium">Price:</span>
                 <span className="ml-2">
-                  {new Date(userData.next_billing_date).toLocaleDateString()}
+                  {new Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                  }).format(userData.plan_price / 100)}
+                  /month
                 </span>
               </div>
-            )}
-            <div className="flex items-center">
-              <span className="font-medium">Subscription Status:</span>
-              <span className="ml-2 capitalize">
-                {userData.subscription_status}
-              </span>
-            </div>
-            {planDetails && (
-              <div className="mt-4">
-                <h3 className="mb-2 font-medium">Plan Features:</h3>
-                <ul className="list-inside list-disc">
-                  {planDetails.features.map((feature, index) => (
-                    <li key={index}>{feature}</li>
-                  ))}
-                </ul>
+              {userData.next_billing_date && (
+                <div className="flex items-center">
+                  <Calendar className="mr-2 h-6 w-6 text-purple-500" />
+                  <span className="font-medium">Next Billing Date:</span>
+                  <span className="ml-2">
+                    {new Date(userData.next_billing_date).toLocaleDateString()}
+                  </span>
+                </div>
+              )}
+              <div className="flex items-center">
+                <span className="font-medium">Subscription Status:</span>
+                <span className="ml-2 capitalize">
+                  {userData.subscription_status}
+                </span>
               </div>
-            )}
-          </motion.div>
-          <motion.div
-            className="mt-12 flex justify-center"
-            variants={itemVariants}
-          >
-            <Button
-              variant="ringHover"
-              onClick={() => router.push("/user/dashboard")}
-              className="inline-flex items-center px-6 py-3"
+              {planDetails && (
+                <div className="mt-4">
+                  <h3 className="mb-2 font-medium">Plan Features:</h3>
+                  <ul className="list-inside list-disc">
+                    {planDetails.features.map((feature, index) => (
+                      <li key={index}>{feature}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </motion.div>
+            <motion.div
+              className="mt-12 flex justify-center"
+              variants={itemVariants}
             >
-              Go to Dashboard
-              <ArrowRight className="ml-2" size={18} />
-            </Button>
-          </motion.div>
-        </CardContent>
-      </Card>
-    </motion.div>
+              <Button
+                variant="ringHover"
+                onClick={() => router.push("/user/dashboard")}
+                className="inline-flex items-center px-6 py-3"
+              >
+                Go to Dashboard
+                <ArrowRight className="ml-2" size={18} />
+              </Button>
+            </motion.div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </>
   );
 };
 

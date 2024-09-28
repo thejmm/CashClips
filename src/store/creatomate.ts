@@ -116,8 +116,6 @@ class VideoCreatorStore {
     source: any,
     selectedVideo?: FirebaseVideo,
   ): Promise<void> {
-    console.log("Setting selected source:", source);
-
     // Inject custom video URL if provided
     if (selectedVideo) {
       source.data.elements = source.data.elements.map(
@@ -211,11 +209,6 @@ class VideoCreatorStore {
     }
 
     source.duration = selectedVideoDuration;
-
-    console.log(
-      "Source elements after update:",
-      JSON.stringify(source.elements, null, 2),
-    );
 
     await this.preview.setSource(source, true);
 
@@ -476,13 +469,10 @@ class VideoCreatorStore {
           }
 
           const jobStatus = await response.json();
-          console.log("Status response:", jobStatus);
 
           if (!jobStatus || typeof jobStatus !== "object") {
             throw new Error("Invalid response format");
           }
-
-          console.log(`Current status for job ${jobId}:`, jobStatus.status);
 
           if (jobStatus.status === "succeeded") {
             clearInterval(pollInterval);
@@ -517,8 +507,6 @@ class VideoCreatorStore {
 
       setTimeout(() => {
         clearInterval(pollInterval);
-        this.updateCreatedClipStatus(jobId, "timeout");
-        reject(new Error("Render status check timed out after 10 minutes"));
       }, 600000);
     });
   }

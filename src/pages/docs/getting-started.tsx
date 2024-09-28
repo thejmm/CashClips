@@ -1,3 +1,4 @@
+// src/pages/docs/getting-started.tsx
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   ArrowRight,
@@ -11,11 +12,11 @@ import {
   Zap,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { Button } from "@/components/ui/button";
 import DocsLayout from "@/components/docs/docs-layout";
 import Link from "next/link";
+import { NextSeo } from "next-seo";
 import React from "react";
 import { motion } from "framer-motion";
 
@@ -90,103 +91,129 @@ const stagger = {
 
 const GettingStartedPage: React.FC = () => {
   return (
-    <DocsLayout>
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={stagger}
-        className="space-y-12"
-      >
-        <motion.section variants={fadeInUp}>
-          <h1 className="mb-4 text-4xl font-bold">
-            Getting Started with CashClips
-          </h1>
-          <p className="mb-8 text-xl">
-            Welcome to CashClips! This guide will walk you through the process
-            of creating your first viral-worthy video clip using our advanced
-            AI-powered platform.
-          </p>
-        </motion.section>
-
-        <motion.section variants={fadeInUp}>
-          <Alert>
-            <Info className="h-4 w-4" />
-            <AlertTitle>Before you begin</AlertTitle>
-            <AlertDescription>
-              Make sure you have a CashClips account. If you haven&#39;t signed
-              up yet,
-              <Link
-                href="/auth/signin"
-                className="font-medium text-primary hover:underline"
-              >
-                {" "}
-                create an account here
-              </Link>
-              .
-            </AlertDescription>
-          </Alert>
-        </motion.section>
-
-        <motion.section variants={fadeInUp}>
-          <h2 className="mb-6 text-2xl font-semibold">
-            Creating Your First Clip
-          </h2>
-          <ol className="space-y-4">
-            {steps.map((step, index) => (
-              <motion.li
-                key={index}
-                variants={fadeInUp}
-                className="flex items-start"
-              >
-                <CheckCircle className="mr-2 h-6 w-6 flex-shrink-0 text-primary" />
-                <div>
-                  <h3 className="font-semibold">{step.title}</h3>
-                  <p>{step.description}</p>
-                </div>
-              </motion.li>
-            ))}
-          </ol>
-        </motion.section>
-
-        <motion.section variants={fadeInUp}>
-          <h2 className="mb-6 text-2xl font-semibold">Key Features</h2>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature, index) => (
-              <Card key={index} className="h-full">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <feature.icon className="mr-2 h-6 w-6 text-primary" />
-                    {feature.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p>{feature.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </motion.section>
-
-        <motion.section
-          variants={fadeInUp}
-          className="rounded-lg bg-accent p-8"
+    <>
+      <NextSeo
+        title="Getting Started - CashClips"
+        description="Get started with CashClips and learn how to create your first viral clip. Step-by-step instructions to help you make the most of our platform."
+        canonical="https://cashclips.io/docs/getting-started"
+        openGraph={{
+          url: "https://cashclips.io/docs/getting-started",
+          title: "Getting Started - CashClips",
+          description:
+            "Step-by-step guide on how to create your first viral clip using CashClips' AI-powered platform.",
+          images: [
+            {
+              url: "https://cashclips.io/seo.svg",
+              width: 1200,
+              height: 630,
+              alt: "Getting Started with CashClips",
+            },
+          ],
+        }}
+        twitter={{
+          handle: "@cashclipsio",
+          site: "@cashclipsio",
+          cardType: "summary_large_image",
+        }}
+      />
+      <DocsLayout>
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={stagger}
+          className="space-y-12"
         >
-          <h2 className="mb-4 text-2xl font-semibold">
-            Ready to Start Creating?
-          </h2>
-          <p className="mb-6 text-lg">
-            Now that you are familiar with CashClips, it&#39;s time to create
-            your first viral clip!
-          </p>
-          <Link href="/user/dashboard">
-            <Button variant="default" size="lg" className="group">
-              Go to Dashboard
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Button>
-          </Link>
-        </motion.section>
-      </motion.div>
-    </DocsLayout>
+          <motion.section variants={fadeInUp}>
+            <h1 className="mb-4 text-4xl font-bold">
+              Getting Started with CashClips
+            </h1>
+            <p className="mb-8 text-xl">
+              Welcome to CashClips! This guide will walk you through the process
+              of creating your first viral-worthy video clip using our advanced
+              AI-powered platform.
+            </p>
+          </motion.section>
+
+          <motion.section variants={fadeInUp}>
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertTitle>Before you begin</AlertTitle>
+              <AlertDescription>
+                Make sure you have a CashClips account. If you haven&#39;t
+                signed up yet,
+                <Link
+                  href="/auth/signup"
+                  className="font-medium text-primary hover:underline"
+                >
+                  {" "}
+                  create an account here
+                </Link>
+                .
+              </AlertDescription>
+            </Alert>
+          </motion.section>
+
+          <motion.section variants={fadeInUp}>
+            <h2 className="mb-6 text-2xl font-semibold">
+              Creating Your First Clip
+            </h2>
+            <ol className="space-y-4">
+              {steps.map((step, index) => (
+                <motion.li
+                  key={index}
+                  variants={fadeInUp}
+                  className="flex items-start"
+                >
+                  <CheckCircle className="mr-2 h-6 w-6 flex-shrink-0 text-primary" />
+                  <div>
+                    <h3 className="font-semibold">{step.title}</h3>
+                    <p>{step.description}</p>
+                  </div>
+                </motion.li>
+              ))}
+            </ol>
+          </motion.section>
+
+          <motion.section variants={fadeInUp}>
+            <h2 className="mb-6 text-2xl font-semibold">Key Features</h2>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {features.map((feature, index) => (
+                <Card key={index} className="h-full">
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <feature.icon className="mr-2 h-6 w-6 text-primary" />
+                      {feature.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p>{feature.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </motion.section>
+
+          <motion.section
+            variants={fadeInUp}
+            className="rounded-lg bg-accent p-8"
+          >
+            <h2 className="mb-4 text-2xl font-semibold">
+              Ready to Start Creating?
+            </h2>
+            <p className="mb-6 text-lg">
+              Now that you are familiar with CashClips, it&#39;s time to create
+              your first viral clip!
+            </p>
+            <Link href="/user/dashboard">
+              <Button variant="default" size="lg" className="group">
+                Go to Dashboard
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </Link>
+          </motion.section>
+        </motion.div>
+      </DocsLayout>
+    </>
   );
 };
 

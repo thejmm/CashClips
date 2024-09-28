@@ -13,14 +13,13 @@ import {
 import React, { useCallback, useEffect, useState } from "react";
 
 import { CheckCircle } from "lucide-react";
-import Head from "next/head";
+import { NextSeo } from "next-seo";
+import Script from "next/script";
 import { Skeleton } from "@/components/ui/skeleton";
-import axios from "axios";
 import { loadStripe } from "@stripe/stripe-js";
 import { pricingConfig } from "@/components/landing/pricing";
 import { toast } from "sonner";
 import { useRouter } from "next/router";
-import Script from "next/script";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string,
@@ -122,21 +121,77 @@ export default function CheckoutPage() {
 
   return (
     <>
+      <NextSeo
+        title={`${plan.name} Plan - CashClips`}
+        description={`Secure your ${plan.name} plan today and start creating amazing content with CashClips.`}
+        canonical={`https://cashclips.io/checkout?price_id=${price_id}`}
+        openGraph={{
+          url: `https://cashclips.io/checkout?price_id=${price_id}`,
+          title: `${plan.name} Plan Checkout - CashClips`,
+          description: `Secure your ${plan.name} plan today and start creating amazing content with CashClips.`,
+          images: [
+            {
+              url: "https://cashclips.io/seo.svg",
+              width: 1200,
+              height: 630,
+              alt: `${plan.name} Plan Checkout`,
+            },
+          ],
+        }}
+        twitter={{
+          handle: "@cashclipsio",
+          site: "@cashclipsio",
+          cardType: "summary_large_image",
+        }}
+        additionalMetaTags={[
+          {
+            name: "robots",
+            content: "index, follow",
+          },
+          {
+            name: "og:site_name",
+            content: "CashClips",
+          },
+        ]}
+        additionalLinkTags={[
+          {
+            rel: "canonical",
+            href: `https://cashclips.io/checkout?price_id=${price_id}`,
+          },
+        ]}
+      />
       <Script
         src="https://cdn.promotekit.com/promotekit.js"
         data-promotekit="a1ede120-2bf6-4afa-9c88-f9bf10ebbd46"
         strategy="afterInteractive"
       />
       <div className="min-h-screen">
-        <div className="container mx-auto max-w-7xl py-16">
-          <div className="mx-auto max-w-6xl gap-12 md:grid md:grid-cols-2">
-            <div className="space-y-8 p-6 md:sticky md:top-0 md:self-start">
-              <div className="mt-16">
-                <h2 className="mb-4 text-3xl font-semibold">
+        <div className="container mx-auto max-w-7xl py-8 md:py-16">
+          <div className="mx-auto max-w-6xl md:grid md:grid-cols-2 md:gap-12">
+            {/* Stripe Embed Section */}
+            <div className="mb-8 md:order-2 md:mb-0">
+              <div className="overflow-hidden rounded-3xl bg-card shadow-xl">
+                {clientSecret ? (
+                  <EmbeddedCheckoutProvider
+                    stripe={stripePromise}
+                    options={{ clientSecret }}
+                  >
+                    <EmbeddedCheckout className="min-h-[600px] md:min-h-screen" />
+                  </EmbeddedCheckoutProvider>
+                ) : (
+                  <Skeleton className="min-h-[600px] animate-pulse md:min-h-screen" />
+                )}
+              </div>
+            </div>
+
+            {/* Plan Details and FAQs Section */}
+            <div className="space-y-8 p-4 md:sticky md:top-20 md:order-1 md:self-start md:p-6">
+              <div>
+                <h2 className="mb-4 text-2xl font-semibold md:text-3xl">
                   {plan.name} Plan
                 </h2>
-                <p className="mb-6 text-xl">{plan.description}</p>
-                <div className="mb-6 text-4xl font-bold">
+                <p className="mb-6 text-lg md:text-xl">{plan.description}</p>
+                <div className="mb-6 text-3xl font-bold md:text-4xl">
                   $
                   {(
                     (interval === "year"
@@ -158,7 +213,7 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                <h3 className="mb-4 text-2xl font-semibold">
+                <h3 className="mb-4 text-xl font-semibold md:text-2xl">
                   Billing Information
                 </h3>
                 <Accordion type="single" collapsible className="w-full">
@@ -169,21 +224,6 @@ export default function CheckoutPage() {
                     </AccordionItem>
                   ))}
                 </Accordion>
-              </div>
-            </div>
-
-            <div className="mt-8 md:mt-0">
-              <div className="overflow-hidden rounded-3xl bg-card shadow-xl">
-                {clientSecret ? (
-                  <EmbeddedCheckoutProvider
-                    stripe={stripePromise}
-                    options={{ clientSecret }}
-                  >
-                    <EmbeddedCheckout className="min-h-screen" />
-                  </EmbeddedCheckoutProvider>
-                ) : (
-                  <Skeleton className="min-h-screen animate-pulse" />
-                )}
               </div>
             </div>
           </div>

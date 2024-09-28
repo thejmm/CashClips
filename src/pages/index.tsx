@@ -1,14 +1,16 @@
+// src/pages/index.tsx
 import React, { useEffect, useState } from "react";
 
-// src/pages/index.tsx
 import { ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CallToAction } from "@/components/landing/cta";
 import { CashClipsPricing } from "@/components/landing/pricing";
+import { DefaultSeo } from "next-seo";
 import { HeroSection } from "@/components/landing/hero";
 import { HowItWorksSection } from "@/components/landing/how-it-works";
 import Script from "next/script";
 import { SocialProofTestimonials } from "@/components/landing/testimonials";
+import defaultSEO from "../../seo.config";
 import { motion } from "framer-motion";
 
 const LandingPage: React.FC = () => {
@@ -30,6 +32,7 @@ const LandingPage: React.FC = () => {
 
   return (
     <>
+      <DefaultSeo {...defaultSEO} />
       <Script
         src="https://cdn.promotekit.com/promotekit.js"
         data-promotekit="a1ede120-2bf6-4afa-9c88-f9bf10ebbd46"

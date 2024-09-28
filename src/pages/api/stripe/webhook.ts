@@ -89,7 +89,6 @@ export default async function handler(
 }
 
 async function handleCustomerUpdated(customer: Stripe.Customer, supabase: any) {
-  console.log(`Handling customer update for: ${customer.id}`);
   const { error: userDataError } = await supabase
     .from("user_data")
     .update({
@@ -101,11 +100,9 @@ async function handleCustomerUpdated(customer: Stripe.Customer, supabase: any) {
     console.error("Error updating user_data:", userDataError);
     throw userDataError;
   }
-  console.log(`Customer ${customer.id} updated successfully`);
 }
 
 async function handleCustomerDeleted(customer: Stripe.Customer, supabase: any) {
-  console.log(`Handling customer deletion for: ${customer.id}`);
   const { error: userDataError } = await supabase
     .from("user_data")
     .update({
@@ -129,14 +126,12 @@ async function handleCustomerDeleted(customer: Stripe.Customer, supabase: any) {
     console.error("Error updating subscription:", subscriptionError);
     throw subscriptionError;
   }
-  console.log(`Customer ${customer.id} deleted successfully`);
 }
 
 async function handleSubscriptionChange(
   subscription: Stripe.Subscription,
   supabase: any,
 ) {
-  console.log(`Handling subscription change for: ${subscription.id}`);
   const customerId = subscription.customer as string;
 
   const { data: userData, error: userError } = await supabase
@@ -222,15 +217,12 @@ async function handleSubscriptionChange(
     console.error("Error updating user_data:", userDataError);
     throw userDataError;
   }
-  console.log(`Subscription ${subscription.id} updated successfully`);
 }
 
 async function handleCheckoutSessionCompleted(
   session: Stripe.Checkout.Session,
   supabase: any,
 ) {
-  console.log("Handling completed checkout session:", session.id);
-
   if (session.payment_status !== "paid") {
     console.log("Checkout session not paid. Skipping user data update.");
     return;
@@ -333,9 +325,6 @@ async function handleCheckoutSessionCompleted(
     if (userDataError) {
       throw userDataError;
     }
-
-    console.log("User data updated:", userData);
-    console.log("User data and subscription updated successfully");
   } catch (error) {
     console.error("Error updating user data or subscription:", error);
     throw error;

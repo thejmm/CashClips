@@ -106,6 +106,31 @@
 //   };
 
 //   return (
+//     <>
+//       <NextSeo
+//         title="Affiliate Program - CashClips"
+//         description="Join the CashClips affiliate program and earn commissions by referring users to our platform. Learn more about our affiliate opportunities."
+//         canonical="https://cashclips.io/docs/affiliate"
+//         openGraph={{
+//           url: "https://cashclips.io/docs/affiliate",
+//           title: "Affiliate Program - CashClips",
+//           description:
+//             "Earn commissions by joining the CashClips affiliate program. Refer users and grow with us.",
+//           images: [
+//             {
+//               url: "https://cashclips.io/seo.svg",
+//               width: 1200,
+//               height: 630,
+//               alt: "CashClips Affiliate Program",
+//             },
+//           ],
+//         }}
+//         twitter={{
+//           handle: "@cashclipsio",
+//           site: "@cashclipsio",
+//           cardType: "summary_large_image",
+//         }}
+//       />
 //     <DocsLayout>
 //       <motion.div
 //         initial="hidden"
@@ -379,15 +404,15 @@
 //         </motion.section>
 //       </motion.div>
 //     </DocsLayout>
+//     </>
 //   );
 // };
+// export default AffiliatePage;
 
 import { AlertCircle, ArrowRight } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import DocsLayout from "@/components/docs/docs-layout";
-import Link from "next/link";
-// export default AffiliatePage;
+import { NextSeo } from "next-seo";
 import React from "react";
 import { motion } from "framer-motion";
 
@@ -398,33 +423,61 @@ const AffiliatePage: React.FC = () => {
   };
 
   return (
-    <DocsLayout>
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={{
-          visible: { transition: { staggerChildren: 0.1 } },
+    <>
+      <NextSeo
+        title="Affiliate - CashClips"
+        description="Join the CashClips affiliate program and earn commissions by referring users to our platform. Learn more about our affiliate opportunities."
+        canonical="https://cashclips.io/docs/affiliate"
+        openGraph={{
+          url: "https://cashclips.io/docs/affiliate",
+          title: "Affiliate Program - CashClips",
+          description:
+            "Earn commissions by joining the CashClips affiliate program. Refer users and grow with us.",
+          images: [
+            {
+              url: "https://cashclips.io/seo.svg",
+              width: 1200,
+              height: 630,
+              alt: "CashClips Affiliate Program",
+            },
+          ],
         }}
-        className="flex flex-col items-center justify-center space-y-8 text-center"
-      >
-        <motion.div variants={fadeInUp} className="space-y-4">
-          <AlertCircle className="mx-auto h-16 w-16 text-primary" />
-          <h1 className="text-4xl font-bold">Affiliate Program Coming Soon</h1>
-          <p className="text-xl">
-            We&#39;re working hard to bring you an exciting affiliate program.
-            Stay tuned for updates!
-          </p>
-        </motion.div>
+        twitter={{
+          handle: "@cashclipsio",
+          site: "@cashclipsio",
+          cardType: "summary_large_image",
+        }}
+      />
+      <DocsLayout>
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={{
+            visible: { transition: { staggerChildren: 0.1 } },
+          }}
+          className="flex flex-col items-center justify-center space-y-8 text-center"
+        >
+          <motion.div variants={fadeInUp} className="space-y-4">
+            <AlertCircle className="mx-auto h-16 w-16 text-primary" />
+            <h1 className="text-4xl font-bold">
+              Affiliate Program Coming Soon
+            </h1>
+            <p className="text-xl">
+              We&#39;re working hard to bring you an exciting affiliate program.
+              Stay tuned for updates!
+            </p>
+          </motion.div>
 
-        <motion.div variants={fadeInUp} className="max-w-md space-y-4">
-          <p>
-            Our affiliate program will offer great opportunities for you to earn
-            by promoting CashClips. We&#39;re putting the finishing touches on
-            it to ensure it&#39;s rewarding and easy to use.
-          </p>
+          <motion.div variants={fadeInUp} className="max-w-md space-y-4">
+            <p>
+              Our affiliate program will offer great opportunities for you to
+              earn by promoting CashClips. We&#39;re putting the finishing
+              touches on it to ensure it&#39;s rewarding and easy to use.
+            </p>
+          </motion.div>
         </motion.div>
-      </motion.div>
-    </DocsLayout>
+      </DocsLayout>
+    </>
   );
 };
 
