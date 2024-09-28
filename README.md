@@ -1,37 +1,74 @@
-## Pricing and Profit Breakdown
+## Pricing Plans
 
-| Plan     | Monthly Price ($) | Yearly Price ($) | Clips/Month | FPS | Length (s) | Credits/Clip | Monthly Credits | Yearly Credits | Monthly Cost ($) | Yearly Cost ($) | Monthly Profit ($) | Yearly Profit ($) |
-| -------- | ----------------- | ---------------- | ----------- | --- | ---------- | ------------ | --------------- | -------------- | ---------------- | --------------- | ------------------ | ----------------- |
-| Starter  | 12.99             | 140.29           | 15          | 30  | 30         | 8.2944       | 124.416         | 1,492.992      | 1.24             | 14.93           | 11.75              | 125.36            |
-| Clipper  | 29.99             | 329.88           | 30          | 30  | 60         | 16.5888      | 497.664         | 5,971.968      | 4.98             | 59.72           | 25.01              | 270.16            |
-| Streamer | 69.99             | 755.89           | 60          | 30  | 60         | 16.5888      | 995.328         | 11,943.936     | 9.95             | 119.44          | 60.04              | 636.45            |
-| Ultimate | 159.99            | 1,727.89         | 100         | 60  | 60         | 33.1776      | 3,317.76        | 39,813.12      | 33.18            | 398.13          | 126.81             | 1,329.76          |
-| Agency   | 319.98            | 3,455.78         | 200         | 60  | 60         | 33.1776      | 6,635.52        | 79,626.24      | 66.36            | 796.26          | 253.62             | 2,659.52          |
+| **Plan**    | **Monthly Price ($)** | **Yearly Price ($)** | **Clips/Month** | **FPS** | **Length (s)** | **Features**                                                                                             |
+| ----------- | --------------------- | -------------------- | --------------- | ------- | -------------- | --------------------------------------------------------------------------------------------------------- |
+| **Starter** | 12.99                 | 140.29               | 15              | 30      | 30             | - 30fps export quality<br>- 30s video length<br>- Auto-captioning                                      |
+| **Clipper** | 29.99                 | 329.88               | 30              | 30      | 60             | - 30fps export quality<br>- 60s video length<br>- Auto-captioning                                      |
+| **Streamer**| 69.99                 | 755.89               | 60              | 30      | 60             | - 30fps export quality<br>- 60s video length<br>- Auto-captioning                                      |
+| **Ultimate**| 159.99                | 1,727.89             | 100             | 60      | 60             | - 60fps export quality<br>- 60s video length<br>- Auto-captioning                                      |
+| **Agency**  | 319.98                | 3,455.78             | 200             | 60      | 60             | - 60fps export quality<br>- 60s video length<br>- Auto-captioning                                      |
 
-## Explanatory Text
+## Profit Margins
 
-1. **Credit Calculation**:
+### Monthly Profit Margin (%)
 
-   - Credits per clip = (1280 _ 720 _ FPS \* Length) / 100,000,000
-   - Monthly credits = Credits per clip \* Clips per month
-   - Yearly credits = Monthly credits \* 12
+$\text{Profit Margin} = \left( \frac{\text{Monthly Profit}}{\text{Monthly Price}} \right) \times 100\%$
 
-2. **Cost Calculation**:
+| **Plan**    | **Monthly Profit ($)** | **Monthly Price ($)** | **Profit Margin (%)** |
+| ----------- | ---------------------- | --------------------- | --------------------- |
+| **Starter** | 11.50                  | 12.99                 | 88.53%                |
+| **Clipper** | 24.02                  | 29.99                 | 80.09%                |
+| **Streamer**| 58.05                  | 69.99                 | 82.93%                |
+| **Ultimate**| 120.18                 | 159.99                | 75.12%                |
+| **Agency**  | 240.35                 | 319.98                | 75.09%                |
 
-   - Cost is based on the rate of 10,000 credits for $100
-   - Monthly cost = (Monthly credits / 10,000) \* $100
-   - Yearly cost = (Yearly credits / 10,000) \* $100
+### Yearly Profit Margin (%)
 
-3. **Profit Calculation**:
+$\text{Profit Margin} = \left( \frac{\text{Yearly Profit}}{\text{Yearly Price}} \right) \times 100\%$
 
-   - Monthly profit = Monthly price - Monthly cost
-   - Yearly profit = Yearly price - Yearly cost
+| **Plan**    | **Yearly Profit ($)** | **Yearly Price ($)** | **Profit Margin (%)** |
+| ----------- | --------------------- | -------------------- | --------------------- |
+| **Starter** | 122.37                | 140.29               | 87.22%                |
+| **Clipper** | 258.22                | 329.88               | 78.28%                |
+| **Streamer**| 612.56                | 755.89               | 81.04%                |
+| **Ultimate**| 1,250.13              | 1,727.89             | 72.36%                |
+| **Agency**  | 2,500.27              | 3,455.78             | 72.35%                |
 
-4. **Key Observations**:
-   - All plans are profitable, with higher tier plans generating more absolute profit.
-   - The Starter plan has the highest profit margin (~90%), while the Agency plan has the lowest (~79%).
-   - Yearly subscriptions offer slightly better profit margins due to the 10% discount.
-   - The jump from 30fps to 60fps in Ultimate and Agency plans significantly increases credit usage.
+---
+
+## Credit Calculation
+
+- **Formula**:
+  $\text{Credits per Clip} = \frac{\text{Width} \times \text{Height} \times \text{FPS} \times \text{Length (s)}}{100,000,000}$
+
+- **Parameters**:
+  - **Resolution**: 1280 x 720 (720p)
+  - **Cost per Credit**: $0.012 (Based on purchasing 10,000 credits for $120 monthly)
+
+---
+
+## Cost Calculation
+
+- **Cost per Credit**:
+  $\text{Cost per Credit} = \frac{\$120}{10,000 \text{ credits}} = \$0.012$
+
+- **Monthly Cost**:
+  $\text{Monthly Cost} = \text{Monthly Credits} \times \$0.012$
+
+- **Yearly Cost**:
+  $\text{Yearly Cost} = \text{Yearly Credits} \times \$0.012$
+
+---
+
+## Profit Calculation
+
+- **Monthly Profit**:
+  $\text{Monthly Profit} = \text{Monthly Price} - \text{Monthly Cost}$
+
+- **Yearly Profit**:
+  $\text{Yearly Profit} = \text{Yearly Price} - \text{Yearly Cost}$
+
+---
 
 ```mermaid
 graph TD
@@ -52,16 +89,16 @@ graph TD
     F --> FM[Monthly]
     F --> FY[Yearly]
 
-    BM --> BMP["$11.75"]
-    BY --> BYP["$125.36"]
-    CM --> CMP["$25.01"]
-    CY --> CYP["$270.16"]
-    DM --> DMP["$60.04"]
-    DY --> DYP["$636.45"]
-    EM --> EMP["$126.81"]
-    EY --> EYP["$1,329.76"]
-    FM --> FMP["$253.62"]
-    FY --> FYP["$2,659.52"]
+    BM --> BMP["$11.50 Profit"]
+    BY --> BYP["$122.37 Profit"]
+    CM --> CMP["$24.02 Profit"]
+    CY --> CYP["$258.22 Profit"]
+    DM --> DMP["$58.05 Profit"]
+    DY --> DYP["$612.56 Profit"]
+    EM --> EMP["$120.18 Profit"]
+    EY --> EYP["$1,250.13 Profit"]
+    FM --> FMP["$240.35 Profit"]
+    FY --> FYP["$2,500.27 Profit"]
 
     classDef default fill:#ffffff,stroke:#000000,stroke-width:2px;
     classDef profit fill:#ffffff,stroke:#000000,stroke-width:2px,font-weight:bold;
@@ -69,4 +106,4 @@ graph TD
     class BMP,BYP,CMP,CYP,DMP,DYP,EMP,EYP,FMP,FYP profit;
 
     linkStyle default stroke:#000000,stroke-width:1px;
-````
+```
