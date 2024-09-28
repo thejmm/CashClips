@@ -1,5 +1,5 @@
-import Link from "next/link"; // Assuming you're using Next.js for routing
 import { NextSeo } from "next-seo";
+import Link from "next/link"; // Assuming you're using Next.js for routing
 // src/pages/privacy-policy.tsx
 import React from "react";
 
@@ -17,7 +17,7 @@ const PrivacyPolicy: React.FC = () => {
             "Learn how CashClips collects, uses, and protects your personal information in our Privacy Policy.",
           images: [
             {
-              url: "https://cashclips.io/seo.svg",
+              url: "https://cashclips.io/seo.png",
               width: 1200,
               height: 630,
               alt: "CashClips Privacy Policy",

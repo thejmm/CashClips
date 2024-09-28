@@ -1,5 +1,6 @@
 // src/pages/user/return.tsx
-import { AnimatePresence, motion } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { motion } from "framer-motion";
 import {
   ArrowRight,
   Calendar,
@@ -8,16 +9,15 @@ import {
   Loader,
   Package,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
+import { pricingConfig } from "@/components/landing/pricing";
 import { Button } from "@/components/ui/button";
-import { NextSeo } from "next-seo";
 import { Progress } from "@/components/ui/progress";
+import { createClient } from "@/utils/supabase/component";
 import axios from "axios";
 import confetti from "canvas-confetti";
-import { createClient } from "@/utils/supabase/component";
-import { pricingConfig } from "@/components/landing/pricing";
+import { NextSeo } from "next-seo";
 import { useRouter } from "next/router";
 
 interface SessionData {
@@ -238,7 +238,7 @@ const ReturnPage = () => {
             "View your CashClips subscription details and manage your account settings.",
           images: [
             {
-              url: "https://cashclips.io/seo.svg",
+              url: "https://cashclips.io/seo.png",
               width: 1200,
               height: 630,
               alt: "CashClips Subscription Status",

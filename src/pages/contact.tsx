@@ -1,5 +1,4 @@
 // src/pages/contact.tsx
-import { AnimatePresence, motion } from "framer-motion";
 import {
   Card,
   CardContent,
@@ -7,15 +6,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle, Home, Mail, Send, XCircle } from "lucide-react";
+import { useState } from "react";
 import { FieldError, useForm } from "react-hook-form";
-import React, { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { NextSeo } from "next-seo";
 import { Textarea } from "@/components/ui/textarea";
+import { NextSeo } from "next-seo";
+import Link from "next/link";
 
 const MotionCard = motion(Card);
 
@@ -117,7 +117,7 @@ export default function ContactPage() {
             "Reach out to CashClips for any inquiries or assistance. Our team is here to help.",
           images: [
             {
-              url: "https://cashclips.io/seo.svg",
+              url: "https://cashclips.io/seo.png",
               width: 1200,
               height: 630,
               alt: "Contact Us - CashClips",

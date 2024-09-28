@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { NextSeo } from "next-seo";
+import Link from "next/link";
 import React from "react";
 
 const TermsOfService: React.FC = () => {
@@ -16,7 +16,7 @@ const TermsOfService: React.FC = () => {
             "Read the CashClips Terms of Service to understand the rules and regulations for using our platform.",
           images: [
             {
-              url: "https://cashclips.io/seo.svg",
+              url: "https://cashclips.io/seo.png",
               width: 1200,
               height: 630,
               alt: "CashClips Terms of Service",

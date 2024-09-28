@@ -16,7 +16,7 @@ const TermsOfServiceAffiliate: React.FC = () => {
             "Learn about the CashClips affiliate program, including rules, commissions, and responsibilities.",
           images: [
             {
-              url: "https://cashclips.io/seo.svg",
+              url: "https://cashclips.io/seo.png",
               width: 1200,
               height: 630,
               alt: "CashClips Affiliate Terms of Service",

@@ -10,16 +10,16 @@ import {
   EmbeddedCheckout,
   EmbeddedCheckoutProvider,
 } from "@stripe/react-stripe-js";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import { CheckCircle } from "lucide-react";
-import { NextSeo } from "next-seo";
-import Script from "next/script";
+import { pricingConfig } from "@/components/landing/pricing";
 import { Skeleton } from "@/components/ui/skeleton";
 import { loadStripe } from "@stripe/stripe-js";
-import { pricingConfig } from "@/components/landing/pricing";
-import { toast } from "sonner";
+import { CheckCircle } from "lucide-react";
+import { NextSeo } from "next-seo";
 import { useRouter } from "next/router";
+import Script from "next/script";
+import { toast } from "sonner";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string,
@@ -131,7 +131,7 @@ export default function CheckoutPage() {
           description: `Secure your ${plan.name} plan today and start creating amazing content with CashClips.`,
           images: [
             {
-              url: "https://cashclips.io/seo.svg",
+              url: "https://cashclips.io/seo.png",
               width: 1200,
               height: 630,
               alt: `${plan.name} Plan Checkout`,

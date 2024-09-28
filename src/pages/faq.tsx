@@ -6,8 +6,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUp, Search } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import { Search } from "lucide-react";
+import { useMemo, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { NextSeo } from "next-seo";
@@ -126,7 +126,7 @@ export default function FAQPage() {
             "Find answers to common questions about CashClips. Learn about features, billing, and how to get started.",
           images: [
             {
-              url: "https://cashclips.io/seo.svg",
+              url: "https://cashclips.io/seo.png",
               width: 1200,
               height: 630,
               alt: "CashClips FAQ",

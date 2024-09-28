@@ -1,5 +1,12 @@
 // src/pages/docs/index.tsx
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   ArrowRight,
   Clock,
   DollarSign,
@@ -12,20 +19,13 @@ import {
   Video,
   Zap,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
-import { Button } from "@/components/ui/button";
 import DocsLayout from "@/components/docs/docs-layout";
-import Link from "next/link";
-import { NextSeo } from "next-seo";
-import React from "react";
+import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { NextSeo } from "next-seo";
+import Link from "next/link";
+import React from "react";
 
 const sections = [
   {
@@ -134,7 +134,7 @@ const DocsHome: React.FC = () => {
             "Learn how to use CashClips to create viral content from top streamers with ease.",
           images: [
             {
-              url: "https://cashclips.io/seo.svg",
+              url: "https://cashclips.io/seo.png",
               width: 1200,
               height: 630,
               alt: "CashClips Documentation",

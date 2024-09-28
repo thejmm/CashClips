@@ -1,7 +1,6 @@
 // src/pages/pricing.tsx
 import { CashClipsPricing } from "@/components/landing/pricing";
 import { NextSeo } from "next-seo";
-import React from "react";
 import Script from "next/script";
 
 export default function PricingPage() {
@@ -18,7 +17,7 @@ export default function PricingPage() {
             "Discover the best plan for your content creation needs with CashClips. Explore our pricing options and start creating today.",
           images: [
             {
-              url: "https://cashclips.io/seo.svg",
+              url: "https://cashclips.io/seo.png",
               width: 1200,
               height: 630,
               alt: "CashClips Pricing Plans",

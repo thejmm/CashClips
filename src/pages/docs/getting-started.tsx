@@ -1,5 +1,6 @@
 // src/pages/docs/getting-started.tsx
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ArrowRight,
   CheckCircle,
@@ -11,14 +12,13 @@ import {
   Video,
   Zap,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { Button } from "@/components/ui/button";
 import DocsLayout from "@/components/docs/docs-layout";
-import Link from "next/link";
-import { NextSeo } from "next-seo";
-import React from "react";
+import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { NextSeo } from "next-seo";
+import Link from "next/link";
+import React from "react";
 
 const features = [
   {
@@ -103,7 +103,7 @@ const GettingStartedPage: React.FC = () => {
             "Step-by-step guide on how to create your first viral clip using CashClips' AI-powered platform.",
           images: [
             {
-              url: "https://cashclips.io/seo.svg",
+              url: "https://cashclips.io/seo.png",
               width: 1200,
               height: 630,
               alt: "Getting Started with CashClips",

@@ -1,12 +1,12 @@
 // src/pages/user/create.tsx
 
-import Create from "@/components/user/create";
 import DashboardLayout from "@/components/layout/sidebar";
+import Create from "@/components/user/create";
+import { getUserServerSideProps } from "@/utils/supabase/auth";
+import { User } from "@supabase/supabase-js";
+import { PlusCircle } from "lucide-react";
 import { GetServerSidePropsContext } from "next";
 import { NextSeo } from "next-seo";
-import { PlusCircle } from "lucide-react";
-import { User } from "@supabase/supabase-js";
-import { getUserServerSideProps } from "@/utils/supabase/auth";
 
 interface CreatePageProps {
   user: User;
@@ -26,7 +26,7 @@ export default function CreatePage({ user }: CreatePageProps) {
             "Easily create and customize engaging video clips for sharing across all major social platforms.",
           images: [
             {
-              url: "https://cashclips.io/seo.svg",
+              url: "https://cashclips.io/seo.png",
               width: 1200,
               height: 630,
               alt: "Create Clips on CashClips",

@@ -118,7 +118,7 @@
 //             "Earn commissions by joining the CashClips affiliate program. Refer users and grow with us.",
 //           images: [
 //             {
-//               url: "https://cashclips.io/seo.svg",
+//               url: "https://cashclips.io/seo.png",
 //               width: 1200,
 //               height: 630,
 //               alt: "CashClips Affiliate Program",
@@ -409,12 +409,12 @@
 // };
 // export default AffiliatePage;
 
-import { AlertCircle, ArrowRight } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 
 import DocsLayout from "@/components/docs/docs-layout";
+import { motion } from "framer-motion";
 import { NextSeo } from "next-seo";
 import React from "react";
-import { motion } from "framer-motion";
 
 const AffiliatePage: React.FC = () => {
   const fadeInUp = {
@@ -435,7 +435,7 @@ const AffiliatePage: React.FC = () => {
             "Earn commissions by joining the CashClips affiliate program. Refer users and grow with us.",
           images: [
             {
-              url: "https://cashclips.io/seo.svg",
+              url: "https://cashclips.io/seo.png",
               width: 1200,
               height: 630,
               alt: "CashClips Affiliate Program",

@@ -1,11 +1,11 @@
 // src/pages/settings.tsx
 import DashboardLayout from "@/components/layout/sidebar";
+import SettingsContent from "@/components/user/settings";
+import { getUserServerSideProps } from "@/utils/supabase/auth";
+import { User } from "@supabase/supabase-js";
+import { Settings } from "lucide-react";
 import { GetServerSidePropsContext } from "next";
 import { NextSeo } from "next-seo";
-import { Settings } from "lucide-react";
-import SettingsContent from "@/components/user/settings";
-import { User } from "@supabase/supabase-js";
-import { getUserServerSideProps } from "@/utils/supabase/auth";
 
 interface SettingsPageProps {
   user: User;
@@ -25,7 +25,7 @@ export default function SettingsPage({ user }: SettingsPageProps) {
             "Customize your account settings and preferences on CashClips.",
           images: [
             {
-              url: "https://cashclips.io/seo.svg",
+              url: "https://cashclips.io/seo.png",
               width: 1200,
               height: 630,
               alt: "CashClips Settings",
