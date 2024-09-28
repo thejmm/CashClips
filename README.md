@@ -71,39 +71,48 @@ $\text{Profit Margin} = \left( \frac{\text{Yearly Profit}}{\text{Yearly Price}} 
 ---
 
 ```mermaid
-graph TD
-    A[Plans] --> B[Starter]
+```mermaid
+graph LR
+    A[Pricing Plans]
+
+    A --> B[Starter]
     A --> C[Clipper]
     A --> D[Streamer]
     A --> E[Ultimate]
     A --> F[Agency]
 
-    B --> BM[Monthly]
-    B --> BY[Yearly]
-    C --> CM[Monthly]
-    C --> CY[Yearly]
-    D --> DM[Monthly]
-    D --> DY[Yearly]
-    E --> EM[Monthly]
-    E --> EY[Yearly]
-    F --> FM[Monthly]
-    F --> FY[Yearly]
+    B --> |Monthly| BM["$12.99"]
+    B --> |Yearly| BY["$140.29"]
+    C --> |Monthly| CM["$29.99"]
+    C --> |Yearly| CY["$329.88"]
+    D --> |Monthly| DM["$69.99"]
+    D --> |Yearly| DY["$755.89"]
+    E --> |Monthly| EM["$159.99"]
+    E --> |Yearly| EY["$1,727.89"]
+    F --> |Monthly| FM["$319.98"]
+    F --> |Yearly| FY["$3,455.78"]
 
-    BM --> BMP["$11.50 Profit"]
-    BY --> BYP["$122.37 Profit"]
-    CM --> CMP["$24.02 Profit"]
-    CY --> CYP["$258.22 Profit"]
-    DM --> DMP["$58.05 Profit"]
-    DY --> DYP["$612.56 Profit"]
-    EM --> EMP["$120.18 Profit"]
-    EY --> EYP["$1,250.13 Profit"]
-    FM --> FMP["$240.35 Profit"]
-    FY --> FYP["$2,500.27 Profit"]
+    BM --> BMP["Profit: $11.50 (88.53%)"]
+    BY --> BYP["Profit: $122.37 (87.22%)"]
+    CM --> CMP["Profit: $24.02 (80.09%)"]
+    CY --> CYP["Profit: $258.22 (78.28%)"]
+    DM --> DMP["Profit: $58.05 (82.93%)"]
+    DY --> DYP["Profit: $612.56 (81.04%)"]
+    EM --> EMP["Profit: $120.18 (75.12%)"]
+    EY --> EYP["Profit: $1,250.13 (72.36%)"]
+    FM --> FMP["Profit: $240.35 (75.09%)"]
+    FY --> FYP["Profit: $2,500.27 (72.35%)"]
 
-    classDef default fill:#ffffff,stroke:#000000,stroke-width:2px;
-    classDef profit fill:#ffffff,stroke:#000000,stroke-width:2px,font-weight:bold;
-    class A,B,C,D,E,F,BM,BY,CM,CY,DM,DY,EM,EY,FM,FY default;
+    classDef default fill:#f0f0f0,stroke:#333,stroke-width:1px;
+    classDef plan fill:#e1f5fe,stroke:#01579b,stroke-width:2px,font-weight:bold;
+    classDef price fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef profit fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,font-weight:bold;
+    
+    class A default;
+    class B,C,D,E,F plan;
+    class BM,BY,CM,CY,DM,DY,EM,EY,FM,FY price;
     class BMP,BYP,CMP,CYP,DMP,DYP,EMP,EYP,FMP,FYP profit;
 
-    linkStyle default stroke:#000000,stroke-width:1px;
+    linkStyle default stroke:#666,stroke-width:1px;
+```
 ```
