@@ -46,26 +46,6 @@ export default async function handler(
 
   try {
     switch (event.type) {
-      case "customer.subscription.created":
-      case "customer.subscription.updated":
-      case "customer.subscription.deleted":
-        await handleSubscriptionChange(
-          event.data.object as Stripe.Subscription,
-          supabase,
-        );
-        break;
-      case "invoice.paid":
-        await handleInvoicePayment(
-          event.data.object as Stripe.Invoice,
-          supabase,
-        );
-        break;
-      case "checkout.session.completed":
-        await handleCheckoutSessionCompleted(
-          event.data.object as Stripe.Checkout.Session,
-          supabase,
-        );
-        break;
       case "customer.updated":
         await handleCustomerUpdated(
           event.data.object as Stripe.Customer,
@@ -75,6 +55,26 @@ export default async function handler(
       case "customer.deleted":
         await handleCustomerDeleted(
           event.data.object as Stripe.Customer,
+          supabase,
+        );
+        break;
+      case "customer.subscription.created":
+      case "customer.subscription.updated":
+      case "customer.subscription.deleted":
+        await handleSubscriptionChange(
+          event.data.object as Stripe.Subscription,
+          supabase,
+        );
+        break;
+      case "checkout.session.completed":
+        await handleCheckoutSessionCompleted(
+          event.data.object as Stripe.Checkout.Session,
+          supabase,
+        );
+        break;
+      case "invoice.paid":
+        await handleInvoicePayment(
+          event.data.object as Stripe.Invoice,
           supabase,
         );
         break;
@@ -88,10 +88,55 @@ export default async function handler(
   }
 }
 
+async function handleCustomerUpdated(customer: Stripe.Customer, supabase: any) {
+  console.log(`Handling customer update for: ${customer.id}`);
+  const { error: userDataError } = await supabase
+    .from("user_data")
+    .update({
+      stripe_customer_id: customer.id,
+    })
+    .eq("stripe_customer_id", customer.id);
+
+  if (userDataError) {
+    console.error("Error updating user_data:", userDataError);
+    throw userDataError;
+  }
+  console.log(`Customer ${customer.id} updated successfully`);
+}
+
+async function handleCustomerDeleted(customer: Stripe.Customer, supabase: any) {
+  console.log(`Handling customer deletion for: ${customer.id}`);
+  const { error: userDataError } = await supabase
+    .from("user_data")
+    .update({
+      stripe_customer_id: null,
+      subscription_status: "canceled",
+      stripe_subscription_id: null,
+    })
+    .eq("stripe_customer_id", customer.id);
+
+  if (userDataError) {
+    console.error("Error updating user_data:", userDataError);
+    throw userDataError;
+  }
+
+  const { error: subscriptionError } = await supabase
+    .from("subscriptions")
+    .update({ status: "canceled" })
+    .eq("stripe_customer_id", customer.id);
+
+  if (subscriptionError) {
+    console.error("Error updating subscription:", subscriptionError);
+    throw subscriptionError;
+  }
+  console.log(`Customer ${customer.id} deleted successfully`);
+}
+
 async function handleSubscriptionChange(
   subscription: Stripe.Subscription,
   supabase: any,
 ) {
+  console.log(`Handling subscription change for: ${subscription.id}`);
   const customerId = subscription.customer as string;
 
   const { data: userData, error: userError } = await supabase
@@ -177,107 +222,7 @@ async function handleSubscriptionChange(
     console.error("Error updating user_data:", userDataError);
     throw userDataError;
   }
-}
-
-async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
-  const customerId = invoice.customer as string;
-
-  const { data: userData, error: userError } = await supabase
-    .from("user_data")
-    .select("user_id, stripe_customer_id, plan_name")
-    .eq("stripe_customer_id", customerId)
-    .single();
-
-  if (userError) {
-    console.error(
-      `No user found for Stripe customer ${customerId}:`,
-      userError,
-    );
-    throw new Error(`No user found for Stripe customer ${customerId}`);
-  }
-
-  const subscription = await stripe.subscriptions.retrieve(
-    invoice.subscription as string,
-  );
-  const planId = subscription.items.data[0].price.id;
-
-  const matchedPlan = pricingConfig.plans.find(
-    (plan) =>
-      plan.stripePriceId.month === planId || plan.stripePriceId.year === planId,
-  );
-
-  if (!matchedPlan) {
-    console.error("Plan not found for ID:", planId);
-    throw new Error("Unknown plan ID");
-  }
-
-  const newTotalCredits = parseInt(matchedPlan.features[0].split(" ")[1]);
-
-  const { error: userDataUpdateError } = await supabase
-    .from("user_data")
-    .update({
-      used_credits: 0, // Reset credits
-      total_credits: newTotalCredits, // Update total credits
-      plan_name: matchedPlan.name,
-      plan_price: matchedPlan.monthlyPrice, // Adjust based on the current plan
-      subscription_status: invoice.status === "paid" ? "active" : "past_due",
-      next_billing_date: new Date(
-        subscription.current_period_end * 1000,
-      ).toISOString(),
-      current_period_start: new Date(
-        subscription.current_period_start * 1000,
-      ).toISOString(),
-      current_period_end: new Date(
-        subscription.current_period_end * 1000,
-      ).toISOString(),
-    })
-    .eq("user_id", userData.user_id);
-
-  if (userDataUpdateError) {
-    console.error("Error updating user data:", userDataUpdateError);
-    throw userDataUpdateError;
-  }
-
-  const { error: invoiceError } = await supabase.from("invoices").upsert(
-    {
-      id: uuidv4(),
-      stripe_invoice_id: invoice.id,
-      user_id: userData.user_id,
-      stripe_subscription_id: invoice.subscription,
-      status: invoice.status,
-      currency: invoice.currency,
-      amount_due: invoice.amount_due,
-      amount_paid: invoice.amount_paid,
-      amount_remaining: invoice.amount_remaining,
-      created: new Date(invoice.created * 1000).toISOString(),
-      period_start: new Date(invoice.period_start * 1000).toISOString(),
-      period_end: new Date(invoice.period_end * 1000).toISOString(),
-    },
-    {
-      onConflict: "stripe_invoice_id",
-      update: [
-        "status",
-        "amount_due",
-        "amount_paid",
-        "amount_remaining",
-        "updated_at",
-      ],
-    },
-  );
-
-  if (invoiceError) {
-    console.error("Error upserting invoice:", invoiceError);
-    throw invoiceError;
-  }
-
-  const { error: subscriptionError } = await supabase
-    .from("subscriptions")
-    .update({ status: invoice.status === "paid" ? "active" : "past_due" })
-    .eq("stripe_subscription_id", invoice.subscription);
-
-  if (subscriptionError) {
-    console.error("Error updating subscription status:", subscriptionError);
-  }
+  console.log(`Subscription ${subscription.id} updated successfully`);
 }
 
 async function handleCheckoutSessionCompleted(
@@ -393,42 +338,111 @@ async function handleCheckoutSessionCompleted(
     console.log("User data and subscription updated successfully");
   } catch (error) {
     console.error("Error updating user data or subscription:", error);
+    throw error;
   }
 }
 
-async function handleCustomerUpdated(customer: Stripe.Customer, supabase: any) {
-  const { error: userDataError } = await supabase
-    .from("user_data")
-    .update({
-      stripe_customer_id: customer.id,
-    })
-    .eq("stripe_customer_id", customer.id);
+async function handleInvoicePayment(invoice: Stripe.Invoice, supabase: any) {
+  console.log(`Handling invoice payment for: ${invoice.id}`);
+  const customerId = invoice.customer as string;
 
-  if (userDataError) {
-    console.error("Error updating user_data:", userDataError);
+  const { data: userData, error: userError } = await supabase
+    .from("user_data")
+    .select("user_id, stripe_customer_id, plan_name")
+    .eq("stripe_customer_id", customerId)
+    .single();
+
+  if (userError) {
+    console.error(
+      `No user found for Stripe customer ${customerId}:`,
+      userError,
+    );
+    throw new Error(`No user found for Stripe customer ${customerId}`);
   }
-}
 
-async function handleCustomerDeleted(customer: Stripe.Customer, supabase: any) {
-  const { error: userDataError } = await supabase
+  const subscription = await stripe.subscriptions.retrieve(
+    invoice.subscription as string,
+  );
+  const planId = subscription.items.data[0].price.id;
+
+  const matchedPlan = pricingConfig.plans.find(
+    (plan) =>
+      plan.stripePriceId.month === planId || plan.stripePriceId.year === planId,
+  );
+
+  if (!matchedPlan) {
+    console.error("Plan not found for ID:", planId);
+    throw new Error("Unknown plan ID");
+  }
+
+  const newTotalCredits = parseInt(matchedPlan.features[0].split(" ")[1]);
+
+  const { error: userDataUpdateError } = await supabase
     .from("user_data")
     .update({
-      stripe_customer_id: null,
-      subscription_status: "canceled",
-      stripe_subscription_id: null,
+      used_credits: 0, // Reset credits
+      total_credits: newTotalCredits, // Update total credits
+      plan_name: matchedPlan.name,
+      plan_price: matchedPlan.monthlyPrice, // Adjust based on the current plan
+      subscription_status: invoice.status === "paid" ? "active" : "past_due",
+      next_billing_date: new Date(
+        subscription.current_period_end * 1000,
+      ).toISOString(),
+      current_period_start: new Date(
+        subscription.current_period_start * 1000,
+      ).toISOString(),
+      current_period_end: new Date(
+        subscription.current_period_end * 1000,
+      ).toISOString(),
     })
-    .eq("stripe_customer_id", customer.id);
+    .eq("user_id", userData.user_id);
 
-  if (userDataError) {
-    console.error("Error updating user_data:", userDataError);
+  if (userDataUpdateError) {
+    console.error("Error updating user data:", userDataUpdateError);
+    throw userDataUpdateError;
+  }
+
+  const { error: invoiceError } = await supabase.from("invoices").upsert(
+    {
+      id: uuidv4(),
+      stripe_invoice_id: invoice.id,
+      user_id: userData.user_id,
+      stripe_subscription_id: invoice.subscription,
+      status: invoice.status,
+      currency: invoice.currency,
+      amount_due: invoice.amount_due,
+      amount_paid: invoice.amount_paid,
+      amount_remaining: invoice.amount_remaining,
+      created: new Date(invoice.created * 1000).toISOString(),
+      period_start: new Date(invoice.period_start * 1000).toISOString(),
+      period_end: new Date(invoice.period_end * 1000).toISOString(),
+    },
+    {
+      onConflict: "stripe_invoice_id",
+      update: [
+        "status",
+        "amount_due",
+        "amount_paid",
+        "amount_remaining",
+        "updated_at",
+      ],
+    },
+  );
+
+  if (invoiceError) {
+    console.error("Error upserting invoice:", invoiceError);
+    throw invoiceError;
   }
 
   const { error: subscriptionError } = await supabase
     .from("subscriptions")
-    .update({ status: "canceled" })
-    .eq("stripe_customer_id", customer.id);
+    .update({ status: invoice.status === "paid" ? "active" : "past_due" })
+    .eq("stripe_subscription_id", invoice.subscription);
 
   if (subscriptionError) {
-    console.error("Error updating subscription:", subscriptionError);
+    console.error("Error updating subscription status:", subscriptionError);
+    throw subscriptionError;
   }
+
+  console.log(`Invoice ${invoice.id} processed successfully`);
 }
